@@ -34,7 +34,7 @@ export default function CampaignsPage() {
           </p>
         </div>
         <Link href="/campaigns/create">
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button className="bg-green-600 hover:bg-green-700">
             <Wallet className="mr-2 h-4 w-4" />
             Tạo chiến dịch mới
           </Button>
@@ -44,7 +44,7 @@ export default function CampaignsPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
         {/* Filters - 1/4 width on desktop */}
         <div className="space-y-6">
-          <Card className="border border-border/40 shadow-sm">
+          <Card>
             <CardHeader>
               <CardTitle className="text-lg">Bộ lọc</CardTitle>
             </CardHeader>
@@ -104,16 +104,13 @@ export default function CampaignsPage() {
                 </Select>
               </div>
 
-              <Button
-                variant="outline"
-                className="w-full hover:bg-primary/5 hover:text-primary transition-colors"
-              >
+              <Button variant="outline" className="w-full">
                 Áp dụng bộ lọc
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="border border-border/40 shadow-sm">
+          <Card>
             <CardHeader>
               <CardTitle className="text-lg">Thống kê</CardTitle>
             </CardHeader>
@@ -142,7 +139,7 @@ export default function CampaignsPage() {
         <div className="md:col-span-3">
           <Tabs defaultValue="grid" className="w-full">
             <div className="flex items-center justify-between mb-4">
-              <TabsList className="bg-muted/50">
+              <TabsList>
                 <TabsTrigger value="grid">Lưới</TabsTrigger>
                 <TabsTrigger value="list">Danh sách</TabsTrigger>
               </TabsList>
@@ -154,10 +151,7 @@ export default function CampaignsPage() {
             <TabsContent value="grid" className="mt-0">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Card
-                    key={i}
-                    className="overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-shadow"
-                  >
+                  <Card key={i} className="overflow-hidden">
                     <img
                       src={`/placeholder.svg?height=200&width=400&text=Campaign${i}`}
                       alt={`Chiến dịch ${i}`}
@@ -167,15 +161,7 @@ export default function CampaignsPage() {
                       <div className="flex items-center justify-between">
                         <Badge
                           variant="outline"
-                          className={`
-                          ${
-                            i % 3 === 0
-                              ? 'bg-accent/5 text-accent border-accent/20'
-                              : i % 3 === 1
-                              ? 'bg-primary/5 text-primary border-primary/20'
-                              : 'bg-yellow-500/5 text-yellow-500 border-yellow-500/20'
-                          }
-                        `}
+                          className="bg-blue-50 text-blue-700"
                         >
                           {i % 3 === 0
                             ? 'Y tế'
@@ -201,21 +187,16 @@ export default function CampaignsPage() {
                     </CardHeader>
                     <CardContent className="pb-3 pt-0">
                       <div className="mb-4 flex items-center space-x-2">
-                        <Avatar className="h-6 w-6 border border-primary/10">
+                        <Avatar className="h-6 w-6">
                           <AvatarImage
                             src="/placeholder.svg?height=30&width=30"
                             alt="Avatar"
                           />
-                          <AvatarFallback className="bg-primary/5 text-primary">
-                            U{i}
-                          </AvatarFallback>
+                          <AvatarFallback>U{i}</AvatarFallback>
                         </Avatar>
                         <div className="flex items-center space-x-1">
                           <span className="text-xs">Người tạo {i}</span>
-                          <Badge
-                            variant="outline"
-                            className="h-5 px-1 text-xs bg-primary/5 text-primary border-primary/20"
-                          >
+                          <Badge variant="outline" className="h-5 px-1 text-xs">
                             <TrendingUp className="mr-1 h-3 w-3" />
                             <span>{70 + i}</span>
                           </Badge>
@@ -230,17 +211,12 @@ export default function CampaignsPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="grid grid-cols-2 gap-2 pt-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        asChild
-                        className="hover:bg-primary/5 hover:text-primary transition-colors"
-                      >
+                      <Button variant="outline" size="sm" asChild>
                         <Link href={`/campaigns/${i}`}>Chi tiết</Link>
                       </Button>
                       <Button
                         size="sm"
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        className="bg-green-600 hover:bg-green-700"
                       >
                         Đóng góp
                       </Button>
@@ -253,29 +229,18 @@ export default function CampaignsPage() {
             <TabsContent value="list" className="mt-0">
               <div className="space-y-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <Card
-                    key={i}
-                    className="overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-shadow"
-                  >
+                  <Card key={i} className="overflow-hidden">
                     <div className="flex flex-col md:flex-row">
                       <img
                         src={`/placeholder.svg?height=200&width=300&text=Campaign${i}`}
                         alt={`Chiến dịch ${i}`}
                         className="h-48 md:h-auto md:w-1/4 object-cover"
                       />
-                      <div className="flex flex-col flex-1 p-4">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="flex-1 p-4">
+                        <div className="mb-2 flex items-center justify-between">
                           <Badge
                             variant="outline"
-                            className={`
-                            ${
-                              i % 3 === 0
-                                ? 'bg-accent/5 text-accent border-accent/20'
-                                : i % 3 === 1
-                                ? 'bg-primary/5 text-primary border-primary/20'
-                                : 'bg-yellow-500/5 text-yellow-500 border-yellow-500/20'
-                            }
-                          `}
+                            className="bg-blue-50 text-blue-700"
                           >
                             {i % 3 === 0
                               ? 'Y tế'
@@ -317,20 +282,18 @@ export default function CampaignsPage() {
                           .
                         </p>
                         <div className="mb-2 flex items-center space-x-2">
-                          <Avatar className="h-6 w-6 border border-primary/10">
+                          <Avatar className="h-6 w-6">
                             <AvatarImage
                               src="/placeholder.svg?height=30&width=30"
                               alt="Avatar"
                             />
-                            <AvatarFallback className="bg-primary/5 text-primary">
-                              U{i}
-                            </AvatarFallback>
+                            <AvatarFallback>U{i}</AvatarFallback>
                           </Avatar>
                           <div className="flex items-center space-x-1">
                             <span className="text-xs">Người tạo {i}</span>
                             <Badge
                               variant="outline"
-                              className="h-5 px-1 text-xs bg-primary/5 text-primary border-primary/20"
+                              className="h-5 px-1 text-xs"
                             >
                               <TrendingUp className="mr-1 h-3 w-3" />
                               <span>{70 + i}</span>
@@ -349,13 +312,13 @@ export default function CampaignsPage() {
                             variant="outline"
                             size="sm"
                             asChild
-                            className="flex-1 hover:bg-primary/5 hover:text-primary transition-colors"
+                            className="flex-1"
                           >
                             <Link href={`/campaigns/${i}`}>Chi tiết</Link>
                           </Button>
                           <Button
                             size="sm"
-                            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                            className="flex-1 bg-green-600 hover:bg-green-700"
                           >
                             Đóng góp
                           </Button>

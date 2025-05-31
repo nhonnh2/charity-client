@@ -24,6 +24,7 @@ import {
 import { useMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Logo } from '@/components/ui/logo';
 
 interface SidebarNavProps {
   className?: string;
@@ -109,14 +110,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
   return (
     <div className="flex flex-col border-r w-64 h-screen sticky top-0 bg-sidebar shadow-sm">
       <div className="p-4 border-b flex items-center justify-center">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground">
-            <Heart className="h-5 w-5" />
-          </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent/80 bg-clip-text text-transparent">
-            TrustCharity
-          </span>
-        </Link>
+        <Logo />
       </div>
       <ScrollArea className="flex-1 py-6">
         <nav className="grid gap-1 px-4">

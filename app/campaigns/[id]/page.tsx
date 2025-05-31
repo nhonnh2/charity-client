@@ -42,14 +42,14 @@ export default function CampaignDetailPage({
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Main content - 2/3 width on desktop */}
         <div className="md:col-span-2 space-y-6">
-          <div className="relative h-64 md:h-96 w-full overflow-hidden rounded-lg shadow-md">
+          <div className="relative h-64 md:h-96 w-full overflow-hidden rounded-lg">
             <img
               src="/placeholder.svg?height=400&width=800&text=Campaign+Cover"
               alt="Campaign Cover"
               className="h-full w-full object-cover"
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white">
-              <Badge className="mb-2 bg-primary hover:bg-primary/90">
+              <Badge className="mb-2 bg-green-600 hover:bg-green-700">
                 Giáo dục
               </Badge>
               <h1 className="text-2xl font-bold md:text-3xl">
@@ -60,22 +60,17 @@ export default function CampaignDetailPage({
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center space-x-4">
-              <Avatar className="h-10 w-10 border-2 border-primary/10">
+              <Avatar className="h-10 w-10">
                 <AvatarImage
                   src="/placeholder.svg?height=50&width=50"
                   alt="Avatar"
                 />
-                <AvatarFallback className="bg-primary/5 text-primary">
-                  TH
-                </AvatarFallback>
+                <AvatarFallback>TH</AvatarFallback>
               </Avatar>
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="font-semibold">Trần Hùng</span>
-                  <Badge
-                    variant="outline"
-                    className="bg-primary/5 text-primary border-primary/20"
-                  >
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
                     <TrendingUp className="mr-1 h-3 w-3" />
                     <span>Uy tín 85</span>
                   </Badge>
@@ -89,7 +84,7 @@ export default function CampaignDetailPage({
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-1 hover:bg-primary/5 hover:text-primary transition-colors"
+                className="flex items-center gap-1"
               >
                 <Heart className="h-4 w-4" />
                 <span>Yêu thích</span>
@@ -97,14 +92,14 @@ export default function CampaignDetailPage({
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-1 hover:bg-primary/5 hover:text-primary transition-colors"
+                className="flex items-center gap-1"
               >
                 <Share2 className="h-4 w-4" />
                 <span>Chia sẻ</span>
               </Button>
               <Button
                 size="sm"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-1"
+                className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
               >
                 <Wallet className="h-4 w-4" />
                 <span>Đóng góp ngay</span>
@@ -112,7 +107,7 @@ export default function CampaignDetailPage({
             </div>
           </div>
 
-          <Card className="border border-border/40 shadow-sm">
+          <Card>
             <CardHeader>
               <CardTitle>Thông tin chiến dịch</CardTitle>
             </CardHeader>
@@ -172,19 +167,19 @@ export default function CampaignDetailPage({
                   <img
                     src="/placeholder.svg?height=200&width=300&text=Image+1"
                     alt="Hình ảnh hiện trạng"
-                    className="rounded-lg object-cover h-48 w-full shadow-sm"
+                    className="rounded-lg object-cover h-48 w-full"
                   />
                   <img
                     src="/placeholder.svg?height=200&width=300&text=Image+2"
                     alt="Hình ảnh thiết kế"
-                    className="rounded-lg object-cover h-48 w-full shadow-sm"
+                    className="rounded-lg object-cover h-48 w-full"
                   />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border border-border/40 shadow-sm">
+          <Card>
             <CardHeader>
               <CardTitle>Các giai đoạn chiến dịch</CardTitle>
               <CardDescription>
@@ -196,7 +191,7 @@ export default function CampaignDetailPage({
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-700">
                       <Check className="h-4 w-4" />
                     </div>
                     <div>
@@ -208,7 +203,7 @@ export default function CampaignDetailPage({
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
+                  <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
                     Hoàn thành
                   </Badge>
                 </div>
@@ -222,7 +217,7 @@ export default function CampaignDetailPage({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center gap-1 hover:bg-primary/5 hover:text-primary transition-colors"
+                      className="flex items-center gap-1"
                     >
                       <FileText className="h-4 w-4" />
                       <span>Xem báo cáo chi tiêu</span>
@@ -230,7 +225,7 @@ export default function CampaignDetailPage({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center gap-1 hover:bg-primary/5 hover:text-primary transition-colors"
+                      className="flex items-center gap-1"
                     >
                       <ExternalLink className="h-4 w-4" />
                       <span>Xem giao dịch blockchain</span>
@@ -244,7 +239,7 @@ export default function CampaignDetailPage({
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-accent">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-700">
                       <Clock className="h-4 w-4" />
                     </div>
                     <div>
@@ -256,7 +251,7 @@ export default function CampaignDetailPage({
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-accent/10 text-accent hover:bg-accent/20">
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
                     Đang thực hiện
                   </Badge>
                 </div>
@@ -271,20 +266,40 @@ export default function CampaignDetailPage({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center gap-1 hover:bg-primary/5 hover:text-primary transition-colors"
+                      className="flex items-center gap-1"
                     >
                       <FileText className="h-4 w-4" />
-                      <span>Xem báo cáo chi tiêu</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1 hover:bg-primary/5 hover:text-primary transition-colors"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      <span>Xem giao dịch blockchain</span>
+                      <span>Xem cập nhật mới nhất</span>
                     </Button>
                   </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700">
+                      <Clock className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">
+                        Giai đoạn 3: Hoàn thiện và trang thiết bị
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        01/06/2023 - 30/06/2023
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="outline">Chưa bắt đầu</Badge>
+                </div>
+                <div className="ml-11 space-y-2">
+                  <p className="text-sm">
+                    Hoàn thiện nội thất, lắp đặt bàn ghế, bảng, và các thiết bị
+                    học tập cơ bản. Dự kiến khánh thành trường vào đầu tháng
+                    7/2023.
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -481,14 +496,12 @@ export default function CampaignDetailPage({
                         className="flex items-center justify-between"
                       >
                         <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8 border border-primary/10">
+                          <Avatar className="h-8 w-8">
                             <AvatarImage
                               src={`/placeholder.svg?height=40&width=40&text=D${i}`}
                               alt="Donor"
                             />
-                            <AvatarFallback className="bg-primary/5 text-primary">
-                              D{i}
-                            </AvatarFallback>
+                            <AvatarFallback>D{i}</AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="font-medium">
@@ -602,7 +615,7 @@ export default function CampaignDetailPage({
 
         {/* Sidebar - 1/3 width on desktop */}
         <div className="space-y-6">
-          <Card className="border border-border/40 shadow-sm">
+          <Card className="sticky top-6">
             <CardHeader>
               <CardTitle>Đóng góp cho chiến dịch</CardTitle>
               <CardDescription>
@@ -656,7 +669,7 @@ export default function CampaignDetailPage({
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Button className="w-full bg-green-600 hover:bg-green-700">
                 <Wallet className="mr-2 h-4 w-4" />
                 Đóng góp ngay
               </Button>
@@ -670,7 +683,7 @@ export default function CampaignDetailPage({
             </CardFooter>
           </Card>
 
-          <Card className="border border-border/40 shadow-sm">
+          <Card>
             <CardHeader>
               <CardTitle>Thông tin blockchain</CardTitle>
             </CardHeader>
@@ -711,7 +724,7 @@ export default function CampaignDetailPage({
             </CardContent>
           </Card>
 
-          <Card className="border border-border/40 shadow-sm">
+          <Card>
             <CardHeader>
               <CardTitle>Chiến dịch liên quan</CardTitle>
             </CardHeader>

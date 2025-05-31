@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import CreatePost from '@/components/create-post';
+import { CampaignCard } from '@/components/campaign-card';
 
 export default function Home() {
   return (
@@ -103,34 +104,17 @@ export default function Home() {
                       />
                     </div>
 
-                    <Card className="bg-background border border-border/50">
-                      <CardHeader className="pb-2 pt-4">
-                        <CardTitle className="text-base">
-                          Xây trường học cho trẻ em vùng cao
-                        </CardTitle>
-                        <CardDescription>
-                          Giai đoạn 1/3 - Hoàn thành móng và khung
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="pb-3 pt-0">
-                        <Progress value={35} className="h-2 mb-2" />
-                        <div className="flex justify-between text-sm">
-                          <span>35.000.000 VNĐ</span>
-                          <span className="text-muted-foreground">
-                            / 100.000.000 VNĐ
-                          </span>
-                        </div>
-                      </CardContent>
-                      <CardFooter className="pt-0">
-                        <Button
-                          size="sm"
-                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                        >
-                          <Wallet className="mr-2 h-4 w-4" />
-                          Đóng góp ngay
-                        </Button>
-                      </CardFooter>
-                    </Card>
+                    <CampaignCard
+                      id="1"
+                      title="Xây trường học cho trẻ em vùng cao"
+                      description="Giai đoạn 1/3 - Hoàn thành móng và khung"
+                      phase="Hoàn thành móng và khung"
+                      currentPhase={1}
+                      totalPhases={3}
+                      raised={35000000}
+                      goal={100000000}
+                      progress={35}
+                    />
                   </div>
                 </CardContent>
                 <CardFooter className="border-t px-6 py-3 bg-muted/20">
@@ -269,24 +253,16 @@ export default function Home() {
             </CardHeader>
             <CardContent className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-2 group">
-                  <div className="flex items-center space-x-2">
-                    <img
-                      src={`/placeholder.svg?height=60&width=60&text=Campaign${i}`}
-                      alt={`Chiến dịch ${i}`}
-                      className="h-12 w-12 rounded-md object-cover group-hover:shadow-md transition-shadow"
-                    />
-                    <div>
-                      <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
-                        Chiến dịch từ thiện {i}
-                      </h4>
-                      <p className="text-xs text-muted-foreground">
-                        {50 + i * 10}% hoàn thành
-                      </p>
-                    </div>
-                  </div>
-                  <Progress value={50 + i * 10} className="h-1" />
-                </div>
+                <CampaignCard
+                  key={i}
+                  id={i}
+                  title={`Chiến dịch từ thiện ${i}`}
+                  description={`Mô tả chiến dịch ${i}`}
+                  raised={(50 + i * 10) * 1000000}
+                  goal={100000000}
+                  progress={50 + i * 10}
+                  variant="compact"
+                />
               ))}
               <Button
                 variant="outline"
