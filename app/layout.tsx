@@ -5,11 +5,16 @@ import { ThemeProvider } from '@/components/theme-provider';
 import Sidebar from '@/components/sidebar';
 import RouteProgress from '@/components/route-progress';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin', 'vietnamese'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata = {
-  title: 'TrustCharity',
-  description: 'A transparent charity platform using blockchain.',
+  title: 'TrustCharity - Nền tảng từ thiện minh bạch trên blockchain',
+  description:
+    'Nền tảng từ thiện minh bạch sử dụng công nghệ blockchain, giúp người dùng tạo và ủng hộ các chiến dịch với độ tin cậy cao.',
   generator: 'v0.dev',
 };
 
@@ -19,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning className={inter.variable}>
       <body className={inter.className}>
         <RouteProgress />
         <ThemeProvider

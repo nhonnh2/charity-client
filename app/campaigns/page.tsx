@@ -1,24 +1,40 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Calendar, Clock, Search, TrendingUp, Wallet } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Calendar, Clock, Search, TrendingUp, Wallet } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function CampaignsPage() {
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Danh sách chiến dịch</h1>
-          <p className="text-muted-foreground">Khám phá và đóng góp cho các chiến dịch từ thiện minh bạch</p>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Danh sách chiến dịch
+          </h1>
+          <p className="text-muted-foreground">
+            Khám phá và đóng góp cho các chiến dịch từ thiện minh bạch
+          </p>
         </div>
         <Link href="/campaigns/create">
-          <Button className="bg-green-600 hover:bg-green-700">
+          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
             <Wallet className="mr-2 h-4 w-4" />
             Tạo chiến dịch mới
           </Button>
@@ -28,7 +44,7 @@ export default function CampaignsPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
         {/* Filters - 1/4 width on desktop */}
         <div className="space-y-6">
-          <Card>
+          <Card className="border border-border/40 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">Bộ lọc</CardTitle>
             </CardHeader>
@@ -81,18 +97,23 @@ export default function CampaignsPage() {
                     <SelectItem value="newest">Mới nhất</SelectItem>
                     <SelectItem value="popular">Phổ biến nhất</SelectItem>
                     <SelectItem value="ending-soon">Sắp kết thúc</SelectItem>
-                    <SelectItem value="most-funded">Quyên góp nhiều nhất</SelectItem>
+                    <SelectItem value="most-funded">
+                      Quyên góp nhiều nhất
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <Button variant="outline" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full hover:bg-primary/5 hover:text-primary transition-colors"
+              >
                 Áp dụng bộ lọc
               </Button>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border border-border/40 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">Thống kê</CardTitle>
             </CardHeader>
@@ -121,17 +142,22 @@ export default function CampaignsPage() {
         <div className="md:col-span-3">
           <Tabs defaultValue="grid" className="w-full">
             <div className="flex items-center justify-between mb-4">
-              <TabsList>
+              <TabsList className="bg-muted/50">
                 <TabsTrigger value="grid">Lưới</TabsTrigger>
                 <TabsTrigger value="list">Danh sách</TabsTrigger>
               </TabsList>
-              <span className="text-sm text-muted-foreground">Hiển thị 1-9 trong số 78 chiến dịch</span>
+              <span className="text-sm text-muted-foreground">
+                Hiển thị 1-9 trong số 78 chiến dịch
+              </span>
             </div>
 
             <TabsContent value="grid" className="mt-0">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Card key={i} className="overflow-hidden">
+                  <Card
+                    key={i}
+                    className="overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-shadow"
+                  >
                     <img
                       src={`/placeholder.svg?height=200&width=400&text=Campaign${i}`}
                       alt={`Chiến dịch ${i}`}
@@ -139,32 +165,57 @@ export default function CampaignsPage() {
                     />
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                          {i % 3 === 0 ? "Y tế" : i % 3 === 1 ? "Giáo dục" : "Môi trường"}
+                        <Badge
+                          variant="outline"
+                          className={`
+                          ${
+                            i % 3 === 0
+                              ? 'bg-accent/5 text-accent border-accent/20'
+                              : i % 3 === 1
+                              ? 'bg-primary/5 text-primary border-primary/20'
+                              : 'bg-yellow-500/5 text-yellow-500 border-yellow-500/20'
+                          }
+                        `}
+                        >
+                          {i % 3 === 0
+                            ? 'Y tế'
+                            : i % 3 === 1
+                            ? 'Giáo dục'
+                            : 'Môi trường'}
                         </Badge>
                         <div className="flex items-center space-x-1">
                           <Clock className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">{10 + i} ngày còn lại</span>
+                          <span className="text-xs text-muted-foreground">
+                            {10 + i} ngày còn lại
+                          </span>
                         </div>
                       </div>
                       <CardTitle className="line-clamp-2 text-base">
-                        Chiến dịch từ thiện {i}:{" "}
+                        Chiến dịch từ thiện {i}:{' '}
                         {i % 3 === 0
-                          ? "Hỗ trợ y tế vùng cao"
+                          ? 'Hỗ trợ y tế vùng cao'
                           : i % 3 === 1
-                            ? "Xây trường học"
-                            : "Trồng rừng phủ xanh đồi trọc"}
+                          ? 'Xây trường học'
+                          : 'Trồng rừng phủ xanh đồi trọc'}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pb-3 pt-0">
                       <div className="mb-4 flex items-center space-x-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src="/placeholder.svg?height=30&width=30" alt="Avatar" />
-                          <AvatarFallback>U{i}</AvatarFallback>
+                        <Avatar className="h-6 w-6 border border-primary/10">
+                          <AvatarImage
+                            src="/placeholder.svg?height=30&width=30"
+                            alt="Avatar"
+                          />
+                          <AvatarFallback className="bg-primary/5 text-primary">
+                            U{i}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="flex items-center space-x-1">
                           <span className="text-xs">Người tạo {i}</span>
-                          <Badge variant="outline" className="h-5 px-1 text-xs">
+                          <Badge
+                            variant="outline"
+                            className="h-5 px-1 text-xs bg-primary/5 text-primary border-primary/20"
+                          >
                             <TrendingUp className="mr-1 h-3 w-3" />
                             <span>{70 + i}</span>
                           </Badge>
@@ -173,14 +224,24 @@ export default function CampaignsPage() {
                       <Progress value={30 + i * 10} className="h-2 mb-2" />
                       <div className="flex justify-between text-sm">
                         <span>{(30 + i * 10) * 1000000} VNĐ</span>
-                        <span className="text-muted-foreground">/ 100.000.000 VNĐ</span>
+                        <span className="text-muted-foreground">
+                          / 100.000.000 VNĐ
+                        </span>
                       </div>
                     </CardContent>
                     <CardFooter className="grid grid-cols-2 gap-2 pt-0">
-                      <Button variant="outline" size="sm" asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className="hover:bg-primary/5 hover:text-primary transition-colors"
+                      >
                         <Link href={`/campaigns/${i}`}>Chi tiết</Link>
                       </Button>
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
                         Đóng góp
                       </Button>
                     </CardFooter>
@@ -192,54 +253,85 @@ export default function CampaignsPage() {
             <TabsContent value="list" className="mt-0">
               <div className="space-y-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <Card key={i} className="overflow-hidden">
+                  <Card
+                    key={i}
+                    className="overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-shadow"
+                  >
                     <div className="flex flex-col md:flex-row">
                       <img
                         src={`/placeholder.svg?height=200&width=300&text=Campaign${i}`}
                         alt={`Chiến dịch ${i}`}
                         className="h-48 md:h-auto md:w-1/4 object-cover"
                       />
-                      <div className="flex-1 p-4">
-                        <div className="mb-2 flex items-center justify-between">
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                            {i % 3 === 0 ? "Y tế" : i % 3 === 1 ? "Giáo dục" : "Môi trường"}
+                      <div className="flex flex-col flex-1 p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge
+                            variant="outline"
+                            className={`
+                            ${
+                              i % 3 === 0
+                                ? 'bg-accent/5 text-accent border-accent/20'
+                                : i % 3 === 1
+                                ? 'bg-primary/5 text-primary border-primary/20'
+                                : 'bg-yellow-500/5 text-yellow-500 border-yellow-500/20'
+                            }
+                          `}
+                          >
+                            {i % 3 === 0
+                              ? 'Y tế'
+                              : i % 3 === 1
+                              ? 'Giáo dục'
+                              : 'Môi trường'}
                           </Badge>
                           <div className="flex items-center space-x-2">
                             <div className="flex items-center space-x-1">
                               <Calendar className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">Bắt đầu: 01/05/2023</span>
+                              <span className="text-xs text-muted-foreground">
+                                Bắt đầu: 01/05/2023
+                              </span>
                             </div>
                             <div className="flex items-center space-x-1">
                               <Clock className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">{10 + i} ngày còn lại</span>
+                              <span className="text-xs text-muted-foreground">
+                                {10 + i} ngày còn lại
+                              </span>
                             </div>
                           </div>
                         </div>
                         <h3 className="mb-2 text-lg font-semibold">
-                          Chiến dịch từ thiện {i}:{" "}
+                          Chiến dịch từ thiện {i}:{' '}
                           {i % 3 === 0
-                            ? "Hỗ trợ y tế vùng cao"
+                            ? 'Hỗ trợ y tế vùng cao'
                             : i % 3 === 1
-                              ? "Xây trường học"
-                              : "Trồng rừng phủ xanh đồi trọc"}
+                            ? 'Xây trường học'
+                            : 'Trồng rừng phủ xanh đồi trọc'}
                         </h3>
                         <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
-                          Mô tả ngắn về chiến dịch từ thiện {i}. Đây là một chiến dịch nhằm{" "}
+                          Mô tả ngắn về chiến dịch từ thiện {i}. Đây là một
+                          chiến dịch nhằm{' '}
                           {i % 3 === 0
-                            ? "hỗ trợ y tế cho người dân vùng cao"
+                            ? 'hỗ trợ y tế cho người dân vùng cao'
                             : i % 3 === 1
-                              ? "xây dựng trường học cho trẻ em vùng khó khăn"
-                              : "trồng rừng và phục hồi môi trường sinh thái"}
+                            ? 'xây dựng trường học cho trẻ em vùng khó khăn'
+                            : 'trồng rừng và phục hồi môi trường sinh thái'}
                           .
                         </p>
                         <div className="mb-2 flex items-center space-x-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src="/placeholder.svg?height=30&width=30" alt="Avatar" />
-                            <AvatarFallback>U{i}</AvatarFallback>
+                          <Avatar className="h-6 w-6 border border-primary/10">
+                            <AvatarImage
+                              src="/placeholder.svg?height=30&width=30"
+                              alt="Avatar"
+                            />
+                            <AvatarFallback className="bg-primary/5 text-primary">
+                              U{i}
+                            </AvatarFallback>
                           </Avatar>
                           <div className="flex items-center space-x-1">
                             <span className="text-xs">Người tạo {i}</span>
-                            <Badge variant="outline" className="h-5 px-1 text-xs">
+                            <Badge
+                              variant="outline"
+                              className="h-5 px-1 text-xs bg-primary/5 text-primary border-primary/20"
+                            >
                               <TrendingUp className="mr-1 h-3 w-3" />
                               <span>{70 + i}</span>
                             </Badge>
@@ -248,13 +340,23 @@ export default function CampaignsPage() {
                         <Progress value={30 + i * 10} className="h-2 mb-2" />
                         <div className="mb-4 flex justify-between text-sm">
                           <span>{(30 + i * 10) * 1000000} VNĐ</span>
-                          <span className="text-muted-foreground">/ 100.000.000 VNĐ</span>
+                          <span className="text-muted-foreground">
+                            / 100.000.000 VNĐ
+                          </span>
                         </div>
                         <div className="flex space-x-2">
-                          <Button variant="outline" size="sm" asChild className="flex-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            className="flex-1 hover:bg-primary/5 hover:text-primary transition-colors"
+                          >
                             <Link href={`/campaigns/${i}`}>Chi tiết</Link>
                           </Button>
-                          <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700">
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                          >
                             Đóng góp
                           </Button>
                         </div>
@@ -271,7 +373,11 @@ export default function CampaignsPage() {
               Trang trước
             </Button>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-blue-50">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0 bg-blue-50"
+              >
                 1
               </Button>
               <Button variant="outline" size="sm" className="h-8 w-8 p-0">
@@ -292,5 +398,5 @@ export default function CampaignsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

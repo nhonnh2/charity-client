@@ -1,13 +1,28 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Heart, MessageCircle, Share2, TrendingUp, Users, Wallet, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import CreatePost from "@/components/create-post"
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  TrendingUp,
+  Users,
+  Wallet,
+  Search,
+} from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import CreatePost from '@/components/create-post';
 
 export default function Home() {
   return (
@@ -16,8 +31,8 @@ export default function Home() {
         {/* Main content - 3/4 width on desktop */}
         <div className="md:col-span-2 lg:col-span-3">
           <Tabs defaultValue="latest" className="w-full">
-            <div className="flex items-center justify-between">
-              <TabsList>
+            <div className="flex items-center justify-between mb-2">
+              <TabsList className="bg-muted/50">
                 <TabsTrigger value="latest">Mới nhất</TabsTrigger>
                 <TabsTrigger value="trending">Xu hướng</TabsTrigger>
                 <TabsTrigger value="education">Giáo dục</TabsTrigger>
@@ -25,7 +40,10 @@ export default function Home() {
                 <TabsTrigger value="environment">Môi trường</TabsTrigger>
               </TabsList>
               <Link href="/campaigns/create">
-                <Button className="bg-green-600 hover:bg-green-700">Tạo chiến dịch</Button>
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Tạo chiến dịch
+                </Button>
               </Link>
             </div>
 
@@ -34,23 +52,33 @@ export default function Home() {
               <CreatePost />
 
               {/* Post with campaign */}
-              <Card className="mb-6">
+              <Card className="mb-6 overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <Avatar>
-                        <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Avatar" />
-                        <AvatarFallback>TH</AvatarFallback>
+                      <Avatar className="border-2 border-primary/10">
+                        <AvatarImage
+                          src="/placeholder.svg?height=40&width=40"
+                          alt="Avatar"
+                        />
+                        <AvatarFallback className="bg-primary/5 text-primary">
+                          TH
+                        </AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold">Trần Hùng</span>
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                          <Badge
+                            variant="outline"
+                            className="bg-primary/5 text-primary border-primary/20"
+                          >
                             <TrendingUp className="mr-1 h-3 w-3" />
                             <span>Uy tín 85</span>
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground">2 giờ trước</p>
+                        <p className="text-xs text-muted-foreground">
+                          2 giờ trước
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -58,8 +86,9 @@ export default function Home() {
                 <CardContent>
                   <div className="space-y-4">
                     <p>
-                      Hôm nay chúng tôi đã hoàn thành giai đoạn 1 của chiến dịch "Xây trường học cho trẻ em vùng cao".
-                      Cảm ơn tất cả mọi người đã đóng góp và ủng hộ!
+                      Hôm nay chúng tôi đã hoàn thành giai đoạn 1 của chiến dịch
+                      "Xây trường học cho trẻ em vùng cao". Cảm ơn tất cả mọi
+                      người đã đóng góp và ủng hộ!
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       <img
@@ -74,20 +103,29 @@ export default function Home() {
                       />
                     </div>
 
-                    <Card className="bg-slate-50">
+                    <Card className="bg-background border border-border/50">
                       <CardHeader className="pb-2 pt-4">
-                        <CardTitle className="text-base">Xây trường học cho trẻ em vùng cao</CardTitle>
-                        <CardDescription>Giai đoạn 1/3 - Hoàn thành móng và khung</CardDescription>
+                        <CardTitle className="text-base">
+                          Xây trường học cho trẻ em vùng cao
+                        </CardTitle>
+                        <CardDescription>
+                          Giai đoạn 1/3 - Hoàn thành móng và khung
+                        </CardDescription>
                       </CardHeader>
                       <CardContent className="pb-3 pt-0">
                         <Progress value={35} className="h-2 mb-2" />
                         <div className="flex justify-between text-sm">
                           <span>35.000.000 VNĐ</span>
-                          <span className="text-muted-foreground">/ 100.000.000 VNĐ</span>
+                          <span className="text-muted-foreground">
+                            / 100.000.000 VNĐ
+                          </span>
                         </div>
                       </CardContent>
                       <CardFooter className="pt-0">
-                        <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
+                        <Button
+                          size="sm"
+                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
                           <Wallet className="mr-2 h-4 w-4" />
                           Đóng góp ngay
                         </Button>
@@ -95,23 +133,26 @@ export default function Home() {
                     </Card>
                   </div>
                 </CardContent>
-                <CardFooter className="border-t px-6 py-3">
+                <CardFooter className="border-t px-6 py-3 bg-muted/20">
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center space-x-6">
-                      <button className="flex items-center space-x-1 text-muted-foreground hover:text-foreground">
+                      <button className="flex items-center space-x-1 text-muted-foreground hover:text-primary transition-colors">
                         <Heart className="h-4 w-4" />
                         <span className="text-xs">128</span>
                       </button>
-                      <button className="flex items-center space-x-1 text-muted-foreground hover:text-foreground">
+                      <button className="flex items-center space-x-1 text-muted-foreground hover:text-primary transition-colors">
                         <MessageCircle className="h-4 w-4" />
                         <span className="text-xs">24</span>
                       </button>
-                      <button className="flex items-center space-x-1 text-muted-foreground hover:text-foreground">
+                      <button className="flex items-center space-x-1 text-muted-foreground hover:text-primary transition-colors">
                         <Share2 className="h-4 w-4" />
                         <span className="text-xs">Chia sẻ</span>
                       </button>
                     </div>
-                    <Link href="/campaigns/1" className="text-xs text-blue-600 hover:underline">
+                    <Link
+                      href="/campaigns/1"
+                      className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors"
+                    >
                       Xem chi tiết chiến dịch
                     </Link>
                   </div>
@@ -119,23 +160,33 @@ export default function Home() {
               </Card>
 
               {/* Regular post */}
-              <Card className="mb-6">
+              <Card className="mb-6 overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <Avatar>
-                        <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Avatar" />
-                        <AvatarFallback>NL</AvatarFallback>
+                      <Avatar className="border-2 border-accent/10">
+                        <AvatarImage
+                          src="/placeholder.svg?height=40&width=40"
+                          alt="Avatar"
+                        />
+                        <AvatarFallback className="bg-accent/5 text-accent">
+                          NL
+                        </AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold">Nguyễn Linh</span>
-                          <Badge variant="outline" className="bg-green-50 text-green-700">
+                          <Badge
+                            variant="outline"
+                            className="bg-accent/5 text-accent border-accent/20"
+                          >
                             <TrendingUp className="mr-1 h-3 w-3" />
                             <span>Uy tín 92</span>
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground">5 giờ trước</p>
+                        <p className="text-xs text-muted-foreground">
+                          5 giờ trước
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -143,8 +194,9 @@ export default function Home() {
                 <CardContent>
                   <div className="space-y-4">
                     <p>
-                      Chúng tôi vừa tổ chức buổi phát quà cho 200 trẻ em có hoàn cảnh khó khăn tại Hà Giang. Niềm vui
-                      của các em là động lực lớn nhất cho chúng tôi!
+                      Chúng tôi vừa tổ chức buổi phát quà cho 200 trẻ em có hoàn
+                      cảnh khó khăn tại Hà Giang. Niềm vui của các em là động
+                      lực lớn nhất cho chúng tôi!
                     </p>
                     <img
                       src="/placeholder.svg?height=300&width=600"
@@ -153,17 +205,17 @@ export default function Home() {
                     />
                   </div>
                 </CardContent>
-                <CardFooter className="border-t px-6 py-3">
+                <CardFooter className="border-t px-6 py-3 bg-muted/20">
                   <div className="flex items-center space-x-6">
-                    <button className="flex items-center space-x-1 text-muted-foreground hover:text-foreground">
+                    <button className="flex items-center space-x-1 text-muted-foreground hover:text-primary transition-colors">
                       <Heart className="h-4 w-4" />
                       <span className="text-xs">256</span>
                     </button>
-                    <button className="flex items-center space-x-1 text-muted-foreground hover:text-foreground">
+                    <button className="flex items-center space-x-1 text-muted-foreground hover:text-primary transition-colors">
                       <MessageCircle className="h-4 w-4" />
                       <span className="text-xs">42</span>
                     </button>
-                    <button className="flex items-center space-x-1 text-muted-foreground hover:text-foreground">
+                    <button className="flex items-center space-x-1 text-muted-foreground hover:text-primary transition-colors">
                       <Share2 className="h-4 w-4" />
                       <span className="text-xs">Chia sẻ</span>
                     </button>
@@ -173,19 +225,27 @@ export default function Home() {
             </TabsContent>
 
             <TabsContent value="trending">
-              <div className="py-10 text-center text-muted-foreground">Nội dung xu hướng sẽ hiển thị ở đây</div>
+              <div className="py-10 text-center text-muted-foreground">
+                Nội dung xu hướng sẽ hiển thị ở đây
+              </div>
             </TabsContent>
 
             <TabsContent value="education">
-              <div className="py-10 text-center text-muted-foreground">Nội dung giáo dục sẽ hiển thị ở đây</div>
+              <div className="py-10 text-center text-muted-foreground">
+                Nội dung giáo dục sẽ hiển thị ở đây
+              </div>
             </TabsContent>
 
             <TabsContent value="health">
-              <div className="py-10 text-center text-muted-foreground">Nội dung y tế sẽ hiển thị ở đây</div>
+              <div className="py-10 text-center text-muted-foreground">
+                Nội dung y tế sẽ hiển thị ở đây
+              </div>
             </TabsContent>
 
             <TabsContent value="environment">
-              <div className="py-10 text-center text-muted-foreground">Nội dung môi trường sẽ hiển thị ở đây</div>
+              <div className="py-10 text-center text-muted-foreground">
+                Nội dung môi trường sẽ hiển thị ở đây
+              </div>
             </TabsContent>
           </Tabs>
         </div>
@@ -195,58 +255,72 @@ export default function Home() {
           {/* Thanh tìm kiếm */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Tìm kiếm chiến dịch, người dùng..." className="pl-10 bg-background" />
+            <Input
+              placeholder="Tìm kiếm chiến dịch, người dùng..."
+              className="pl-10 bg-background"
+            />
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Chiến dịch nổi bật</CardTitle>
+          <Card className="border border-border/40 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-semibold text-foreground">
+                Chiến dịch nổi bật
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-2">
+                <div key={i} className="space-y-2 group">
                   <div className="flex items-center space-x-2">
                     <img
                       src={`/placeholder.svg?height=60&width=60&text=Campaign${i}`}
                       alt={`Chiến dịch ${i}`}
-                      className="h-12 w-12 rounded-md object-cover"
+                      className="h-12 w-12 rounded-md object-cover group-hover:shadow-md transition-shadow"
                     />
                     <div>
-                      <h4 className="text-sm font-medium">Chiến dịch từ thiện {i}</h4>
-                      <p className="text-xs text-muted-foreground">{50 + i * 10}% hoàn thành</p>
+                      <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
+                        Chiến dịch từ thiện {i}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {50 + i * 10}% hoàn thành
+                      </p>
                     </div>
                   </div>
                   <Progress value={50 + i * 10} className="h-1" />
                 </div>
               ))}
-              <Button variant="outline" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full hover:bg-primary/5 hover:text-primary transition-colors"
+              >
                 Xem tất cả chiến dịch
               </Button>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Cộng đồng hoạt động</CardTitle>
+          <Card className="border border-border/40 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-semibold text-foreground">
+                Cộng đồng hoạt động
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <Users className="h-4 w-4 text-primary" />
                   <span className="text-sm">Thành viên tích cực</span>
                 </div>
                 <span className="text-sm font-medium">1,245</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  <TrendingUp className="h-4 w-4 text-accent" />
                   <span className="text-sm">Chiến dịch thành công</span>
                 </div>
                 <span className="text-sm font-medium">87</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                  <Wallet className="h-4 w-4 text-primary" />
                   <span className="text-sm">Tổng quyên góp</span>
                 </div>
                 <span className="text-sm font-medium">2.5 tỷ VNĐ</span>
@@ -256,5 +330,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  )
+  );
 }
