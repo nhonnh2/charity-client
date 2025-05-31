@@ -203,7 +203,7 @@ export default function CampaignDetailPage({
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                  <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
                     Hoàn thành
                   </Badge>
                 </div>
@@ -251,7 +251,7 @@ export default function CampaignDetailPage({
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+                  <Badge className="bg-accent/10 text-accent hover:bg-accent/20">
                     Đang thực hiện
                   </Badge>
                 </div>
@@ -261,7 +261,12 @@ export default function CampaignDetailPage({
                     Hiện tại đã hoàn thành khoảng 60% công việc của giai đoạn
                     này.
                   </p>
-                  <Progress value={60} className="h-2" />
+                  <div className="relative h-2 w-full bg-muted overflow-hidden rounded-full">
+                    <div
+                      className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-accent to-primary"
+                      style={{ width: '60%' }}
+                    />
+                  </div>
                   <div className="flex items-center space-x-2">
                     <Button
                       variant="outline"

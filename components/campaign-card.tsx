@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Wallet } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface CampaignCardProps {
   id: string | number;
@@ -24,6 +25,7 @@ interface CampaignCardProps {
   currentPhase?: number;
   variant?: 'default' | 'compact';
   className?: string;
+  colorScheme?: 'primary' | 'accent' | 'gradient';
 }
 
 export function CampaignCard({
@@ -39,9 +41,23 @@ export function CampaignCard({
   currentPhase,
   variant = 'default',
   className = '',
+  colorScheme = 'accent',
 }: CampaignCardProps) {
   const formattedRaised = new Intl.NumberFormat('vi-VN').format(raised);
   const formattedGoal = new Intl.NumberFormat('vi-VN').format(goal);
+
+  // Tạo style cho thanh progress bar dựa vào colorScheme
+  const progressClasses = cn('h-1', {
+    'bg-accent': colorScheme === 'accent',
+    'bg-primary': colorScheme === 'primary',
+    'bg-gradient-to-r from-accent to-primary': colorScheme === 'gradient',
+  });
+
+  // Tùy chỉnh để thanh Progress sử dụng màu được chọn
+  const progressStyles =
+    colorScheme === 'gradient'
+      ? ({ '--progress-background': 'transparent' } as React.CSSProperties)
+      : {};
 
   if (variant === 'compact') {
     return (
@@ -64,7 +80,17 @@ export function CampaignCard({
             </p>
           </div>
         </div>
-        <Progress value={progress} className="h-1" />
+        <div className="relative h-1 w-full bg-muted overflow-hidden rounded-full">
+          <div
+            className={cn('absolute top-0 left-0 h-full rounded-full', {
+              'bg-accent': colorScheme === 'accent',
+              'bg-primary': colorScheme === 'primary',
+              'bg-gradient-to-r from-accent to-primary':
+                colorScheme === 'gradient',
+            })}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
     );
   }
@@ -90,7 +116,17 @@ export function CampaignCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-3 pt-0">
-        <Progress value={progress} className="h-2 mb-2" />
+        <div className="relative h-2 w-full bg-muted overflow-hidden rounded-full mb-2">
+          <div
+            className={cn('absolute top-0 left-0 h-full rounded-full', {
+              'bg-accent': colorScheme === 'accent',
+              'bg-primary': colorScheme === 'primary',
+              'bg-gradient-to-r from-accent to-primary':
+                colorScheme === 'gradient',
+            })}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
         <div className="flex justify-between text-sm">
           <span>{formattedRaised} VNĐ</span>
           <span className="text-muted-foreground">/ {formattedGoal} VNĐ</span>

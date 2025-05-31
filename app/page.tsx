@@ -114,6 +114,7 @@ export default function Home() {
                       raised={35000000}
                       goal={100000000}
                       progress={35}
+                      colorScheme="gradient"
                     />
                   </div>
                 </CardContent>
@@ -262,6 +263,9 @@ export default function Home() {
                   goal={100000000}
                   progress={50 + i * 10}
                   variant="compact"
+                  colorScheme={
+                    i === 1 ? 'primary' : i === 2 ? 'accent' : 'gradient'
+                  }
                 />
               ))}
               <Button

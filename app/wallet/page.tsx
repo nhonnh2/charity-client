@@ -180,7 +180,7 @@ export default function WalletPage() {
                   </CardDescription>
                 </div>
                 {isWalletConnected ? (
-                  <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                  <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
                     Đã kết nối
                   </Badge>
                 ) : (
@@ -290,7 +290,7 @@ export default function WalletPage() {
                     dõi giao dịch của bạn trên nền tảng TrustCharity.
                   </p>
                   <Button
-                    className="mt-2 bg-green-600 hover:bg-green-700"
+                    className="mt-2 bg-primary hover:bg-primary/90"
                     onClick={() => setIsWalletConnected(true)}
                   >
                     Kết nối ví
@@ -484,7 +484,7 @@ export default function WalletPage() {
                     </div>
                   </div>
                   {network.status === 'connected' ? (
-                    <Badge className="bg-green-100 text-green-700">
+                    <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
                       Đã kết nối
                     </Badge>
                   ) : (
@@ -530,7 +530,7 @@ export default function WalletPage() {
                 <label className="text-sm font-medium">Số lượng</label>
                 <Input type="number" placeholder="0.0" />
               </div>
-              <Button className="w-full bg-green-600 hover:bg-green-700">
+              <Button className="w-full bg-primary hover:bg-primary/90">
                 Gửi token
               </Button>
             </CardContent>
