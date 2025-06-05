@@ -1,8 +1,9 @@
 import type React from 'react';
 import { Inter } from 'next/font/google';
 import '@/styles/globals.css';
+import '@rainbow-me/rainbowkit/styles.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import Sidebar from '@/components/sidebar';
+import { Providers } from '@/components/providers';
 import RouteProgress from '@/components/route-progress';
 
 const inter = Inter({
@@ -33,12 +34,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <main className="flex-1 max-w-[1600px] mx-auto w-full">
-              {children}
-            </main>
-          </div>
+          <Providers>{children}</Providers>
         </ThemeProvider>
       </body>
     </html>
