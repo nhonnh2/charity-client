@@ -32,7 +32,7 @@ export default function CreatePost() {
           <div className="flex-1">
             <Textarea
               placeholder="Chia sẻ cập nhật về chiến dịch của bạn..."
-              className="min-h-24 resize-none border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+              className="min-h-24 resize-none border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-3"
               value={postContent}
               onChange={(e) => setPostContent(e.target.value)}
             />

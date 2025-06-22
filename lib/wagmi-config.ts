@@ -14,5 +14,5 @@ export const config = getDefaultConfig({
   projectId:
     process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
   chains: [mainnet, polygon, optimism, arbitrum, base, bsc, sepolia],
-  ssr: true,
+  ssr: false,
 });

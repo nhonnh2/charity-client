@@ -27,8 +27,26 @@ import {
   Wallet,
   ArrowUpRight,
   ArrowDownLeft,
+  Upload,
+  Plus,
+  Receipt,
+  AlertCircle,
+  ChartBar,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 export default function CampaignDetailPage({
   params,
@@ -36,6 +54,11 @@ export default function CampaignDetailPage({
   params: { id: string };
 }) {
   const campaignId = params.id;
+
+  // Mock data - in real app, this would come from API
+  const isOwner = true; // User is the campaign owner
+  const currentStage = 2; // Currently on stage 2
+  const needExpenseProof = true; // Current stage needs expense proof to unlock next stage
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -97,6 +120,63 @@ export default function CampaignDetailPage({
                 <Share2 className="h-4 w-4" />
                 <span>Chia sẻ</span>
               </Button>
+              {isOwner && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Kêu gọi bổ sung</span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                      <DialogTitle>Kêu gọi bổ sung chiến dịch</DialogTitle>
+                      <DialogDescription>
+                        Tạo chiến dịch con để kêu gọi thêm kinh phí cho chiến dịch hiện tại
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="additional-title">Tiêu đề kêu gọi bổ sung</Label>
+                        <Input
+                          id="additional-title"
+                          placeholder="VD: Bổ sung thiết bị học tập cho trường"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="additional-amount">Số tiền cần kêu gọi thêm (VNĐ)</Label>
+                        <Input
+                          id="additional-amount"
+                          type="number"
+                          placeholder="20000000"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="additional-reason">Lý do cần kêu gọi bổ sung</Label>
+                        <Textarea
+                          id="additional-reason"
+                          placeholder="Giải thích lý do tại sao cần thêm kinh phí..."
+                          rows={4}
+                        />
+                      </div>
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          Kêu gọi bổ sung sẽ được gửi đến tất cả người đóng góp và cộng đồng để xem xét.
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline">Hủy</Button>
+                      <Button>Tạo kêu gọi bổ sung</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
               <Button
                 size="sm"
                 className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
@@ -106,6 +186,103 @@ export default function CampaignDetailPage({
               </Button>
             </div>
           </div>
+
+          {/* Expense Proof Alert for Owner */}
+          {isOwner && needExpenseProof && (
+            <Alert className="border-orange-200 bg-orange-50">
+              <Receipt className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <span>
+                  Bạn cần chứng minh chi tiêu giai đoạn hiện tại để mở khóa giải ngân giai đoạn tiếp theo.
+                </span>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="ml-2">
+                      <Upload className="h-4 w-4 mr-1" />
+                      Chứng minh chi tiêu
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Chứng minh chi tiêu giai đoạn {currentStage}</DialogTitle>
+                      <DialogDescription>
+                        Upload tài liệu, hóa đơn và báo cáo chi tiêu để chứng minh việc sử dụng kinh phí hợp lý
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Tổng chi tiêu thực tế (VNĐ)</Label>
+                        <Input
+                          type="number"
+                          placeholder="35000000"
+                          defaultValue="35000000"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Ngân sách dự kiến cho giai đoạn này: 35.000.000 VNĐ
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Số tiền thừa (nếu có)</Label>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Số tiền thiếu (nếu có)</Label>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Báo cáo chi tiêu chi tiết</Label>
+                        <Textarea
+                          placeholder="Mô tả chi tiết về các khoản chi tiêu trong giai đoạn này..."
+                          rows={4}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Upload tài liệu chứng minh</Label>
+                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                          <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Kéo thả file hoặc click để chọn
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Hỗ trợ: PDF, JPG, PNG (tối đa 10MB mỗi file)
+                          </p>
+                          <Button variant="outline" size="sm" className="mt-2">
+                            Chọn file
+                          </Button>
+                        </div>
+                      </div>
+
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          Sau khi submit, tài liệu sẽ được gửi đến hệ thống duyệt để xác minh.
+                          Giai đoạn tiếp theo chỉ được giải ngân khi chứng minh chi tiêu được phê duyệt.
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline">Hủy</Button>
+                      <Button>
+                        <Receipt className="h-4 w-4 mr-2" />
+                        Submit chứng minh chi tiêu
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </AlertDescription>
+            </Alert>
+          )}
 
           <Card>
             <CardHeader>
@@ -184,7 +361,7 @@ export default function CampaignDetailPage({
               <CardTitle>Các giai đoạn chiến dịch</CardTitle>
               <CardDescription>
                 Chiến dịch được chia thành 3 giai đoạn với mục tiêu và thời gian
-                cụ thể
+                cụ thể. Mỗi giai đoạn phải được chứng minh chi tiêu để mở khóa giai đoạn tiếp theo.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -199,13 +376,18 @@ export default function CampaignDetailPage({
                         Giai đoạn 1: Hoàn thành móng và khung
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        01/04/2023 - 30/04/2023
+                        01/04/2023 - 30/04/2023 • Ngân sách: 35.000.000 VNĐ
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
-                    Hoàn thành
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
+                      Hoàn thành
+                    </Badge>
+                    <Badge className="bg-green-100 text-green-700">
+                      ✓ Đã chứng minh chi tiêu
+                    </Badge>
+                  </div>
                 </div>
                 <div className="ml-11 space-y-2">
                   <p className="text-sm">
@@ -213,15 +395,23 @@ export default function CampaignDetailPage({
                     Giai đoạn này đã hoàn thành với sự tham gia của 15 tình
                     nguyện viên địa phương.
                   </p>
+                  <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                    <p className="text-sm text-green-800">
+                      <strong>Chi tiêu thực tế:</strong> 34.500.000 VNĐ •
+                      <strong> Tiết kiệm:</strong> 500.000 VNĐ
+                    </p>
+                  </div>
                   <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1"
-                    >
-                      <FileText className="h-4 w-4" />
-                      <span>Xem báo cáo chi tiêu</span>
-                    </Button>
+                    <Link href={`/campaigns/${campaignId}/expense-reports`}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                      >
+                        <FileText className="h-4 w-4" />
+                        <span>Xem báo cáo chi tiêu</span>
+                      </Button>
+                    </Link>
                     <Button
                       variant="outline"
                       size="sm"
@@ -230,6 +420,16 @@ export default function CampaignDetailPage({
                       <ExternalLink className="h-4 w-4" />
                       <span>Xem giao dịch blockchain</span>
                     </Button>
+                    <Link href={`/campaigns/${campaignId}/expense-reports`}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                      >
+                        <Receipt className="h-4 w-4" />
+                        <span>Xem chứng minh chi tiêu</span>
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -247,13 +447,20 @@ export default function CampaignDetailPage({
                         Giai đoạn 2: Xây tường và mái
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        01/05/2023 - 31/05/2023
+                        01/05/2023 - 31/05/2023 • Ngân sách: 35.000.000 VNĐ
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-accent/10 text-accent hover:bg-accent/20">
-                    Đang thực hiện
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-accent/10 text-accent hover:bg-accent/20">
+                      Đang thực hiện
+                    </Badge>
+                    {needExpenseProof && (
+                      <Badge className="bg-orange-100 text-orange-700">
+                        Cần chứng minh chi tiêu
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="ml-11 space-y-2">
                   <p className="text-sm">
@@ -267,6 +474,14 @@ export default function CampaignDetailPage({
                       style={{ width: '60%' }}
                     />
                   </div>
+                  {needExpenseProof && (
+                    <Alert className="border-orange-200 bg-orange-50">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Giai đoạn 3 sẽ được mở khóa sau khi bạn chứng minh chi tiêu giai đoạn 2.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   <div className="flex items-center space-x-2">
                     <Button
                       variant="outline"
@@ -276,6 +491,98 @@ export default function CampaignDetailPage({
                       <FileText className="h-4 w-4" />
                       <span>Xem cập nhật mới nhất</span>
                     </Button>
+                    {isOwner && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            className="bg-orange-600 hover:bg-orange-700 flex items-center gap-1"
+                          >
+                            <Receipt className="h-4 w-4" />
+                            <span>Chứng minh chi tiêu</span>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[600px]">
+                          <DialogHeader>
+                            <DialogTitle>Chứng minh chi tiêu giai đoạn 2</DialogTitle>
+                            <DialogDescription>
+                              Upload tài liệu, hóa đơn và báo cáo chi tiêu để chứng minh việc sử dụng kinh phí hợp lý
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label>Tổng chi tiêu thực tế (VNĐ)</Label>
+                              <Input
+                                type="number"
+                                placeholder="35000000"
+                                defaultValue="36500000"
+                              />
+                              <p className="text-sm text-muted-foreground">
+                                Ngân sách dự kiến cho giai đoạn này: 35.000.000 VNĐ
+                              </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label>Số tiền thừa (nếu có)</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="0"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Số tiền thiếu (nếu có)</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="1500000"
+                                  defaultValue="1500000"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Báo cáo chi tiêu chi tiết</Label>
+                              <Textarea
+                                placeholder="Mô tả chi tiết về các khoản chi tiêu trong giai đoạn này..."
+                                rows={4}
+                                defaultValue="Chi tiêu vượt dự kiến 1.5M VNĐ do giá vật liệu tăng. Đã dùng 500K từ tiết kiệm giai đoạn 1, cần thêm 1M từ quỹ dự phòng."
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Upload tài liệu chứng minh</Label>
+                              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                                <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  Kéo thả file hoặc click để chọn
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Hỗ trợ: PDF, JPG, PNG (tối đa 10MB mỗi file)
+                                </p>
+                                <Button variant="outline" size="sm" className="mt-2">
+                                  Chọn file
+                                </Button>
+                              </div>
+                            </div>
+
+                            <Alert>
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>
+                                Sau khi submit, tài liệu sẽ được gửi đến hệ thống duyệt để xác minh.
+                                Giai đoạn tiếp theo chỉ được giải ngân khi chứng minh chi tiêu được phê duyệt.
+                              </AlertDescription>
+                            </Alert>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline">Hủy</Button>
+                            <Button>
+                              <Receipt className="h-4 w-4 mr-2" />
+                              Submit chứng minh chi tiêu
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </div>
                 </div>
               </div>
@@ -293,11 +600,15 @@ export default function CampaignDetailPage({
                         Giai đoạn 3: Hoàn thiện và trang thiết bị
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        01/06/2023 - 30/06/2023
+                        01/06/2023 - 30/06/2023 • Ngân sách: 30.000.000 VNĐ
                       </p>
                     </div>
                   </div>
-                  <Badge variant="outline">Chưa bắt đầu</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">
+                      {needExpenseProof ? 'Bị khóa' : 'Chưa bắt đầu'}
+                    </Badge>
+                  </div>
                 </div>
                 <div className="ml-11 space-y-2">
                   <p className="text-sm">
@@ -305,6 +616,14 @@ export default function CampaignDetailPage({
                     học tập cơ bản. Dự kiến khánh thành trường vào đầu tháng
                     7/2023.
                   </p>
+                  {needExpenseProof && (
+                    <Alert className="border-gray-200 bg-gray-50">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Giai đoạn này sẽ được mở khóa sau khi chứng minh chi tiêu giai đoạn 2 được phê duyệt.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -543,13 +862,12 @@ export default function CampaignDetailPage({
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                              i % 3 === 0
-                                ? 'bg-green-100 text-green-600'
-                                : i % 3 === 1
+                            className={`flex h-8 w-8 items-center justify-center rounded-full ${i % 3 === 0
+                              ? 'bg-green-100 text-green-600'
+                              : i % 3 === 1
                                 ? 'bg-blue-100 text-blue-600'
                                 : 'bg-purple-100 text-purple-600'
-                            }`}
+                              }`}
                           >
                             {i % 3 === 0 ? (
                               <ArrowUpRight className="h-4 w-4" />
@@ -564,8 +882,8 @@ export default function CampaignDetailPage({
                               {i % 3 === 0
                                 ? 'Đóng góp'
                                 : i % 3 === 1
-                                ? 'Giải ngân'
-                                : 'Xác nhận giai đoạn'}
+                                  ? 'Giải ngân'
+                                  : 'Xác nhận giai đoạn'}
                             </h4>
                             <p className="text-xs text-muted-foreground">
                               {new Date(2023, 4, 15 - i).toLocaleDateString()}
@@ -717,15 +1035,28 @@ export default function CampaignDetailPage({
                   </div>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link
-                  href="/transactions"
-                  className="flex items-center justify-center gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  <span>Xem tất cả giao dịch</span>
-                </Link>
-              </Button>
+              <div className="space-y-2">
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link
+                    href="/transactions"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    <span>Xem tất cả giao dịch</span>
+                  </Link>
+                </Button>
+                {isOwner && (
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link
+                      href={`/campaigns/${campaignId}/additional-funding`}
+                      className="flex items-center justify-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Quản lý kêu gọi bổ sung</span>
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -750,8 +1081,8 @@ export default function CampaignDetailPage({
                       {i === 1
                         ? 'Xây thư viện trường làng'
                         : i === 2
-                        ? 'Học bổng cho học sinh nghèo'
-                        : 'Trang bị máy tính cho trường học'}
+                          ? 'Học bổng cho học sinh nghèo'
+                          : 'Trang bị máy tính cho trường học'}
                     </h4>
                     <Progress value={40 + i * 15} className="h-1 mt-1" />
                     <p className="text-xs text-muted-foreground mt-1">

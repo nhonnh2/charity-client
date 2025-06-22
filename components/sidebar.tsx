@@ -56,6 +56,11 @@ export default function Sidebar({ className }: SidebarNavProps) {
       href: '/rankings',
       icon: Award,
     },
+    {
+      title: 'Xét duyệt',
+      href: '/reviewer',
+      icon: Shield,
+    },
   ];
 
   const userNavItems = [
@@ -93,6 +98,8 @@ export default function Sidebar({ className }: SidebarNavProps) {
       icon: BarChart,
     },
   ];
+
+
 
   const otherNavItems = [
     {
