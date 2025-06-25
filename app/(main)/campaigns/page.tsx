@@ -23,7 +23,7 @@ import { CampaignCard } from '@/components/campaign-card';
 
 export default function CampaignsPage() {
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl">
+    <div className="container mx-auto px-4 py-6 max-w-8xl">
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -154,13 +154,12 @@ export default function CampaignsPage() {
                   <CampaignCard
                     key={i}
                     id={i}
-                    title={`Chiến dịch từ thiện ${i}: ${
-                      i % 3 === 0
+                    title={`Chiến dịch từ thiện ${i}: ${i % 3 === 0
                         ? 'Hỗ trợ y tế vùng cao'
                         : i % 3 === 1
-                        ? 'Xây trường học'
-                        : 'Trồng rừng phủ xanh đồi trọc'
-                    }`}
+                          ? 'Xây trường học'
+                          : 'Trồng rừng phủ xanh đồi trọc'
+                      }`}
                     description="Mô tả ngắn về chiến dịch từ thiện"
                     imageSrc={`/placeholder.svg?height=200&width=400&text=Campaign${i}`}
                     raised={(30 + i * 10) * 1000000}
@@ -170,8 +169,8 @@ export default function CampaignsPage() {
                       i % 3 === 0
                         ? 'primary'
                         : i % 3 === 1
-                        ? 'accent'
-                        : 'gradient'
+                          ? 'accent'
+                          : 'gradient'
                     }
                     className="h-full"
                   />
@@ -198,8 +197,8 @@ export default function CampaignsPage() {
                             {i % 3 === 0
                               ? 'Y tế'
                               : i % 3 === 1
-                              ? 'Giáo dục'
-                              : 'Môi trường'}
+                                ? 'Giáo dục'
+                                : 'Môi trường'}
                           </Badge>
                           <div className="flex items-center space-x-2">
                             <div className="flex items-center space-x-1">
@@ -221,8 +220,8 @@ export default function CampaignsPage() {
                           {i % 3 === 0
                             ? 'Hỗ trợ y tế vùng cao'
                             : i % 3 === 1
-                            ? 'Xây trường học'
-                            : 'Trồng rừng phủ xanh đồi trọc'}
+                              ? 'Xây trường học'
+                              : 'Trồng rừng phủ xanh đồi trọc'}
                         </h3>
                         <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
                           Mô tả ngắn về chiến dịch từ thiện {i}. Đây là một
@@ -230,8 +229,8 @@ export default function CampaignsPage() {
                           {i % 3 === 0
                             ? 'hỗ trợ y tế cho người dân vùng cao'
                             : i % 3 === 1
-                            ? 'xây dựng trường học cho trẻ em vùng khó khăn'
-                            : 'trồng rừng và phục hồi môi trường sinh thái'}
+                              ? 'xây dựng trường học cho trẻ em vùng khó khăn'
+                              : 'trồng rừng và phục hồi môi trường sinh thái'}
                           .
                         </p>
                         <div className="mb-2 flex items-center space-x-2">
@@ -255,13 +254,12 @@ export default function CampaignsPage() {
                         </div>
                         <div className="relative h-2 w-full bg-muted overflow-hidden rounded-full mb-2">
                           <div
-                            className={`absolute top-0 left-0 h-full rounded-full ${
-                              i % 3 === 0
+                            className={`absolute top-0 left-0 h-full rounded-full ${i % 3 === 0
                                 ? 'bg-primary'
                                 : i % 3 === 1
-                                ? 'bg-accent'
-                                : 'bg-gradient-to-r from-accent to-primary'
-                            }`}
+                                  ? 'bg-accent'
+                                  : 'bg-gradient-to-r from-accent to-primary'
+                              }`}
                             style={{ width: `${30 + i * 10}%` }}
                           />
                         </div>
