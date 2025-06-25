@@ -74,6 +74,11 @@ export default function CampaignDetailPage({
   const currentStage = 2; // Currently on stage 2
   const needExpenseProof = true; // Current stage needs expense proof to unlock next stage
 
+  // Campaign status - trong triển khai, chỉ hiện đóng góp nếu có kêu gọi bổ sung
+  const isImplementing = false; // Đang trong quá trình triển khai
+  const hasAdditionalFunding = false; // Có kêu gọi bổ sung không - thay đổi để test
+  const showDonationSection = isImplementing ? hasAdditionalFunding : true; // Logic đóng góp
+
   // State cho việc hiển thị tài liệu
   const [showAllDocsStage1, setShowAllDocsStage1] = useState(false);
   const [showAllDocsStage2, setShowAllDocsStage2] = useState(false);
@@ -196,13 +201,15 @@ export default function CampaignDetailPage({
                   </DialogContent>
                 </Dialog>
               )}
-              <Button
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
-              >
-                <Wallet className="h-4 w-4" />
-                <span>Đóng góp ngay</span>
-              </Button>
+              {showDonationSection && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
+                >
+                  <Wallet className="h-4 w-4" />
+                  <span>{hasAdditionalFunding && isImplementing ? 'Đóng góp bổ sung' : 'Đóng góp ngay'}</span>
+                </Button>
+              )}
             </div>
           </div>
 
@@ -308,40 +315,110 @@ export default function CampaignDetailPage({
               <CardTitle>Thông tin chiến dịch</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Mục tiêu</p>
-                  <p className="font-medium">100.000.000 VNĐ</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Đã quyên góp</p>
-                  <p className="font-medium">35.000.000 VNĐ</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">
-                    Người đóng góp
-                  </p>
-                  <p className="font-medium">128 người</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">
-                    Thời gian còn lại
-                  </p>
-                  <p className="font-medium">15 ngày</p>
-                </div>
-              </div>
+              {!isImplementing ? (
+                // Giai đoạn gây quỹ - hiện progress và thời gian còn lại
+                <>
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Mục tiêu</p>
+                      <p className="font-medium">100.000.000 VNĐ</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Đã quyên góp</p>
+                      <p className="font-medium">85.000.000 VNĐ</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">
+                        Người đóng góp
+                      </p>
+                      <p className="font-medium">128 người</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">
+                        Thời gian còn lại
+                      </p>
+                      <p className="font-medium">15 ngày</p>
+                    </div>
+                  </div>
 
-              <Progress value={35} className="h-2" />
+                  <Progress value={85} className="h-2" />
 
-              <div className="flex items-center justify-between text-sm">
-                <span>35% đạt được</span>
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    Kết thúc: 30/06/2023
-                  </span>
-                </div>
-              </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span>85% đạt được</span>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-muted-foreground">
+                        Kết thúc: 30/06/2023
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // Giai đoạn triển khai - hiện kết quả và số tiền đã giải ngân
+                <>
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Tổng quyên góp</p>
+                      <p className="font-medium text-green-600">100.000.000 VNĐ</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Đã giải ngân</p>
+                      <p className="font-medium text-blue-600">70.000.000 VNĐ</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">
+                        Người đóng góp
+                      </p>
+                      <p className="font-medium">128 người</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">
+                        Trạng thái
+                      </p>
+                      <Badge className="bg-blue-100 text-blue-700">
+                        Đang triển khai
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Banknote className="h-4 w-4 text-blue-600" />
+                        <h4 className="font-medium">Tình hình giải ngân</h4>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span>Giai đoạn 1 (Hoàn thành):</span>
+                        <span className="font-medium text-green-600">35.000.000 VNĐ</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>Giai đoạn 2 (Đang thực hiện):</span>
+                        <span className="font-medium text-blue-600">35.000.000 VNĐ</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>Giai đoạn 3 (Chờ mở khóa):</span>
+                        <span className="font-medium text-gray-500">30.000.000 VNĐ</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between items-center font-medium">
+                        <span>Còn lại trong quỹ:</span>
+                        <span className="text-orange-600">30.000.000 VNĐ</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {hasAdditionalFunding && (
+                    <Alert className="border-orange-200 bg-orange-50">
+                      <Plus className="h-4 w-4" />
+                      <AlertDescription>
+                        Có kêu gọi bổ sung đang diễn ra để hỗ trợ thêm cho các nhu cầu phát sinh.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </>
+              )}
 
               <Separator />
 
@@ -1139,95 +1216,77 @@ export default function CampaignDetailPage({
                 </TabsContent>
               </Tabs>
             </CardContent>
-            <CardFooter className="border-t px-6 py-4">
-              <div className="flex w-full items-center space-x-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src="/placeholder.svg?height=40&width=40"
-                    alt="Your Avatar"
-                  />
-                  <AvatarFallback>YA</AvatarFallback>
-                </Avatar>
-                <input
-                  type="text"
-                  placeholder="Viết bình luận..."
-                  className="flex-1 rounded-full border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                />
-                <Button size="sm">Gửi</Button>
-              </div>
-            </CardFooter>
+
           </Card>
         </div>
 
         {/* Sidebar - 1/3 width on desktop */}
-        <div className="space-y-6">
-          <Card className="sticky top-6 z-10">
-            <CardHeader>
-              <CardTitle>Đóng góp cho chiến dịch</CardTitle>
-              <CardDescription>
-                Mọi đóng góp đều được ghi lại trên blockchain để đảm bảo tính
-                minh bạch
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Số tiền đóng góp (VNĐ)
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <Button variant="outline" className="w-full">
-                    100K
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    500K
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    1M
-                  </Button>
+        <div className="space-y-6 sticky top-6 self-start">
+          {/* Card đóng góp - chỉ hiện khi không trong quá trình triển khai hoặc có kêu gọi bổ sung */}
+          {showDonationSection && (
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {hasAdditionalFunding && isImplementing ? 'Đóng góp bổ sung' : 'Đóng góp cho chiến dịch'}
+                </CardTitle>
+                <CardDescription>
+                  {hasAdditionalFunding && isImplementing
+                    ? 'Hỗ trợ thêm cho các nhu cầu phát sinh trong quá trình triển khai'
+                    : 'Mọi đóng góp đều được ghi lại trên blockchain để đảm bảo tính minh bạch'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Số tiền đóng góp (VNĐ)
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button variant="outline" className="w-full">
+                      100K
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      500K
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      1M
+                    </Button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Nhập số tiền khác..."
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
                 </div>
-                <input
-                  type="text"
-                  placeholder="Nhập số tiền khác..."
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Lời nhắn (tùy chọn)
-                </label>
-                <textarea
-                  placeholder="Nhập lời nhắn của bạn..."
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  rows={3}
-                />
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Lời nhắn (tùy chọn)
+                  </label>
+                  <textarea
+                    placeholder="Nhập lời nhắn của bạn..."
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    rows={3}
+                  />
+                </div>
 
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="anonymous"
-                  className="rounded border-gray-300"
-                />
-                <label htmlFor="anonymous" className="text-sm">
-                  Đóng góp ẩn danh
-                </label>
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
-              <Button className="w-full bg-green-600 hover:bg-green-700">
-                <Wallet className="mr-2 h-4 w-4" />
-                Đóng góp ngay
-              </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                Bằng cách đóng góp, bạn đồng ý với{' '}
-                <Link href="#" className="underline">
-                  điều khoản sử dụng
-                </Link>{' '}
-                của chúng tôi
-              </p>
-            </CardFooter>
-          </Card>
+
+              </CardContent>
+              <CardFooter className="flex flex-col space-y-4">
+                <Button className="w-full bg-green-600 hover:bg-green-700">
+                  <Wallet className="mr-2 h-4 w-4" />
+                  {hasAdditionalFunding && isImplementing ? 'Đóng góp bổ sung' : 'Đóng góp ngay'}
+                </Button>
+                <p className="text-xs text-center text-muted-foreground">
+                  Bằng cách đóng góp, bạn đồng ý với{' '}
+                  <Link href="#" className="underline">
+                    điều khoản sử dụng
+                  </Link>{' '}
+                  của chúng tôi
+                </p>
+              </CardFooter>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>
@@ -1248,15 +1307,7 @@ export default function CampaignDetailPage({
                     </Button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Giao dịch gần nhất</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-blue-600">0xab1...2c3d</span>
-                    <Button variant="ghost" size="icon" className="h-5 w-5">
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
+
               </div>
               <div className="space-y-2">
                 <Button variant="outline" size="sm" className="w-full" asChild>
@@ -1268,17 +1319,7 @@ export default function CampaignDetailPage({
                     <span>Xem tất cả giao dịch</span>
                   </Link>
                 </Button>
-                {isOwner && (
-                  <Button variant="outline" size="sm" className="w-full" asChild>
-                    <Link
-                      href={`/campaigns/${campaignId}/additional-funding`}
-                      className="flex items-center justify-center gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span>Quản lý kêu gọi bổ sung</span>
-                    </Link>
-                  </Button>
-                )}
+
               </div>
             </CardContent>
           </Card>
