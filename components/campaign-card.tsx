@@ -23,7 +23,8 @@ interface CampaignCardProps {
   raised: number;
   goal: number;
   progress: number;
-  status: CampaignStatus;
+  status?: CampaignStatus;
+  disabledStatus?: boolean;
   // Props cho trạng thái chờ duyệt
   interestedCount?: number;
   // Props cho trạng thái đang triển khai
@@ -47,6 +48,7 @@ export function CampaignCard({
   progress,
   status,
   interestedCount = 0,
+  disabledStatus = false,
   phase,
   totalPhases,
   currentPhase,
@@ -62,6 +64,9 @@ export function CampaignCard({
 
   // Function để render status badge
   const renderStatusBadge = () => {
+    if (disabledStatus) {
+      return null;
+    }
     switch (status) {
       case 'pending':
         return (

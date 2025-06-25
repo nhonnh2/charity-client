@@ -102,6 +102,160 @@ export default function RankingsLoading() {
               </div>
             </div>
           </TabsContent>
+
+          <TabsContent value="trusted">
+            <div className="grid gap-6">
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-7 w-48" />
+                    <Skeleton className="h-6 w-24" />
+                  </div>
+                  <Skeleton className="h-4 w-full mt-2" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0"
+                      >
+                        <div className="flex items-center gap-4">
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <Skeleton className="h-12 w-12 rounded-full" />
+                          <div>
+                            <Skeleton className="h-5 w-40 mb-2" />
+                            <Skeleton className="h-4 w-24" />
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Skeleton className="h-5 w-32 mb-2" />
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Skeleton className="h-10 w-full" />
+                </CardFooter>
+              </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-40" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <Skeleton className="h-5 w-40" />
+                        <Skeleton className="h-5 w-20" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-40" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex justify-between">
+                          <Skeleton className="h-5 w-24" />
+                          <Skeleton className="h-5 w-12" />
+                        </div>
+                        <Skeleton className="h-2 w-full" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="campaigns">
+            <div className="grid gap-6">
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-7 w-48" />
+                    <Skeleton className="h-6 w-24" />
+                  </div>
+                  <Skeleton className="h-4 w-full mt-2" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0"
+                      >
+                        <div className="flex items-center gap-4">
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <Skeleton className="h-16 w-20 rounded-md" />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Skeleton className="h-5 w-40" />
+                              <Skeleton className="h-5 w-16 rounded-full" />
+                            </div>
+                            <Skeleton className="h-4 w-full mb-2" />
+                            <div className="flex items-center gap-4">
+                              <Skeleton className="h-3 w-24" />
+                              <Skeleton className="h-3 w-20" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right min-w-0 ml-4">
+                          <Skeleton className="h-5 w-32 mb-1" />
+                          <Skeleton className="h-4 w-24 mb-2" />
+                          <Skeleton className="h-2 w-24" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Skeleton className="h-10 w-full" />
+                </CardFooter>
+              </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-40" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <Skeleton className="h-5 w-40" />
+                        <Skeleton className="h-5 w-20" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-40" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex justify-between">
+                          <Skeleton className="h-5 w-24" />
+                          <Skeleton className="h-5 w-12" />
+                        </div>
+                        <Skeleton className="h-2 w-full" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

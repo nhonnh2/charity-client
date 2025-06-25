@@ -442,6 +442,149 @@ export default function RankingsPage() {
               </div>
             </div>
           </TabsContent>
+
+          {/* Tab Top Chiến Dịch */}
+          <TabsContent value="campaigns">
+            <div className="grid gap-6">
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-blue-600" />
+                      <span>Top Chiến Dịch Nổi Bật</span>
+                    </CardTitle>
+                    <Badge className="bg-blue-600">Tháng 5/2025</Badge>
+                  </div>
+                  <CardDescription>
+                    Những chiến dịch từ thiện được đóng góp nhiều nhất và có tác động tích cực lớn nhất
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {topCampaigns.map((campaign, index) => (
+                      <div
+                        key={campaign.id}
+                        className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold">
+                            {index + 1}
+                          </div>
+                          <div className="h-16 w-20 rounded-md overflow-hidden border-2 border-blue-200">
+                            <img
+                              src={campaign.image || "/placeholder.svg"}
+                              alt={campaign.title}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold line-clamp-1">{campaign.title}</span>
+                              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                                {campaign.category}
+                              </Badge>
+                            </div>
+                            <div className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                              {campaign.description}
+                            </div>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                <span>{campaign.donors} người đóng góp</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                <span>{campaign.donors + 150} người quan tâm</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <TrendingUp className="h-3 w-3" />
+                                <span>{campaign.progress}% hoàn thành</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right min-w-0 ml-4">
+                          <div className="font-semibold text-blue-600">{campaign.raised}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">
+                    Xem tất cả chiến dịch
+                  </Button>
+                </CardFooter>
+              </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Thống kê chiến dịch</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">Tổng số chiến dịch</span>
+                      </div>
+                      <span className="text-sm font-medium">847</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Wallet className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">Tổng tiền quyên góp</span>
+                      </div>
+                      <span className="text-sm font-medium">8.3 tỷ VNĐ</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Award className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">Chiến dịch thành công</span>
+                      </div>
+                      <span className="text-sm font-medium">623 (73.6%)</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Phân bổ theo lĩnh vực</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Giáo dục</span>
+                        <span className="font-medium">35%</span>
+                      </div>
+                      <Progress value={35} className="h-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Y tế</span>
+                        <span className="font-medium">28%</span>
+                      </div>
+                      <Progress value={28} className="h-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Môi trường</span>
+                        <span className="font-medium">22%</span>
+                      </div>
+                      <Progress value={22} className="h-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Cơ sở hạ tầng</span>
+                        <span className="font-medium">15%</span>
+                      </div>
+                      <Progress value={15} className="h-2" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

@@ -681,6 +681,13 @@ export default function Home() {
                   raised={(50 + i * 10) * 1000000}
                   goal={100000000}
                   progress={50 + i * 10}
+                  disabledStatus
+                  status={i === 1 ? 'pending' : i === 2 ? 'funding' : 'implementing'}
+                  interestedCount={i === 1 ? 25 : undefined}
+                  currentPhase={i === 3 ? 2 : undefined}
+                  totalPhases={i === 3 ? 3 : undefined}
+                  spent={i === 3 ? 40000000 : undefined}
+                  budget={i === 3 ? 60000000 : undefined}
                   variant="compact"
                   colorScheme={
                     i === 1 ? 'primary' : i === 2 ? 'accent' : 'gradient'

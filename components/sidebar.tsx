@@ -52,14 +52,14 @@ export default function Sidebar({ className }: SidebarNavProps) {
       icon: TrendingUp,
     },
     {
-      title: 'Bảng xếp hạng',
-      href: '/rankings',
-      icon: Award,
-    },
-    {
       title: 'Xét duyệt',
       href: '/reviewer',
       icon: Shield,
+    },
+    {
+      title: 'Bảng xếp hạng',
+      href: '/rankings',
+      icon: Award,
     },
   ];
 
