@@ -75,7 +75,7 @@ export default function CampaignDetailPage({
   const needExpenseProof = true; // Current stage needs expense proof to unlock next stage
 
   // Campaign status - trong triển khai, chỉ hiện đóng góp nếu có kêu gọi bổ sung
-  const isImplementing = false; // Đang trong quá trình triển khai
+  const isImplementing = true; // Đang trong quá trình triển khai
   const hasAdditionalFunding = false; // Có kêu gọi bổ sung không - thay đổi để test
   const showDonationSection = isImplementing ? hasAdditionalFunding : true; // Logic đóng góp
 
@@ -91,7 +91,7 @@ export default function CampaignDetailPage({
         <div className="md:col-span-2 space-y-6">
           <div className="relative h-64 md:h-96 w-full overflow-hidden rounded-lg">
             <img
-              src="/placeholder.svg?height=400&width=800&text=Campaign+Cover"
+              src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
               alt="Campaign Cover"
               className="h-full w-full object-cover"
             />
@@ -109,7 +109,7 @@ export default function CampaignDetailPage({
             <div className="flex items-center space-x-4">
               <Avatar className="h-10 w-10">
                 <AvatarImage
-                  src="/placeholder.svg?height=50&width=50"
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80"
                   alt="Avatar"
                 />
                 <AvatarFallback>TH</AvatarFallback>
@@ -201,15 +201,7 @@ export default function CampaignDetailPage({
                   </DialogContent>
                 </Dialog>
               )}
-              {showDonationSection && (
-                <Button
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
-                >
-                  <Wallet className="h-4 w-4" />
-                  <span>{hasAdditionalFunding && isImplementing ? 'Đóng góp bổ sung' : 'Đóng góp ngay'}</span>
-                </Button>
-              )}
+
             </div>
           </div>
 
@@ -438,12 +430,12 @@ export default function CampaignDetailPage({
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   <img
-                    src="/placeholder.svg?height=200&width=300&text=Image+1"
+                    src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80"
                     alt="Hình ảnh hiện trạng"
                     className="rounded-lg object-cover h-48 w-full"
                   />
                   <img
-                    src="/placeholder.svg?height=200&width=300&text=Image+2"
+                    src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80"
                     alt="Hình ảnh thiết kế"
                     className="rounded-lg object-cover h-48 w-full"
                   />
@@ -568,13 +560,13 @@ export default function CampaignDetailPage({
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       <img
-                        src="/placeholder.svg?height=120&width=180&text=Móng+hoàn+thành"
+                        src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
                         alt="Móng hoàn thành"
                         className="rounded-md object-cover h-24 w-full"
                       />
                       <img
-                        src="/placeholder.svg?height=120&width=180&text=Khung+chính"
-                        alt="Khung chính"
+                        src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+                        alt="Móng hoàn thành"
                         className="rounded-md object-cover h-24 w-full"
                       />
                     </div>
@@ -739,12 +731,12 @@ export default function CampaignDetailPage({
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       <img
-                        src="/placeholder.svg?height=80&width=120&text=Progress+1"
+                        src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80"
                         alt="Tiến độ xây tường"
                         className="rounded-lg object-cover h-16 w-full"
                       />
                       <img
-                        src="/placeholder.svg?height=80&width=120&text=Progress+2"
+                        src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80"
                         alt="Lắp đặt cửa sổ"
                         className="rounded-lg object-cover h-16 w-full"
                       />
@@ -1044,12 +1036,12 @@ export default function CampaignDetailPage({
                         </p>
                         <div className="mt-2 grid grid-cols-2 gap-2">
                           <img
-                            src="/placeholder.svg?height=200&width=300&text=Update+1"
+                            src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80"
                             alt="Cập nhật 1"
                             className="rounded-lg object-cover h-40 w-full"
                           />
                           <img
-                            src="/placeholder.svg?height=200&width=300&text=Update+2"
+                            src="https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80"
                             alt="Cập nhật 2"
                             className="rounded-lg object-cover h-40 w-full"
                           />
@@ -1122,7 +1114,7 @@ export default function CampaignDetailPage({
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage
-                              src={`/placeholder.svg?height=40&width=40&text=D${i}`}
+                              src={`https://images.unsplash.com/photo-${1507003211169 + i * 10000000}?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80`}
                               alt="Donor"
                             />
                             <AvatarFallback>D{i}</AvatarFallback>
@@ -1336,7 +1328,7 @@ export default function CampaignDetailPage({
                   className="flex items-start space-x-3 group"
                 >
                   <img
-                    src={`/placeholder.svg?height=60&width=60&text=C${i}`}
+                    src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80"
                     alt={`Chiến dịch ${i}`}
                     className="h-14 w-14 rounded-md object-cover"
                   />

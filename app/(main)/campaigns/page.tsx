@@ -10,7 +10,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Calendar, Clock, Search, TrendingUp, Wallet } from 'lucide-react';
+import { Calendar, Clock, Search, TrendingUp, Wallet, Users, DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -22,6 +22,88 @@ import {
 import { CampaignCard } from '@/components/campaign-card';
 
 export default function CampaignsPage() {
+  // Dữ liệu mẫu cho các chiến dịch với 3 trạng thái khác nhau
+  const sampleCampaigns = [
+    {
+      id: 1,
+      title: 'Chiến dịch hỗ trợ y tế vùng cao',
+      description: 'Mang y tế đến với người dân vùng cao xa xôi',
+      status: 'pending' as const,
+      interestedCount: 45,
+      raised: 0,
+      goal: 100000000,
+      progress: 0,
+      colorScheme: 'primary' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 2,
+      title: 'Xây trường học cho trẻ em vùng núi',
+      description: 'Xây dựng trường học đạt chuẩn cho trẻ em vùng khó khăn',
+      status: 'funding' as const,
+      raised: 60000000,
+      goal: 100000000,
+      progress: 60,
+      colorScheme: 'accent' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 3,
+      title: 'Trồng rừng phủ xanh đồi trọc',
+      description: 'Phục hồi rừng và môi trường sinh thái',
+      status: 'implementing' as const,
+      raised: 150000000,
+      goal: 150000000,
+      progress: 100,
+      spent: 80000000,
+      budget: 150000000,
+      phase: 'Trồng cây và chăm sóc',
+      currentPhase: 2,
+      totalPhases: 3,
+      colorScheme: 'gradient' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 4,
+      title: 'Hỗ trợ học bổng sinh viên nghèo',
+      description: 'Trao học bổng cho sinh viên vượt khó học giỏi',
+      status: 'pending' as const,
+      interestedCount: 28,
+      raised: 0,
+      goal: 50000000,
+      progress: 0,
+      colorScheme: 'primary' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 5,
+      title: 'Xây cầu qua suối cho học sinh',
+      description: 'Xây cầu giúp học sinh đi học an toàn',
+      status: 'funding' as const,
+      raised: 25000000,
+      goal: 80000000,
+      progress: 31,
+      colorScheme: 'accent' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 6,
+      title: 'Cung cấp nước sạch cho vùng hạn',
+      description: 'Khoan giếng và lắp đặt hệ thống nước sạch',
+      status: 'implementing' as const,
+      raised: 200000000,
+      goal: 200000000,
+      progress: 100,
+      spent: 120000000,
+      budget: 200000000,
+      phase: 'Khoan giếng và lắp đặt',
+      currentPhase: 1,
+      totalPhases: 2,
+      colorScheme: 'gradient' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+  ];
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-8xl">
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -43,7 +125,7 @@ export default function CampaignsPage() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
         {/* Filters - 1/4 width on desktop */}
-        <div className="space-y-6">
+        <div className="md:sticky md:top-6 md:h-fit space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Bộ lọc</CardTitle>
@@ -75,14 +157,15 @@ export default function CampaignsPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Trạng thái</label>
-                <Select defaultValue="active">
+                <Select defaultValue="all">
                   <SelectTrigger>
-                    <SelectValue placeholder="Đang diễn ra" />
+                    <SelectValue placeholder="Tất cả trạng thái" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Đang diễn ra</SelectItem>
-                    <SelectItem value="completed">Đã hoàn thành</SelectItem>
-                    <SelectItem value="all">Tất cả</SelectItem>
+                    <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                    <SelectItem value="pending">Chờ duyệt</SelectItem>
+                    <SelectItem value="funding">Đang đóng góp</SelectItem>
+                    <SelectItem value="implementing">Đang triển khai</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -120,12 +203,16 @@ export default function CampaignsPage() {
                 <span className="font-medium">124</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Đang diễn ra</span>
-                <span className="font-medium">78</span>
+                <span className="text-sm">Chờ duyệt</span>
+                <span className="font-medium">28</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Đã hoàn thành</span>
-                <span className="font-medium">46</span>
+                <span className="text-sm">Đang đóng góp</span>
+                <span className="font-medium">52</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Đang triển khai</span>
+                <span className="font-medium">44</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Tổng quyên góp</span>
@@ -144,34 +231,30 @@ export default function CampaignsPage() {
                 <TabsTrigger value="list">Danh sách</TabsTrigger>
               </TabsList>
               <span className="text-sm text-muted-foreground">
-                Hiển thị 1-9 trong số 78 chiến dịch
+                Hiển thị 1-6 trong số {sampleCampaigns.length} chiến dịch
               </span>
             </div>
 
             <TabsContent value="grid" className="mt-0">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
+                {sampleCampaigns.map((campaign) => (
                   <CampaignCard
-                    key={i}
-                    id={i}
-                    title={`Chiến dịch từ thiện ${i}: ${i % 3 === 0
-                        ? 'Hỗ trợ y tế vùng cao'
-                        : i % 3 === 1
-                          ? 'Xây trường học'
-                          : 'Trồng rừng phủ xanh đồi trọc'
-                      }`}
-                    description="Mô tả ngắn về chiến dịch từ thiện"
-                    imageSrc={`/placeholder.svg?height=200&width=400&text=Campaign${i}`}
-                    raised={(30 + i * 10) * 1000000}
-                    goal={100000000}
-                    progress={30 + i * 10}
-                    colorScheme={
-                      i % 3 === 0
-                        ? 'primary'
-                        : i % 3 === 1
-                          ? 'accent'
-                          : 'gradient'
-                    }
+                    key={campaign.id}
+                    id={campaign.id}
+                    title={campaign.title}
+                    description={campaign.description}
+                    imageSrc={campaign.imageSrc}
+                    status={campaign.status}
+                    raised={campaign.raised}
+                    goal={campaign.goal}
+                    progress={campaign.progress}
+                    interestedCount={campaign.interestedCount}
+                    spent={campaign.spent}
+                    budget={campaign.budget}
+                    phase={campaign.phase}
+                    currentPhase={campaign.currentPhase}
+                    totalPhases={campaign.totalPhases}
+                    colorScheme={campaign.colorScheme}
                     className="h-full"
                   />
                 ))}
@@ -180,114 +263,115 @@ export default function CampaignsPage() {
 
             <TabsContent value="list" className="mt-0">
               <div className="space-y-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <Card key={i} className="overflow-hidden">
-                    <div className="flex flex-col md:flex-row">
-                      <img
-                        src={`/placeholder.svg?height=200&width=300&text=Campaign${i}`}
-                        alt={`Chiến dịch ${i}`}
-                        className="h-48 md:h-auto md:w-1/4 object-cover"
-                      />
-                      <div className="flex-1 p-4">
-                        <div className="mb-2 flex items-center justify-between">
-                          <Badge
-                            variant="outline"
-                            className="bg-accent/10 text-accent border-accent/20"
-                          >
-                            {i % 3 === 0
-                              ? 'Y tế'
-                              : i % 3 === 1
-                                ? 'Giáo dục'
-                                : 'Môi trường'}
-                          </Badge>
-                          <div className="flex items-center space-x-2">
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">
-                                Bắt đầu: 01/05/2023
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Clock className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">
-                                {10 + i} ngày còn lại
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <h3 className="mb-2 text-lg font-semibold">
-                          Chiến dịch từ thiện {i}:{' '}
-                          {i % 3 === 0
-                            ? 'Hỗ trợ y tế vùng cao'
-                            : i % 3 === 1
-                              ? 'Xây trường học'
-                              : 'Trồng rừng phủ xanh đồi trọc'}
-                        </h3>
-                        <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
-                          Mô tả ngắn về chiến dịch từ thiện {i}. Đây là một
-                          chiến dịch nhằm{' '}
-                          {i % 3 === 0
-                            ? 'hỗ trợ y tế cho người dân vùng cao'
-                            : i % 3 === 1
-                              ? 'xây dựng trường học cho trẻ em vùng khó khăn'
-                              : 'trồng rừng và phục hồi môi trường sinh thái'}
-                          .
-                        </p>
-                        <div className="mb-2 flex items-center space-x-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage
-                              src="/placeholder.svg?height=30&width=30"
-                              alt="Avatar"
-                            />
-                            <AvatarFallback>U{i}</AvatarFallback>
-                          </Avatar>
-                          <div className="flex items-center space-x-1">
-                            <span className="text-xs">Người tạo {i}</span>
-                            <Badge
-                              variant="outline"
-                              className="h-5 px-1 text-xs bg-primary/5 text-primary border-primary/20"
-                            >
-                              <TrendingUp className="mr-1 h-3 w-3" />
-                              <span>{70 + i}</span>
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="relative h-2 w-full bg-muted overflow-hidden rounded-full mb-2">
-                          <div
-                            className={`absolute top-0 left-0 h-full rounded-full ${i % 3 === 0
-                                ? 'bg-primary'
-                                : i % 3 === 1
-                                  ? 'bg-accent'
-                                  : 'bg-gradient-to-r from-accent to-primary'
-                              }`}
-                            style={{ width: `${30 + i * 10}%` }}
+                {sampleCampaigns.map((campaign) => (
+                  <Link key={campaign.id} href={`/campaigns/${campaign.id}`} className="block">
+                    <Card className="overflow-hidden hover:shadow-xl hover:shadow-gray-100/50 transition-all duration-200 hover:border-primary/30 group bg-white border border-gray-200 shadow-sm">
+                      <div className="flex flex-col md:flex-row md:h-44 pb-4">
+                        <div className="md:w-60 md:h-full">
+                          <img
+                            src={campaign.imageSrc}
+                            alt={campaign.title}
+                            className="w-full h-48 md:h-full object-cover"
                           />
                         </div>
-                        <div className="mb-4 flex justify-between text-sm">
-                          <span>{(30 + i * 10) * 1000000} VNĐ</span>
-                          <span className="text-muted-foreground">
-                            / 100.000.000 VNĐ
-                          </span>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            asChild
-                            className="flex-1"
-                          >
-                            <Link href={`/campaigns/${i}`}>Chi tiết</Link>
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-primary hover:bg-primary/90"
-                          >
-                            Đóng góp
-                          </Button>
+                        <div className="flex-1 p-4 pb-6 flex flex-col justify-between min-h-0">
+                          <div>
+                            <div className="mb-2 flex flex-wrap items-start gap-2">
+                              <Badge
+                                variant="outline"
+                                className="bg-accent/10 text-accent border-accent/20"
+                              >
+                                {campaign.id % 3 === 0
+                                  ? 'Môi trường'
+                                  : campaign.id % 3 === 1
+                                    ? 'Y tế'
+                                    : 'Giáo dục'}
+                              </Badge>
+                              {campaign.status === 'pending' && (
+                                <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                                  Chờ duyệt
+                                </Badge>
+                              )}
+                              {campaign.status === 'funding' && (
+                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                  Đang đóng góp
+                                </Badge>
+                              )}
+                              {campaign.status === 'implementing' && (
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                  Đang triển khai
+                                </Badge>
+                              )}
+                            </div>
+
+                            <h3 className="mb-2 text-lg font-semibold group-hover:text-primary transition-colors line-clamp-1">
+                              {campaign.title}
+                            </h3>
+                            <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
+                              {campaign.description}
+                            </p>
+                          </div>
+
+                          {/* Thông tin cơ bản theo trạng thái */}
+                          <div className="space-y-2 mt-auto">
+                            {/* Dòng 1 */}
+                            <div className="flex items-center justify-between text-sm">
+                              {campaign.status === 'pending' && (
+                                <>
+                                  <div className="flex items-center space-x-1 text-muted-foreground">
+                                    <Users className="h-4 w-4" />
+                                    <span>Người quan tâm</span>
+                                  </div>
+                                  <span className="font-medium">{campaign.interestedCount}</span>
+                                </>
+                              )}
+
+                              {campaign.status === 'funding' && (
+                                <>
+                                  <div className="text-muted-foreground">% hoàn thành</div>
+                                  <span className="font-medium">{campaign.progress}%</span>
+                                </>
+                              )}
+
+                              {campaign.status === 'implementing' && (
+                                <>
+                                  <div className="text-muted-foreground">Giai đoạn hiện tại</div>
+                                  <span className="font-medium">{campaign.currentPhase}/{campaign.totalPhases}</span>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Dòng 2 */}
+                            <div className="flex items-center justify-between text-sm">
+                              {campaign.status === 'pending' && (
+                                <>
+                                  <div className="text-muted-foreground">Mục tiêu</div>
+                                  <span className="font-medium">{new Intl.NumberFormat('vi-VN').format(campaign.goal)} VNĐ</span>
+                                </>
+                              )}
+
+                              {campaign.status === 'funding' && (
+                                <>
+                                  <div className="text-muted-foreground">Đã quyên góp</div>
+                                  <span className="font-medium">{new Intl.NumberFormat('vi-VN').format(campaign.raised)} VNĐ</span>
+                                </>
+                              )}
+
+                              {campaign.status === 'implementing' && (
+                                <>
+                                  <div className="flex items-center space-x-1 text-muted-foreground">
+                                    <DollarSign className="h-4 w-4" />
+                                    <span>Đã chi tiêu</span>
+                                  </div>
+                                  <span className="font-medium">{new Intl.NumberFormat('vi-VN').format(campaign.spent || 0)} VNĐ</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             </TabsContent>
