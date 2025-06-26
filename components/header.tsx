@@ -12,6 +12,8 @@ import {
   Search,
   Wallet,
   LogOut,
+  HelpCircle,
+  Settings,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -178,7 +180,16 @@ export default function Header() {
                     <Link href="/profile">Hồ sơ</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/settings">Cài đặt</Link>
+                    <Link href="/settings">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Cài đặt
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/how-it-works">
+                      <HelpCircle className="mr-2 h-4 w-4" />
+                      Cách thức hoạt động
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

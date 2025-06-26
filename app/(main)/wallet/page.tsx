@@ -158,7 +158,7 @@ export default function WalletPage() {
   ];
 
   return (
-    <div className="p-6 max-w-full">
+    <div className="container mx-auto px-4 py-6 max-w-8xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Ví Điện Tử</h1>
         <p className="text-muted-foreground">
@@ -345,11 +345,10 @@ export default function WalletPage() {
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                              tx.type === 'donation'
+                            className={`flex h-10 w-10 items-center justify-center rounded-full ${tx.type === 'donation'
                                 ? 'bg-red-100 text-red-600'
                                 : 'bg-green-100 text-green-600'
-                            }`}
+                              }`}
                           >
                             {tx.type === 'donation' ? (
                               <ArrowUpRight className="h-5 w-5" />
@@ -385,11 +384,10 @@ export default function WalletPage() {
                         </div>
                         <div className="text-right">
                           <div
-                            className={`font-medium ${
-                              tx.type === 'donation'
+                            className={`font-medium ${tx.type === 'donation'
                                 ? 'text-red-600'
                                 : 'text-green-600'
-                            }`}
+                              }`}
                           >
                             {tx.type === 'donation' ? '-' : '+'}
                             {tx.amount.toLocaleString()} VNĐ

@@ -210,7 +210,7 @@ export default function TransactionsPage() {
   const currentTransactions = filteredTransactions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   return (
-    <div className="p-6 max-w-full">
+    <div className="container mx-auto px-4 py-6 max-w-8xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Giao dịch Blockchain</h1>
         <p className="text-muted-foreground">Xem tất cả giao dịch blockchain công khai trên nền tảng TrustCharity</p>
@@ -327,13 +327,12 @@ export default function TransactionsPage() {
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 <div
-                                  className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                    tx.type === "donation"
+                                  className={`flex h-8 w-8 items-center justify-center rounded-full ${tx.type === "donation"
                                       ? "bg-green-100 text-green-600"
                                       : tx.type === "disbursement"
                                         ? "bg-blue-100 text-blue-600"
                                         : "bg-purple-100 text-purple-600"
-                                  }`}
+                                    }`}
                                 >
                                   {tx.type === "donation" ? (
                                     <ArrowUpRight className="h-4 w-4" />

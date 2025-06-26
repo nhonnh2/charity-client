@@ -691,15 +691,14 @@ export default function StatisticsPage() {
                   {recentActivities.map((activity) => (
                     <div key={activity.id} className="flex items-start gap-4 border-b pb-4 last:border-0 last:pb-0">
                       <div
-                        className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                          activity.type === "donation"
+                        className={`h-10 w-10 rounded-full flex items-center justify-center ${activity.type === "donation"
                             ? "bg-green-100 text-green-600"
                             : activity.type === "campaign_created"
                               ? "bg-blue-100 text-blue-600"
                               : activity.type === "withdrawal"
                                 ? "bg-amber-100 text-amber-600"
                                 : "bg-purple-100 text-purple-600"
-                        }`}
+                          }`}
                       >
                         {activity.type === "donation" && <Gift className="h-5 w-5" />}
                         {activity.type === "campaign_created" && <Heart className="h-5 w-5" />}

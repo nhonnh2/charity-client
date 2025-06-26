@@ -11,20 +11,27 @@ import {
   Bell,
   MessageSquare,
   User,
-  HelpCircle,
-  Settings,
   Wallet,
-  LogOut,
   ExternalLink,
   BarChart,
   Award,
-  Heart,
   Shield,
+  Settings,
+  HelpCircle,
+  LogOut,
+  MoreHorizontal,
 } from 'lucide-react';
 import { useMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Logo } from '@/components/ui/logo';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface SidebarNavProps {
   className?: string;
@@ -101,18 +108,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
 
 
 
-  const otherNavItems = [
-    {
-      title: 'Cách thức hoạt động',
-      href: '/how-it-works',
-      icon: HelpCircle,
-    },
-    {
-      title: 'Cài đặt',
-      href: '/settings',
-      icon: Settings,
-    },
-  ];
+  // Removed otherNavItems - Settings and How-it-works moved to header dropdown
 
   return (
     <div className="flex flex-col border-r w-64 h-screen sticky top-0 bg-sidebar shadow-sm">
@@ -216,49 +212,46 @@ export default function Sidebar({ className }: SidebarNavProps) {
             );
           })}
 
-          <Separator className="my-4" />
-
-          {/* Nhóm khác */}
-          {otherNavItems.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-
-            return (
-              <Link
-                key={`other-${index}`}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-                  isActive
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-primary'
-                )}
-              >
-                <Icon
-                  className={cn(
-                    'h-5 w-5',
-                    isActive ? 'text-primary' : 'text-muted-foreground'
-                  )}
-                />
-                {item.title}
-              </Link>
-            );
-          })}
+          {/* Removed "Nhóm khác" section - moved to header dropdown */}
         </nav>
       </ScrollArea>
       <div className="border-t p-4">
-        <div className="flex items-center gap-4 py-2">
-          <Avatar className="h-10 w-10 border-2 border-primary/20">
-            <AvatarImage src="/placeholder.svg?height=32&width=32" />
-            <AvatarFallback className="bg-primary/10 text-primary">
-              TC
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">Người dùng</span>
-            <span className="text-xs text-muted-foreground">Đã xác minh</span>
-          </div>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-sidebar-accent cursor-pointer transition-all">
+              <Avatar className="h-10 w-10 border-2 border-primary/20">
+                <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face&auto=format&q=80" />
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  TC
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col flex-1">
+                <span className="text-sm font-medium">Nguyễn Văn A</span>
+                <span className="text-xs text-muted-foreground">@nguyenvana</span>
+              </div>
+              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <Settings className="mr-2 h-4 w-4" />
+                Cài đặt
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/how-it-works">
+                <HelpCircle className="mr-2 h-4 w-4" />
+                Cách thức hoạt động
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              Đăng xuất
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
