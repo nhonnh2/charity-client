@@ -25,22 +25,104 @@ import {
 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { CampaignCard } from "@/components/campaign-card"
 
 export default function ProfilePage() {
+  // Dữ liệu mẫu cho các chiến dịch của user
+  const getUserCampaigns = () => [
+    {
+      id: 1,
+      title: 'Hỗ trợ y tế vùng cao Sapa',
+      description: 'Mang y tế đến với người dân vùng cao xa xôi, cung cấp thiết bị y tế và thuốc men cần thiết',
+      status: 'funding' as const,
+      raised: 60000000,
+      goal: 100000000,
+      progress: 60,
+      colorScheme: 'accent' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 2,
+      title: 'Xây trường học cho trẻ em vùng núi',
+      description: 'Xây dựng trường học đạt chuẩn cho trẻ em vùng khó khăn, tạo môi trường học tập tốt nhất',
+      status: 'implementing' as const,
+      raised: 150000000,
+      goal: 150000000,
+      progress: 100,
+      spent: 80000000,
+      budget: 150000000,
+      phase: 'Xây dựng phần thô',
+      currentPhase: 2,
+      totalPhases: 3,
+      colorScheme: 'gradient' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 3,
+      title: 'Trồng rừng phủ xanh đồi trọc',
+      description: 'Phục hồi rừng và môi trường sinh thái, chống xói mòn đất và tạo không gian xanh',
+      status: 'funding' as const,
+      raised: 45000000,
+      goal: 200000000,
+      progress: 22,
+      colorScheme: 'primary' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 4,
+      title: 'Cung cấp nước sạch cho vùng hạn',
+      description: 'Khoan giếng và lắp đặt hệ thống nước sạch cho các vùng thiếu nước sinh hoạt',
+      status: 'pending' as const,
+      interestedCount: 45,
+      raised: 0,
+      goal: 120000000,
+      progress: 0,
+      colorScheme: 'primary' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 5,
+      title: 'Hỗ trợ học bổng sinh viên nghèo',
+      description: 'Trao học bổng cho sinh viên vượt khó học giỏi, giúp các em có cơ hội phát triển tương lai',
+      status: 'funding' as const,
+      raised: 15000000,
+      goal: 50000000,
+      progress: 30,
+      colorScheme: 'accent' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+    {
+      id: 6,
+      title: 'Xây cầu qua suối cho học sinh',
+      description: 'Xây cầu giúp học sinh đi học an toàn, không còn phải lội suối khi mùa mưa lũ',
+      status: 'implementing' as const,
+      raised: 80000000,
+      goal: 80000000,
+      progress: 100,
+      spent: 50000000,
+      budget: 80000000,
+      phase: 'Thi công móng cầu',
+      currentPhase: 1,
+      totalPhases: 2,
+      colorScheme: 'gradient' as const,
+      imageSrc: 'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=200&fit=crop&crop=center&auto=format&q=80',
+    },
+  ];
+
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl">
+    <div className="container mx-auto px-4 py-6 max-w-7xl">
       {/* Profile Header */}
       <div className="relative mb-8">
         <div className="h-48 w-full rounded-lg bg-gradient-to-r from-green-400 to-blue-500 overflow-hidden">
           <img
-            src="/placeholder.svg?height=200&width=1200&text=Cover+Image"
+            src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=200&fit=crop&crop=center&auto=format&q=80"
             alt="Cover"
             className="w-full h-full object-cover"
           />
         </div>
         <div className="absolute -bottom-16 left-4 md:left-8">
           <Avatar className="h-32 w-32 border-4 border-background">
-            <AvatarImage src="/placeholder.svg?height=128&width=128" alt="Nguyễn Văn A" />
+            <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=128&h=128&fit=crop&crop=face&auto=format&q=80" alt="Nguyễn Văn A" />
             <AvatarFallback>NVA</AvatarFallback>
           </Avatar>
         </div>
@@ -182,50 +264,26 @@ export default function ProfilePage() {
 
         <TabsContent value="campaigns" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Card key={i} className="overflow-hidden">
-                <img
-                  src={`/placeholder.svg?height=200&width=400&text=Campaign${i}`}
-                  alt={`Chiến dịch ${i}`}
-                  className="h-48 w-full object-cover"
-                />
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                      {i % 3 === 0 ? "Y tế" : i % 3 === 1 ? "Giáo dục" : "Môi trường"}
-                    </Badge>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {i % 2 === 0 ? "Đang diễn ra" : "Đã hoàn thành"}
-                      </span>
-                    </div>
-                  </div>
-                  <CardTitle className="line-clamp-2 text-base">
-                    Chiến dịch từ thiện {i}:{" "}
-                    {i % 3 === 0
-                      ? "Hỗ trợ y tế vùng cao"
-                      : i % 3 === 1
-                        ? "Xây trường học"
-                        : "Trồng rừng phủ xanh đồi trọc"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pb-3 pt-0">
-                  <Progress value={30 + i * 10} className="h-2 mb-2" />
-                  <div className="flex justify-between text-sm">
-                    <span>{(30 + i * 10) * 1000000} VNĐ</span>
-                    <span className="text-muted-foreground">/ 100.000.000 VNĐ</span>
-                  </div>
-                </CardContent>
-                <CardFooter className="grid grid-cols-2 gap-2 pt-0">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/campaigns/${i}`}>Chi tiết</Link>
-                  </Button>
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                    {i % 2 === 0 ? "Đóng góp" : "Xem kết quả"}
-                  </Button>
-                </CardFooter>
-              </Card>
+            {getUserCampaigns().map((campaign) => (
+              <CampaignCard
+                key={campaign.id}
+                id={campaign.id}
+                title={campaign.title}
+                description={campaign.description}
+                imageSrc={campaign.imageSrc}
+                status={campaign.status}
+                raised={campaign.raised}
+                goal={campaign.goal}
+                progress={campaign.progress}
+                interestedCount={campaign.interestedCount}
+                spent={campaign.spent}
+                budget={campaign.budget}
+                phase={campaign.phase}
+                currentPhase={campaign.currentPhase}
+                totalPhases={campaign.totalPhases}
+                colorScheme={campaign.colorScheme}
+                className="h-full"
+              />
             ))}
           </div>
         </TabsContent>
@@ -237,7 +295,7 @@ export default function ProfilePage() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
                     <Avatar>
-                      <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Avatar" />
+                      <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face&auto=format&q=80" alt="Avatar" />
                       <AvatarFallback>NVA</AvatarFallback>
                     </Avatar>
                     <div>
@@ -263,7 +321,13 @@ export default function ProfilePage() {
                         : "Cảm ơn tất cả mọi người đã ủng hộ chiến dịch 'Trồng rừng phủ xanh đồi trọc'. Chúng tôi đã trồng được 500 cây xanh trong tuần qua!"}
                   </p>
                   <img
-                    src={`/placeholder.svg?height=300&width=600&text=Post${i}`}
+                    src={
+                      i === 1
+                        ? "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=600&h=300&fit=crop&crop=center&auto=format&q=80"
+                        : i === 2
+                          ? "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&h=300&fit=crop&crop=center&auto=format&q=80"
+                          : "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&h=300&fit=crop&crop=center&auto=format&q=80"
+                    }
                     alt={`Bài đăng ${i}`}
                     className="rounded-lg object-cover w-full h-64"
                   />
@@ -300,7 +364,13 @@ export default function ProfilePage() {
                 <div key={i} className="flex items-center justify-between py-2">
                   <div className="flex items-center gap-3">
                     <img
-                      src={`/placeholder.svg?height=60&width=60&text=C${i}`}
+                      src={
+                        i % 3 === 0
+                          ? "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=60&h=60&fit=crop&crop=center&auto=format&q=80"
+                          : i % 3 === 1
+                            ? "https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=60&h=60&fit=crop&crop=center&auto=format&q=80"
+                            : "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=60&h=60&fit=crop&crop=center&auto=format&q=80"
+                      }
                       alt={`Chiến dịch ${i}`}
                       className="h-12 w-12 rounded-md object-cover"
                     />
@@ -421,9 +491,8 @@ export default function ProfilePage() {
                         <div key={i} className="flex items-center justify-between py-2 border-b">
                           <div className="flex items-center gap-3">
                             <div
-                              className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                i % 2 === 0 ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
-                              }`}
+                              className={`flex h-8 w-8 items-center justify-center rounded-full ${i % 2 === 0 ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
+                                }`}
                             >
                               {i % 2 === 0 ? (
                                 <ArrowUpRight className="h-4 w-4" />

@@ -169,10 +169,11 @@ export default function RankingsPage() {
       <div className="flex flex-col space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Bảng Xếp Hạng</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Bảng Xếp Hạng</h1>
             <p className="text-muted-foreground">
               Khám phá những người đóng góp hàng đầu, người dùng uy tín và chiến dịch nổi bật nhất trên nền tảng.
             </p>
+
           </div>
         </div>
 

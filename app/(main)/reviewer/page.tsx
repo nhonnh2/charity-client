@@ -332,9 +332,9 @@ export default function ReviewerDashboard() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
                 <TabsList>
                     <TabsTrigger value="new">Yêu cầu mới ({reviewItems.filter(item => !item.hasVoted).length})</TabsTrigger>
+                    <TabsTrigger value="urgent">Khẩn cấp ({reviewItems.filter(item => item.priority === 'high' && !item.hasVoted).length})</TabsTrigger>
                     <TabsTrigger value="trending">Quan tâm nhất ({reviewItems.filter(item => item.priority === 'high' && !item.hasVoted).length})</TabsTrigger>
                     <TabsTrigger value="completed">Đã duyệt ({reviewItems.filter(item => item.hasVoted).length})</TabsTrigger>
-                    <TabsTrigger value="urgent">Khẩn cấp ({reviewItems.filter(item => item.priority === 'high' && !item.hasVoted).length})</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="new" className="space-y-4">

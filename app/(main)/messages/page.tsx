@@ -198,16 +198,8 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Tin nhắn</h1>
-          <p className="text-muted-foreground">Trò chuyện với người tạo chiến dịch và người đóng góp</p>
-        </div>
-        <Button variant="outline" size="icon">
-          <Edit className="h-4 w-4" />
-        </Button>
-      </div>
+    <div className="container mx-auto px-4 py-6 max-w-7xl">
+
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Conversations List */}
@@ -219,13 +211,12 @@ export default function MessagesPage() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[calc(100vh-16rem)]">
+            <ScrollArea className="h-[calc(100vh-10rem)]">
               {conversations.map((conversation) => (
                 <div key={conversation.id}>
                   <div
-                    className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors ${
-                      activeConversation === conversation.id ? "bg-muted" : ""
-                    }`}
+                    className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors ${activeConversation === conversation.id ? "bg-muted" : ""
+                      }`}
                     onClick={() => setActiveConversation(conversation.id)}
                   >
                     <div className="relative">
@@ -277,26 +268,24 @@ export default function MessagesPage() {
                   <MoreHorizontal className="h-5 w-5" />
                 </Button>
               </CardHeader>
-              <CardContent className="p-0 flex flex-col h-[calc(100vh-16rem)]">
-                <ScrollArea className="flex-1 p-4">
-                  <div className="space-y-4">
+              <CardContent className="p-0 flex flex-col h-[calc(100vh-10rem)]">
+                <ScrollArea className="flex-1 px-4">
+                  <div className="space-y-4 py-3">
                     {activeMessages.map((message) => (
                       <div
                         key={message.id}
                         className={`flex ${message.sender === "me" ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[80%] rounded-lg p-3 ${
-                            message.sender === "me"
-                              ? "bg-green-600 text-white"
-                              : "bg-muted text-foreground dark:bg-muted/70"
-                          }`}
+                          className={`max-w-[80%] rounded-lg p-3 ${message.sender === "me"
+                            ? "bg-green-600 text-white"
+                            : "bg-muted text-foreground dark:bg-muted/70"
+                            }`}
                         >
                           <p>{message.content}</p>
                           <p
-                            className={`text-xs mt-1 ${
-                              message.sender === "me" ? "text-green-100" : "text-muted-foreground"
-                            }`}
+                            className={`text-xs mt-1 ${message.sender === "me" ? "text-green-100" : "text-muted-foreground"
+                              }`}
                           >
                             {message.time}
                           </p>
@@ -334,7 +323,7 @@ export default function MessagesPage() {
               </CardContent>
             </>
           ) : (
-            <CardContent className="flex flex-col items-center justify-center h-[calc(100vh-16rem)]">
+            <CardContent className="flex flex-col items-center justify-center h-[calc(100vh-10rem)]">
               <div className="text-center">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted mx-auto mb-4">
                   <MessageCircle className="h-10 w-10 text-muted-foreground" />

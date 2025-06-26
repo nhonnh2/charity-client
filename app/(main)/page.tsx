@@ -655,7 +655,7 @@ export default function Home() {
         </div>
 
         {/* Sidebar - 1/4 width on desktop */}
-        <div className="space-y-6">
+        <div className="space-y-6 sticky top-6 h-fit max-h-[calc(100vh-3rem)] overflow-y-auto">
           {/* Thanh tìm kiếm */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
