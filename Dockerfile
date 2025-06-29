@@ -1,6 +1,12 @@
 # Stage 1: Build
 FROM node:18-alpine AS builder
 
+# Install build tools for native dependencies
+RUN apk add --no-cache python3 make g++ git libc6-compat
+
+# Set python to python3 for node-gyp
+ENV PYTHON=/usr/bin/python3
+
 WORKDIR /app
 
 COPY package.json yarn.lock ./
