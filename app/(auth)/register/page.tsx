@@ -133,10 +133,23 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="min-h-screen">
-      <div className="min-h-screen flex">
-        {/* Left side - Hero/Info */}
-        <div className="flex-1 lg:max-w-[55%] bg-gradient-to-br from-primary/20 via-primary/10 to-background relative overflow-hidden">
+    <div className="min-h-screen bg-background">
+      {/* Mobile Header - chỉ hiển thị trên mobile */}
+      <div className="lg:hidden bg-gradient-to-r from-primary/10 to-primary/5 border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="text-center">
+            <Link href="/" className="inline-block mb-3">
+              <Logo size="md" />
+            </Link>
+            <h1 className="text-xl font-bold text-slate-800 mb-1">Tạo tài khoản</h1>
+            <p className="text-sm text-slate-600">Tham gia cộng đồng từ thiện minh bạch</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="min-h-screen lg:flex">
+        {/* Left side - Hero/Info - ẩn trên mobile */}
+        <div className="hidden lg:flex lg:flex-1 lg:max-w-[55%] bg-gradient-to-br from-primary/20 via-primary/10 to-background relative overflow-hidden">
           {/* Background Image shifted right */}
           <div 
             className="absolute inset-0 bg-cover bg-no-repeat opacity-60"
@@ -218,19 +231,21 @@ export default function RegisterPage() {
         </div>
 
         {/* Right side - Register Form */}
-        <div className="flex-1 lg:max-w-[45%] flex items-center justify-center p-4 lg:p-6">
-          <div className="w-full max-w-[380px] overflow-y-auto max-h-screen">
-            <div className="space-y-4 py-4">
-              <div className="space-y-1 text-center mb-4">
-                <h2 className="text-2xl font-bold text-slate-800">Tạo tài khoản</h2>
-                <p className="text-sm text-slate-600">
-                  Tham gia cộng đồng từ thiện minh bạch
-                </p>
-              </div>
+        <div className="flex-1 lg:max-w-[45%] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+          <div className="w-full max-w-[400px] py-4 lg:py-0">
+            {/* Desktop Header - chỉ hiển thị trên desktop */}
+            <div className="hidden lg:block space-y-2 text-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-800">Tạo tài khoản</h2>
+              <p className="text-sm text-slate-600">
+                Tham gia cộng đồng từ thiện minh bạch
+              </p>
+            </div>
 
+            {/* Register Form */}
+            <div className="space-y-4">
               {/* Email Register Form */}
-              <form onSubmit={handleEmailRegister} className="space-y-3">
-                <div className="space-y-1">
+              <form onSubmit={handleEmailRegister} className="space-y-4">
+                <div className="space-y-2">
                   <Label htmlFor="fullName" className="text-sm text-slate-700 font-medium">Họ tên *</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
@@ -242,13 +257,13 @@ export default function RegisterPage() {
                       onChange={(e) =>
                         handleInputChange('fullName', e.target.value)
                       }
-                      className="pl-10 h-10"
+                      className="pl-10 h-11"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm text-slate-700 font-medium">Email *</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
@@ -260,13 +275,13 @@ export default function RegisterPage() {
                       onChange={(e) =>
                         handleInputChange('email', e.target.value)
                       }
-                      className="pl-10 h-10"
+                      className="pl-10 h-11"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Label htmlFor="password" className="text-sm text-slate-700 font-medium">Mật khẩu *</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
@@ -278,7 +293,7 @@ export default function RegisterPage() {
                       onChange={(e) =>
                         handleInputChange('password', e.target.value)
                       }
-                      className="pl-10 pr-9 h-10"
+                      className="pl-10 pr-10 h-11"
                       required
                     />
                     <button
@@ -295,7 +310,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Label htmlFor="confirmPassword" className="text-sm text-slate-700 font-medium">Xác nhận mật khẩu *</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
@@ -307,7 +322,7 @@ export default function RegisterPage() {
                       onChange={(e) =>
                         handleInputChange('confirmPassword', e.target.value)
                       }
-                      className="pl-10 pr-9 h-10"
+                      className="pl-10 pr-10 h-11"
                       required
                     />
                     <button
@@ -359,7 +374,7 @@ export default function RegisterPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-10"
+                  className="w-full h-11"
                   size="lg"
                   disabled={authLoading}
                 >
@@ -379,12 +394,12 @@ export default function RegisterPage() {
               </div>
 
               {/* Social Register Section */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Button
                   onClick={handleGoogleRegister}
                   type="button"
                   variant="outline"
-                  className="w-full h-9"
+                  className="w-full h-10"
                   size="lg"
                 >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -400,7 +415,7 @@ export default function RegisterPage() {
                   onClick={handleFacebookRegister}
                   type="button"
                   variant="outline"
-                  className="w-full h-9"
+                  className="w-full h-10"
                   size="lg"
                 >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -411,8 +426,8 @@ export default function RegisterPage() {
               </div>
 
               {/* Login link */}
-              <div className="text-center pt-1">
-                <p className="text-xs text-slate-600">
+              <div className="text-center pt-2">
+                <p className="text-sm text-slate-600">
                   Đã có tài khoản?{' '}
                   <Link
                     href="/login"
@@ -424,6 +439,15 @@ export default function RegisterPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Footer */}
+      <div className="lg:hidden border-t bg-background">
+        <div className="container mx-auto px-4 py-4 text-center">
+          <p className="text-xs text-slate-500">
+            © 2024 TrustCharity. Nền tảng từ thiện minh bạch trên blockchain.
+          </p>
         </div>
       </div>
     </div>

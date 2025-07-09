@@ -90,10 +90,23 @@ export default function LoginPage() {
   ];
 
   return (
-    <div className="min-h-screen">
-      <div className="min-h-screen flex">
-        {/* Left side - Hero/Info */}
-        <div className="flex-1 lg:max-w-[55%] bg-gradient-to-br from-primary/20 via-primary/10 to-background relative overflow-hidden">
+    <div className="min-h-screen bg-background">
+      {/* Mobile Header - chỉ hiển thị trên mobile */}
+      <div className="lg:hidden bg-gradient-to-r from-primary/10 to-primary/5 border-b">
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center">
+            <Link href="/" className="inline-block mb-4">
+              <Logo size="md" />
+            </Link>
+            <h1 className="text-2xl font-bold text-slate-800 mb-2">Đăng nhập</h1>
+            <p className="text-slate-600">Tiếp tục hành trình từ thiện của bạn</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="min-h-screen lg:flex">
+        {/* Left side - Hero/Info - ẩn trên mobile */}
+        <div className="hidden lg:flex lg:flex-1 lg:max-w-[55%] bg-gradient-to-br from-primary/20 via-primary/10 to-background relative overflow-hidden">
           {/* Background Image shifted right */}
           <div 
             className="absolute inset-0 bg-cover bg-no-repeat opacity-60"
@@ -175,17 +188,18 @@ export default function LoginPage() {
         </div>
 
         {/* Right side - Login Form */}
-        <div className="flex-1 lg:max-w-[45%] flex items-center justify-center p-6 lg:p-8">
-          <div className="w-full max-w-[380px] space-y-6">
-            {/* Login Card */}
-            <div className="space-y-6">
-              <div className="space-y-2 text-center">
-                <h2 className="text-3xl font-bold text-slate-800">Đăng nhập</h2>
-                <p className="text-slate-600">
-                  Tiếp tục hành trình từ thiện của bạn
-                </p>
-              </div>
+        <div className="flex-1 lg:max-w-[45%] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+          <div className="w-full max-w-[400px] space-y-6">
+            {/* Desktop Header - chỉ hiển thị trên desktop */}
+            <div className="hidden lg:block space-y-2 text-center">
+              <h2 className="text-3xl font-bold text-slate-800">Đăng nhập</h2>
+              <p className="text-slate-600">
+                Tiếp tục hành trình từ thiện của bạn
+              </p>
+            </div>
 
+            {/* Login Form */}
+            <div className="space-y-6">
               {/* Email Login Form */}
               <form onSubmit={handleEmailLogin} className="space-y-4">
                 <div className="space-y-2">
@@ -306,6 +320,15 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Footer */}
+      <div className="lg:hidden border-t bg-background">
+        <div className="container mx-auto px-4 py-6 text-center">
+          <p className="text-sm text-slate-500">
+            © 2024 TrustCharity. Nền tảng từ thiện minh bạch trên blockchain.
+          </p>
         </div>
       </div>
     </div>
