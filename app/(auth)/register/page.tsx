@@ -6,16 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useSignMessage } from 'wagmi';
 import {
-  Wallet,
   Mail,
   Lock,
   Eye,
   EyeOff,
   User,
-  Phone,
   ArrowLeft,
   Shield,
   Heart,
@@ -36,14 +32,11 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  const { address, isConnected } = useAccount();
-  const { signMessage, isPending } = useSignMessage();
   const { register, isLoading: authLoading } = useAuthState();
   const router = useRouter();
 
@@ -91,7 +84,6 @@ export default function RegisterPage() {
       await register({
         fullName: formData.fullName,
         email: formData.email,
-        phone: formData.phone,
         authType: 'email',
       });
 
@@ -104,57 +96,39 @@ export default function RegisterPage() {
     }
   };
 
-  const handleWeb3Register = async () => {
-    if (!isConnected || !address) {
-      toast.error('Vui lòng kết nối ví trước');
-      return;
-    }
-
-    if (!formData.fullName.trim()) {
-      toast.error('Vui lòng nhập họ tên để đăng ký');
-      return;
-    }
-
-    if (!agreeToTerms) {
-      toast.error('Vui lòng đồng ý với điều khoản sử dụng');
-      return;
-    }
-
+  const handleGoogleRegister = async () => {
     try {
-      const message = `Đăng ký tài khoản TrustCharity\nHọ tên: ${
-        formData.fullName
-      }\nĐịa chỉ ví: ${address}\nThời gian: ${new Date().toISOString()}`;
-
-      await signMessage({ message });
-
-      await register({
-        fullName: formData.fullName,
-        walletAddress: address,
-        authType: 'web3',
-      });
-
-      toast.success('Đăng ký Web3 thành công!');
-      router.push('/');
+      // TODO: Implement Google OAuth
+      toast.info('Tính năng đăng ký Google đang được phát triển');
     } catch (error: any) {
-      toast.error(error.message || 'Đăng ký Web3 thất bại');
+      toast.error(error.message || 'Đăng ký Google thất bại');
     }
   };
 
-  const benefits = [
-    {
-      icon: Sparkles,
-      title: 'Tham gia ngay hôm nay',
-      description: 'Trở thành một phần của cộng đồng từ thiện minh bạch',
-    },
-    {
-      icon: Heart,
-      title: 'Tạo chiến dịch dễ dàng',
-      description: 'Khởi tạo và quản lý chiến dịch chỉ trong vài phút',
-    },
+  const handleFacebookRegister = async () => {
+    try {
+      // TODO: Implement Facebook OAuth  
+      toast.info('Tính năng đăng ký Facebook đang được phát triển');
+    } catch (error: any) {
+      toast.error(error.message || 'Đăng ký Facebook thất bại');
+    }
+  };
+
+  const features = [
     {
       icon: Shield,
-      title: 'An toàn tuyệt đối',
-      description: 'Mọi giao dịch được bảo vệ bởi blockchain',
+      title: 'Bảo mật & Minh bạch',
+      description: 'Blockchain đảm bảo an toàn và minh bạch mọi giao dịch',
+    },
+    {
+      icon: Users,
+      title: 'Cộng đồng kết nối',
+      description: 'Mọi hành động và cập nhật chiến dịch được chia sẻ với cộng đồng',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Minh chứng hiệu quả',
+      description: 'Minh chứng rõ ràng đảm bảo 100% số tiền đến đúng người cần giúp đỡ',
     },
   ];
 
@@ -163,6 +137,18 @@ export default function RegisterPage() {
       <div className="min-h-screen flex">
         {/* Left side - Hero/Info */}
         <div className="flex-1 lg:max-w-[55%] bg-gradient-to-br from-primary/20 via-primary/10 to-background relative overflow-hidden">
+          {/* Background Image shifted right */}
+          <div 
+            className="absolute inset-0 bg-cover bg-no-repeat opacity-60"
+            style={{
+              backgroundImage: "url('/treemlaocai_flipped.jpeg')",
+              backgroundPosition: "30% 30%"
+            }}
+          />
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-800/50 to-transparent" />
+          {/* Additional vertical gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-transparent to-slate-800/30" />
           <div className="absolute inset-0 bg-grid-white/10 bg-grid-16 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
 
           <div className="relative flex flex-col justify-between p-8 lg:p-12 z-10 h-full">
@@ -176,76 +162,78 @@ export default function RegisterPage() {
             {/* Main content */}
             <div className="space-y-8">
               <div>
-                <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-                  Bắt đầu hành trình từ thiện
+                <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-white">
+                  <span>Chia sẻ niềm vui</span><br />
+                  <span>Thắp sáng những ước mơ</span>
                 </h1>
-                <p className="text-xl text-muted-foreground">
-                  Tham gia cộng đồng hàng nghìn người đang thay đổi thế giới
+                <p className="text-xl text-slate-300">
+                  Nền tảng từ thiện minh bạch hàng đầu Việt Nam.
                 </p>
               </div>
 
               <div className="space-y-6">
-                {benefits.map((benefit, index) => (
+                {features.map((feature, index) => (
                   <div key={index} className="flex gap-4">
                     <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <benefit.icon className="h-6 w-6 text-primary" />
+                      <feature.icon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-1">{benefit.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {benefit.description}
+                      <h3 className="font-semibold mb-1 text-slate-100">{feature.title}</h3>
+                      <p className="text-sm text-slate-400">
+                        {feature.description}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Testimonial */}
-              <div className="bg-card/50 backdrop-blur rounded-lg p-6 border">
-                <p className="text-sm italic mb-4">
-                  "TrustCharity đã giúp tôi quyên góp được hơn 100 triệu đồng
-                  cho trẻ em vùng cao. Mọi thứ đều minh bạch và dễ dàng theo
-                  dõi."
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <User className="h-5 w-5 text-primary" />
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-6 pt-8">
+                <div>
+                  <div className="text-3xl font-bold text-amber-400">500+</div>
+                  <div className="text-sm text-slate-400">
+                    Chiến dịch thành công
                   </div>
-                  <div>
-                    <p className="font-semibold text-sm">Nguyễn Văn A</p>
-                    <p className="text-xs text-muted-foreground">
-                      Nhà từ thiện
-                    </p>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-amber-400">10M+</div>
+                  <div className="text-sm text-slate-400">
+                    VNĐ đã quyên góp
+                  </div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-amber-400">50K+</div>
+                  <div className="text-sm text-slate-400">
+                    Người đã tham gia
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-slate-400">
               © 2024 TrustCharity. Nền tảng từ thiện minh bạch trên blockchain.
             </div>
           </div>
         </div>
 
         {/* Right side - Register Form */}
-        <div className="flex-1 lg:max-w-[45%] flex items-center justify-center p-6 lg:p-8">
-          <div className="w-full max-w-[420px] space-y-6">
-            {/* Register Form */}
-            <div className="space-y-6">
-              <div className="space-y-2 text-center">
-                <h2 className="text-3xl font-bold">Tạo tài khoản</h2>
-                <p className="text-muted-foreground">
+        <div className="flex-1 lg:max-w-[45%] flex items-center justify-center p-4 lg:p-6">
+          <div className="w-full max-w-[380px] overflow-y-auto max-h-screen">
+            <div className="space-y-4 py-4">
+              <div className="space-y-1 text-center mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">Tạo tài khoản</h2>
+                <p className="text-sm text-slate-600">
                   Tham gia cộng đồng từ thiện minh bạch
                 </p>
               </div>
 
-              {/* Form */}
-              <form onSubmit={handleEmailRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Họ và tên *</Label>
+              {/* Email Register Form */}
+              <form onSubmit={handleEmailRegister} className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="fullName" className="text-sm text-slate-700 font-medium">Họ tên *</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
+                    <User className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
                     <Input
                       id="fullName"
                       type="text"
@@ -254,16 +242,16 @@ export default function RegisterPage() {
                       onChange={(e) =>
                         handleInputChange('fullName', e.target.value)
                       }
-                      className="pl-10 h-12"
+                      className="pl-10 h-10"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="email" className="text-sm text-slate-700 font-medium">Email *</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
                     <Input
                       id="email"
                       type="email"
@@ -272,116 +260,97 @@ export default function RegisterPage() {
                       onChange={(e) =>
                         handleInputChange('email', e.target.value)
                       }
-                      className="pl-10 h-12"
+                      className="pl-10 h-10"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Số điện thoại</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="password" className="text-sm text-slate-700 font-medium">Mật khẩu *</Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
                     <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="0987654321"
-                      value={formData.phone}
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={formData.password}
                       onChange={(e) =>
-                        handleInputChange('phone', e.target.value)
+                        handleInputChange('password', e.target.value)
                       }
-                      className="pl-10 h-12"
+                      className="pl-10 pr-9 h-10"
+                      required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-slate-500 hover:text-slate-700 transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Mật khẩu *</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
-                      <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        value={formData.password}
-                        onChange={(e) =>
-                          handleInputChange('password', e.target.value)
-                        }
-                        className="pl-10 pr-10 h-12"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Xác nhận *</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
-                      <Input
-                        id="confirmPassword"
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        value={formData.confirmPassword}
-                        onChange={(e) =>
-                          handleInputChange('confirmPassword', e.target.value)
-                        }
-                        className="pl-10 pr-10 h-12"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                        className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
+                <div className="space-y-1">
+                  <Label htmlFor="confirmPassword" className="text-sm text-slate-700 font-medium">Xác nhận mật khẩu *</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={formData.confirmPassword}
+                      onChange={(e) =>
+                        handleInputChange('confirmPassword', e.target.value)
+                      }
+                      className="pl-10 pr-9 h-10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-3 text-slate-500 hover:text-slate-700 transition-colors"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
                 {/* Terms */}
-                <div className="flex items-start space-x-2">
+                <div className="flex items-start space-x-2 py-2">
                   <Checkbox
                     id="terms"
                     checked={agreeToTerms}
                     onCheckedChange={(checked) =>
                       setAgreeToTerms(checked as boolean)
                     }
-                    className="mt-1"
+                    className="mt-0.5"
                   />
                   <Label
                     htmlFor="terms"
-                    className="text-sm font-normal leading-relaxed cursor-pointer"
+                    className="text-xs font-normal leading-relaxed cursor-pointer text-slate-600"
                   >
                     Tôi đồng ý với{' '}
                     <Link
                       href="/terms"
-                      className="text-primary hover:underline"
+                      className="text-amber-600 hover:text-amber-700 hover:underline font-medium"
                     >
                       điều khoản sử dụng
                     </Link>{' '}
                     và{' '}
                     <Link
                       href="/privacy"
-                      className="text-primary hover:underline"
+                      className="text-amber-600 hover:text-amber-700 hover:underline font-medium"
                     >
                       chính sách bảo mật
                     </Link>
@@ -390,105 +359,64 @@ export default function RegisterPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12"
+                  className="w-full h-10"
                   size="lg"
                   disabled={authLoading}
                 >
-                  {authLoading ? 'Đang đăng ký...' : 'Đăng ký'}
+                  {authLoading ? 'Đang đăng ký...' : 'Tạo tài khoản'}
                 </Button>
               </form>
 
-              <div className="relative">
+              <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t border-slate-300" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Hoặc
+                  <span className="bg-background px-2 text-slate-500 font-medium">
+                    Hoặc tiếp tục với
                   </span>
                 </div>
               </div>
 
-              {/* Web3 Register */}
-              <ConnectButton.Custom>
-                {({
-                  account,
-                  chain,
-                  openAccountModal,
-                  openChainModal,
-                  openConnectModal,
-                  mounted,
-                }) => {
-                  const ready = mounted;
-                  const connected = ready && account && chain;
+              {/* Social Register Section */}
+              <div className="space-y-2">
+                <Button
+                  onClick={handleGoogleRegister}
+                  type="button"
+                  variant="outline"
+                  className="w-full h-9"
+                  size="lg"
+                >
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  Google
+                </Button>
 
-                  return (
-                    <div className="space-y-3">
-                      {(() => {
-                        if (!connected) {
-                          return (
-                            <Button
-                              onClick={openConnectModal}
-                              type="button"
-                              variant="outline"
-                              className="w-full h-12"
-                              size="lg"
-                            >
-                              <Wallet className="mr-2 h-5 w-5" />
-                              Đăng ký bằng ví Web3
-                            </Button>
-                          );
-                        }
-
-                        return (
-                          <div className="space-y-3">
-                            <Button
-                              onClick={openAccountModal}
-                              type="button"
-                              variant="outline"
-                              className="w-full h-12 justify-between"
-                            >
-                              <div className="flex items-center">
-                                <Wallet className="mr-2 h-5 w-5" />
-                                <span>{account.displayName}</span>
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                {account.displayBalance}
-                              </span>
-                            </Button>
-
-                            <Button
-                              onClick={handleWeb3Register}
-                              disabled={
-                                isPending ||
-                                authLoading ||
-                                !formData.fullName.trim() ||
-                                !agreeToTerms
-                              }
-                              className="w-full h-12"
-                              variant="default"
-                              size="lg"
-                            >
-                              <Shield className="mr-2 h-5 w-5" />
-                              {isPending || authLoading
-                                ? 'Đang xác thực...'
-                                : 'Hoàn tất đăng ký Web3'}
-                            </Button>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  );
-                }}
-              </ConnectButton.Custom>
+                <Button
+                  onClick={handleFacebookRegister}
+                  type="button"
+                  variant="outline"
+                  className="w-full h-9"
+                  size="lg"
+                >
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  Facebook
+                </Button>
+              </div>
 
               {/* Login link */}
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">
+              <div className="text-center pt-1">
+                <p className="text-xs text-slate-600">
                   Đã có tài khoản?{' '}
                   <Link
                     href="/login"
-                    className="text-primary hover:underline font-medium"
+                    className="text-amber-600 hover:text-amber-700 hover:underline font-medium"
                   >
                     Đăng nhập ngay
                   </Link>

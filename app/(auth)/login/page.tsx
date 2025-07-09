@@ -15,10 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useSignMessage } from 'wagmi';
 import {
-  Wallet,
   Mail,
   Lock,
   Eye,
@@ -41,9 +38,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { address, isConnected } = useAccount();
-  const { signMessage, isPending } = useSignMessage();
-  const { login, loginWithWeb3, isLoading } = useAuthState();
+  const { login, isLoading } = useAuthState();
   const router = useRouter();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -58,40 +53,39 @@ export default function LoginPage() {
     }
   };
 
-  const handleWeb3Login = async () => {
-    if (!isConnected || !address) {
-      toast.error('Vui lòng kết nối ví trước');
-      return;
-    }
-
+  const handleGoogleLogin = async () => {
     try {
-      const message = `Đăng nhập vào TrustCharity\nĐịa chỉ: ${address}\nThời gian: ${new Date().toISOString()}`;
-
-      await signMessage({ message });
-      await loginWithWeb3(address, 'signature_verified');
-
-      toast.success('Đăng nhập Web3 thành công!');
-      router.push('/');
+      // TODO: Implement Google OAuth
+      toast.info('Tính năng đăng nhập Google đang được phát triển');
     } catch (error: any) {
-      toast.error(error.message || 'Đăng nhập Web3 thất bại');
+      toast.error(error.message || 'Đăng nhập Google thất bại');
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    try {
+      // TODO: Implement Facebook OAuth  
+      toast.info('Tính năng đăng nhập Facebook đang được phát triển');
+    } catch (error: any) {
+      toast.error(error.message || 'Đăng nhập Facebook thất bại');
     }
   };
 
   const features = [
     {
       icon: Shield,
-      title: 'Bảo mật tuyệt đối',
-      description: 'Công nghệ blockchain đảm bảo an toàn cho mọi giao dịch',
+      title: 'Bảo mật & Minh bạch',
+      description: 'Blockchain đảm bảo an toàn và minh bạch mọi giao dịch',
     },
     {
-      icon: Globe,
-      title: 'Minh bạch toàn cầu',
-      description: 'Theo dõi từng đồng quyên góp trong thời gian thực',
+      icon: Users,
+      title: 'Cộng đồng kết nối',
+      description: 'Mọi hành động và cập nhật chiến dịch được chia sẻ với cộng đồng',
     },
     {
       icon: TrendingUp,
-      title: 'Hiệu quả tối đa',
-      description: '100% số tiền đến tay người cần giúp đỡ',
+      title: 'Minh chứng hiệu quả',
+      description: 'Minh chứng rõ ràng đảm bảo 100% số tiền đến đúng người cần giúp đỡ',
     },
   ];
 
@@ -100,6 +94,18 @@ export default function LoginPage() {
       <div className="min-h-screen flex">
         {/* Left side - Hero/Info */}
         <div className="flex-1 lg:max-w-[55%] bg-gradient-to-br from-primary/20 via-primary/10 to-background relative overflow-hidden">
+          {/* Background Image shifted right */}
+          <div 
+            className="absolute inset-0 bg-cover bg-no-repeat opacity-60"
+            style={{
+              backgroundImage: "url('/treemlaocai_flipped.jpeg')",
+              backgroundPosition: "30% 30%"
+            }}
+          />
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-800/50 to-transparent" />
+          {/* Additional vertical gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-transparent to-slate-800/30" />
           <div className="absolute inset-0 bg-grid-white/10 bg-grid-16 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
 
           <div className="relative flex flex-col justify-between p-8 lg:p-12 z-10 h-full">
@@ -113,10 +119,11 @@ export default function LoginPage() {
             {/* Main content */}
             <div className="space-y-8">
               <div>
-                <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-                  Chào mừng trở lại TrustCharity
+                <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-white">
+                  <span>Chia sẻ niềm vui</span><br />
+                  <span>Thắp sáng những ước mơ</span>
                 </h1>
-                <p className="text-xl text-muted-foreground">
+                <p className="text-xl text-slate-300">
                   Nền tảng từ thiện minh bạch hàng đầu Việt Nam
                 </p>
               </div>
@@ -128,8 +135,8 @@ export default function LoginPage() {
                       <feature.icon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-1">{feature.title}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="font-semibold mb-1 text-slate-100">{feature.title}</h3>
+                      <p className="text-sm text-slate-400">
                         {feature.description}
                       </p>
                     </div>
@@ -138,22 +145,22 @@ export default function LoginPage() {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t">
+              <div className="grid grid-cols-3 gap-6 pt-8">
                 <div>
-                  <div className="text-3xl font-bold text-primary">500+</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-3xl font-bold text-amber-400">500+</div>
+                  <div className="text-sm text-slate-400">
                     Chiến dịch thành công
                   </div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-primary">10M+</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-3xl font-bold text-amber-400">10M+</div>
+                  <div className="text-sm text-slate-400">
                     VNĐ đã quyên góp
                   </div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-primary">50K+</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-3xl font-bold text-amber-400">50K+</div>
+                  <div className="text-sm text-slate-400">
                     Người đã tham gia
                   </div>
                 </div>
@@ -161,7 +168,7 @@ export default function LoginPage() {
             </div>
 
             {/* Footer */}
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-slate-400">
               © 2024 TrustCharity. Nền tảng từ thiện minh bạch trên blockchain.
             </div>
           </div>
@@ -173,99 +180,18 @@ export default function LoginPage() {
             {/* Login Card */}
             <div className="space-y-6">
               <div className="space-y-2 text-center">
-                <h2 className="text-3xl font-bold">Đăng nhập</h2>
-                <p className="text-muted-foreground">
+                <h2 className="text-3xl font-bold text-slate-800">Đăng nhập</h2>
+                <p className="text-slate-600">
                   Tiếp tục hành trình từ thiện của bạn
                 </p>
-              </div>
-
-              {/* Web3 Login Section */}
-              <div className="space-y-4">
-                <ConnectButton.Custom>
-                  {({
-                    account,
-                    chain,
-                    openAccountModal,
-                    openChainModal,
-                    openConnectModal,
-                    mounted,
-                  }) => {
-                    const ready = mounted;
-                    const connected = ready && account && chain;
-
-                    return (
-                      <div className="space-y-3">
-                        {(() => {
-                          if (!connected) {
-                            return (
-                              <Button
-                                onClick={openConnectModal}
-                                type="button"
-                                variant="default"
-                                className="w-full h-12"
-                                size="lg"
-                              >
-                                <Wallet className="mr-2 h-5 w-5" />
-                                Kết nối ví Web3
-                              </Button>
-                            );
-                          }
-
-                          return (
-                            <div className="space-y-3">
-                              <Button
-                                onClick={openAccountModal}
-                                type="button"
-                                variant="outline"
-                                className="w-full h-12 justify-between"
-                              >
-                                <div className="flex items-center">
-                                  <Wallet className="mr-2 h-5 w-5" />
-                                  <span>{account.displayName}</span>
-                                </div>
-                                <span className="text-xs text-muted-foreground">
-                                  {account.displayBalance}
-                                </span>
-                              </Button>
-
-                              <Button
-                                onClick={handleWeb3Login}
-                                disabled={isPending || isLoading}
-                                className="w-full h-12"
-                                variant="default"
-                                size="lg"
-                              >
-                                <Shield className="mr-2 h-5 w-5" />
-                                {isPending || isLoading
-                                  ? 'Đang xác thực...'
-                                  : 'Xác thực bằng chữ ký'}
-                              </Button>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    );
-                  }}
-                </ConnectButton.Custom>
-              </div>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Hoặc
-                  </span>
-                </div>
               </div>
 
               {/* Email Login Form */}
               <form onSubmit={handleEmailLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-slate-700 font-medium">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-slate-500" />
                     <Input
                       id="email"
                       type="email"
@@ -280,16 +206,16 @@ export default function LoginPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Mật khẩu</Label>
+                    <Label htmlFor="password" className="text-slate-700 font-medium">Mật khẩu</Label>
                     <Link
                       href="/forgot-password"
-                      className="text-sm text-primary hover:underline"
+                      className="text-sm text-amber-600 hover:text-amber-700 hover:underline font-medium"
                     >
                       Quên mật khẩu?
                     </Link>
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-slate-500" />
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
@@ -302,7 +228,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute right-3 top-3.5 text-slate-500 hover:text-slate-700 transition-colors"
                     >
                       {showPassword ? (
                         <EyeOff className="h-5 w-5" />
@@ -323,33 +249,60 @@ export default function LoginPage() {
                 </Button>
               </form>
 
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-300" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-slate-500 font-medium">
+                    Hoặc tiếp tục với
+                  </span>
+                </div>
+              </div>
+
+              {/* Social Login Section */}
+              <div className="space-y-3">
+                <Button
+                  onClick={handleGoogleLogin}
+                  type="button"
+                  variant="outline"
+                  className="w-full h-11"
+                  size="lg"
+                >
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  Google
+                </Button>
+
+                <Button
+                  onClick={handleFacebookLogin}
+                  type="button"
+                  variant="outline"
+                  className="w-full h-11"
+                  size="lg"
+                >
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                    <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  Facebook
+                </Button>
+              </div>
+
               {/* Register link */}
               <div className="text-center space-y-4">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-600">
                   Chưa có tài khoản?{' '}
                   <Link
                     href="/register"
-                    className="text-primary hover:underline font-medium"
+                    className="text-amber-600 hover:text-amber-700 hover:underline font-medium"
                   >
                     Đăng ký ngay
                   </Link>
                 </p>
-              </div>
-
-              {/* Trust badges */}
-              <div className="flex items-center justify-center gap-6 pt-4 border-t">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Shield className="h-4 w-4" />
-                  <span>Bảo mật</span>
-                </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Lock className="h-4 w-4" />
-                  <span>Mã hóa SSL</span>
-                </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <CheckCircle className="h-4 w-4" />
-                  <span>Đã xác thực</span>
-                </div>
               </div>
             </div>
           </div>
