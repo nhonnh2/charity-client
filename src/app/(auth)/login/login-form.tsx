@@ -1,5 +1,7 @@
 'use client';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+
 import { useForm } from 'react-hook-form';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
@@ -8,10 +10,29 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-function LoginForm() {
-  const form = useForm<any>({ defaultValues: { email: '', password: '' } });
+import authApiRequest from '@/apiRequests/auth';
 
-  const handleLogin = () => {};
+import { LoginBodyType } from '@/schemaValidations/auth.schema';
+
+function LoginForm() {
+  const form = useForm<LoginBodyType>({
+    defaultValues: { email: '', password: '' },
+  });
+  const router = useRouter();
+
+  const handleLogin = async (data: LoginBodyType) => {
+    try {
+      const response = await authApiRequest.nextLogin(data);
+
+      console.log('handleLogin______', response);
+
+      if (response) {
+        router.push('/');
+      }
+    } catch (error) {
+      console.error('handleLogin___', error);
+    }
+  };
 
   const isLoading = false;
   const showPassword = false;
@@ -27,7 +48,12 @@ function LoginForm() {
         {/* Login Form */}
         <div className='space-y-6'>
           {/* Email Login Form */}
-          <form onSubmit={handleLogin} className='space-y-4'>
+          <form
+            onSubmit={form.handleSubmit(handleLogin, err => {
+              console.error(err);
+            })}
+            className='space-y-4'
+          >
             <FormField
               name='email'
               control={form.control}

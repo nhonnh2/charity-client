@@ -10,7 +10,7 @@ export default function RouteProgress() {
   const timeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    NProgress.configure({ showSpinner: false, trickleSpeed: 100 });
+    NProgress.configure({ showSpinner: false, trickleSpeed: 50 });
 
     // Bắt đầu progress khi click vào link nội bộ
     const handleClick = (e: MouseEvent) => {
@@ -33,7 +33,7 @@ export default function RouteProgress() {
     // Khi pathname đổi (trang render xong), dừng progress
     timeout.current = setTimeout(() => {
       NProgress.done();
-    }, 200);
+    }, 50);
 
     return () => {
       if (timeout.current) clearTimeout(timeout.current);

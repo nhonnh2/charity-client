@@ -1,24 +1,31 @@
-import http from '@/lib/http'
+import http from '@/lib/http';
 
 import {
-    LoginBodyType,
-    LoginResType,
-    RegisterBodyType,
-    RegisterResType,
-    SlideSessionResType
-  } from '@/schemaValidations/auth.schema'
-
+  LoginBodyType,
+  LoginResType,
+  RegisterBodyType,
+  RegisterResType,
+} from '@/schemaValidations/auth.schema';
 
 const authApiRequest = {
-    login: (body: LoginBodyType) => http.post<LoginResType>('/auth/login', body),
-    register: (body: RegisterBodyType) =>
-      http.post<RegisterResType>('/auth/register', body),
-    auth: (body: { sessionToken: string; expiresAt: string }) =>
-      http.post('/api/auth', body, {
-        baseUrl: ''
-      }),
-      logout: () => http.post('/api/auth/logout', null, { baseUrl: '' }), 
-
-}
+  login: (body: LoginBodyType) => http.post<LoginResType>('/auth/login', body),
+  register: (body: RegisterBodyType) =>
+    http.post<RegisterResType>('/auth/register', body),
+  refreshToken: (refreshBody: any) =>
+    http.post<LoginResType>('/auth/refresh', refreshBody),
+  auth: (body: { sessionToken: string; expiresAt: string }) =>
+    http.post('/api/auth', body, {
+      baseUrl: '',
+    }),
+  logout: () => http.post('/api/auth/logout', null, { baseUrl: '' }),
+  nextLogin: (body: LoginBodyType) =>
+    http.post('/api/auth/login', body, {
+      baseUrl: '',
+    }),
+  nextRefreshToken: (body: any) =>
+    http.post('/api/auth/refresh', body, {
+      baseUrl: '',
+    }),
+};
 
 export default authApiRequest;

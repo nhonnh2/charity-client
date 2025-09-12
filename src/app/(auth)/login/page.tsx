@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import LoginForm from './login-form';
-import IntroductionSide from './introduction-side';
+import IntroductionSide from '@/components/introduction-auth';
 
 import { Logo } from '@/components/ui/logo';
 

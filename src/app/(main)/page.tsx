@@ -40,10 +40,17 @@ import {
 import { Input } from '@/components/ui/input';
 import CreatePost from '@/components/create-post';
 import { CampaignCard } from '@/components/campaign-card';
+import ClientComponentTest from '@/components/client-component-test';
 
-export default function Home() {
+import campaignsApiRequest from '@/apiRequests/campaigns';
+
+export default async function Home() {
+  const resTest = await campaignsApiRequest.overview();
+  console.log('Home_____', resTest);
+
   return (
     <div className='container mx-auto px-4 py-6 max-w-7xl'>
+      {/* <ClientComponentTest /> */}
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4'>
         {/* Main content - 3/4 width on desktop */}
         <div className='md:col-span-2 lg:col-span-3'>

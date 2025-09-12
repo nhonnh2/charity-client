@@ -1,11 +1,11 @@
-import z from 'zod'
+import z from 'zod';
 
 export const RegisterBody = z
   .object({
     name: z.string().trim().min(2).max(256),
     email: z.string().email(),
     password: z.string().min(6).max(100),
-    confirmPassword: z.string().min(6).max(100)
+    confirmPassword: z.string().min(6).max(100),
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -13,43 +13,46 @@ export const RegisterBody = z
       ctx.addIssue({
         code: 'custom',
         message: 'Mật khẩu không khớp',
-        path: ['confirmPassword']
-      })
+        path: ['confirmPassword'],
+      });
     }
-  })
+  });
 
-export type RegisterBodyType = z.TypeOf<typeof RegisterBody>
+export type RegisterBodyType = z.TypeOf<typeof RegisterBody>;
 
 export const RegisterRes = z.object({
   data: z.object({
-    token: z.string(),
+    accessToken: z.string(),
+    refreshToken: z.string(),
+    csrfToken: z.string(),
     expiresAt: z.string(),
     account: z.object({
       id: z.number(),
       name: z.string(),
-      email: z.string()
-    })
+      email: z.string(),
+    }),
   }),
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type RegisterResType = z.TypeOf<typeof RegisterRes>
+export type RegisterResType = z.TypeOf<typeof RegisterRes>;
 
 export const LoginBody = z
   .object({
     email: z.string().email(),
-    password: z.string().min(6).max(100)
+    password: z.string().min(6).max(100),
   })
-  .strict()
+  .strict();
 
-export type LoginBodyType = z.TypeOf<typeof LoginBody>
+export type LoginBodyType = z.TypeOf<typeof LoginBody>;
 
-export const LoginRes = RegisterRes
+export const LoginRes = RegisterRes;
 
-export type LoginResType = z.TypeOf<typeof LoginRes>
-export const SlideSessionBody = z.object({}).strict()
+export type LoginResType = z.TypeOf<typeof LoginRes>;
 
-export type SlideSessionBodyType = z.TypeOf<typeof SlideSessionBody>
-export const SlideSessionRes = RegisterRes
+export const SlideSessionBody = z.object({}).strict();
 
-export type SlideSessionResType = z.TypeOf<typeof SlideSessionRes>
+export type SlideSessionBodyType = z.TypeOf<typeof SlideSessionBody>;
+export const SlideSessionRes = RegisterRes;
+
+export type SlideSessionResType = z.TypeOf<typeof SlideSessionRes>;
