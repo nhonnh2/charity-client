@@ -43,10 +43,12 @@ import { CampaignCard } from '@/components/campaign-card';
 import ClientComponentTest from '@/components/client-component-test';
 
 import campaignsApiRequest from '@/apiRequests/campaigns';
-
+let index = 0;
 export default async function Home() {
-  const resTest = await campaignsApiRequest.overview();
-  console.log('Home_____', resTest);
+  // console.log(`Home_____${index}xxxx`);
+  // const resTest = await campaignsApiRequest.overviewServer();
+  // index++;
+  // console.log(`Home_____${index}`, resTest);
 
   return (
     <div className='container mx-auto px-4 py-6 max-w-7xl'>

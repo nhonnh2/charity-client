@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
@@ -19,9 +20,16 @@ function LoginForm() {
     defaultValues: { email: '', password: '' },
   });
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingOAuths, setIsLoadingOAuths] = useState({
+    google: false,
+    facebook: false,
+  });
 
   const handleLogin = async (data: LoginBodyType) => {
     try {
+      setIsLoading(true);
       const response = await authApiRequest.nextLogin(data);
 
       console.log('handleLogin______', response);
@@ -31,11 +39,24 @@ function LoginForm() {
       }
     } catch (error) {
       console.error('handleLogin___', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const isLoading = false;
-  const showPassword = false;
+  const handleOAuthLogin = (type: 'google' | 'facebook') => {
+    setIsLoadingOAuths(prev => ({ ...prev, [type]: true }));
+
+    switch (type) {
+      case 'google':
+        window.location.href = '/api/auth/oauth/google/start';
+        return;
+      case 'facebook':
+        window.location.href = '/api/auth/oauth/facebook/start';
+        return;
+    }
+  };
+
   return (
     <div className='flex-1 lg:max-w-[45%] flex items-center justify-center p-4 sm:p-6 lg:p-8'>
       <div className='w-full max-w-[400px] space-y-6'>
@@ -108,7 +129,7 @@ function LoginForm() {
                     />
                     <button
                       type='button'
-                      // onClick={() => setShowPassword(!showPassword)}
+                      onClick={() => setShowPassword(!showPassword)}
                       className='absolute right-3 top-3.5 text-slate-500 hover:text-slate-700 transition-colors'
                     >
                       {showPassword ? (
@@ -126,9 +147,10 @@ function LoginForm() {
               type='submit'
               className='w-full h-12'
               size='lg'
-              disabled={isLoading}
+              loading={isLoading}
+              loadingText='Đang đăng nhập...'
             >
-              {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              Đăng nhập
             </Button>
           </form>
 
@@ -146,11 +168,13 @@ function LoginForm() {
           {/* Social Login Section */}
           <div className='space-y-3'>
             <Button
-              // onClick={handleGoogleLogin}
+              onClick={() => handleOAuthLogin('google')}
               type='button'
               variant='outline'
               className='w-full h-11'
               size='lg'
+              loading={isLoadingOAuths.google}
+              loadingText='Đang chuyển hướng...'
             >
               <svg className='mr-2 h-4 w-4' viewBox='0 0 24 24'>
                 <path
@@ -174,11 +198,13 @@ function LoginForm() {
             </Button>
 
             <Button
-              // onClick={handleFacebookLogin}
+              onClick={() => handleOAuthLogin('facebook')}
               type='button'
               variant='outline'
               className='w-full h-11'
               size='lg'
+              loading={isLoadingOAuths.facebook}
+              loadingText='Đang chuyển hướng...'
             >
               <svg className='mr-2 h-4 w-4' viewBox='0 0 24 24'>
                 <path

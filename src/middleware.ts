@@ -1,19 +1,28 @@
 import { NextResponse, NextRequest } from 'next/server';
 
-const privatePaths = ['/manage'];
+const privatePaths = ['/campaigns'];
 const unAuthPaths = ['/login', '/register'];
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
   const accessToken = request.cookies.get('accessToken')?.value;
   console.log('accessToken__middleware', accessToken);
 
-  if (privatePaths.some(path => pathname.startsWith(path)) && !accessToken) {
-    const url = new URL('/login', request.url);
+  if (privatePaths.some(path => pathname.startsWith(path))) {
+    if (!accessToken) {
+      const url = new URL('/login', request.url);
 
-    return NextResponse.redirect(url);
+      return NextResponse.redirect(url);
+    } else {
+      const requestHeaders = new Headers(request.headers);
+
+      requestHeaders.set('x-return-to', pathname + search);
+      return NextResponse.next({
+        request: { headers: requestHeaders },
+      });
+    }
   }
   if (accessToken) {
     // Nếu cố tình vào trang login sẽ redirect về trang chủ
@@ -27,5 +36,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/login'],
+  matcher: ['/login', '/campaigns'],
 };

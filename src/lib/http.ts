@@ -1,14 +1,9 @@
 import envConfig from '@/config';
-import {
-  //   getAccessTokenFromLocalStorage,
-  normalizePath,
-  //   removeTokensFromLocalStorage,
-  //   setAccessTokenToLocalStorage,
-  //   setRefreshTokenToLocalStorage
-} from '@/lib/utils';
-import { readCookie } from '@/lib/read-cookie';
 
-// import { LoginResType } from '@/schemaValidations/auth.schema';
+import { normalizePath } from './utils';
+import { readCookie, readHeader } from './read-on-server';
+import { refreshOnce, logoutOnce } from './singe-flight';
+
 import { redirect } from 'next/navigation';
 
 type CustomOptions = Omit<RequestInit, 'method'> & {
@@ -63,9 +58,6 @@ export class EntityError extends HttpError {
   }
 }
 
-let clientLogoutRequest: null | Promise<any> = null;
-let clientRefreshRequest: null | Promise<any> = null;
-let logoutRequest: null | Promise<any> = null;
 const isClient = typeof window !== 'undefined';
 
 const request = async <Response>(
@@ -79,7 +71,7 @@ const request = async <Response>(
   } else if (options?.body) {
     body = JSON.stringify(options.body);
   }
-  const baseHeaders: {
+  let baseHeaders: {
     [key: string]: string;
   } =
     body instanceof FormData
@@ -91,7 +83,8 @@ const request = async <Response>(
   if (!isClient) {
     const accessToken = await readCookie('accessToken');
 
-    console.log('accessToken__server', accessToken);
+    console.log('accessToken__server', accessToken, url);
+
     if (accessToken) {
       baseHeaders.Authorization = `Bearer ${accessToken}`;
     }
@@ -106,76 +99,58 @@ const request = async <Response>(
       : options.baseUrl;
 
   const fullUrl = `${baseUrl}/${normalizePath(url)}`;
-  const res = await fetch(fullUrl, {
-    ...options,
-    headers: {
-      ...baseHeaders,
-      ...options?.headers,
-    } as any,
-    body,
-    method,
-    ...(isClient ? { credentials: 'include' } : {}), // <<< cookie httpOnly tự được gửi kèm
-  });
+  const doFetch = () =>
+    fetch(fullUrl, {
+      ...options,
+      headers: {
+        ...baseHeaders,
+        ...options?.headers,
+      } as any,
+      body,
+      method,
+      ...(isClient ? { credentials: 'include' } : {}), // <<< cookie httpOnly tự được gửi kèm
+    });
+
+  let res = await doFetch();
+
+  if (res.status === AUTHENTICATION_ERROR_STATUS) {
+    if (isClient) {
+      const resRefresh = await refreshOnce();
+      if (resRefresh) {
+        res = await doFetch();
+      }
+    } else {
+      const csrfToken = await readCookie('csrfToken');
+      const returnTo: any = (await readHeader('x-return-to')) ?? '/';
+      console.log('returnTo____', returnTo);
+      const refreshUrl = `/refresh-token?csrfToken=${encodeURIComponent(
+        csrfToken ?? ''
+      )}&returnTo=${encodeURIComponent(returnTo)}`;
+      redirect(refreshUrl);
+    }
+  }
+
   const payload: Response = await res.json();
   const data = {
     status: res.status,
     payload,
   };
-  // Interceptor là nời chúng ta xử lý request và response trước khi trả về cho phía component
-  if (!res.ok) {
-    if (res.status === ENTITY_ERROR_STATUS) {
-      console.log('ENTITY_ERROR_STATUS___', res);
-      throw new EntityError(
-        data as {
-          status: 422;
-          payload: EntityErrorPayload;
-        }
-      );
-    } else if (res.status === AUTHENTICATION_ERROR_STATUS) {
-      console.log('AUTHENTICATION_ERROR_STATUS__', res.status);
-      if (isClient) {
-        if (!clientRefreshRequest) {
-          clientRefreshRequest = fetch('/api/auth/refresh', {
-            method: 'POST',
-            body: null,
-            headers: {
-              ...baseHeaders,
-            } as any,
-          });
-          try {
-            await clientRefreshRequest;
-          } catch (error) {
-            console.error('error', error);
-          } finally {
-            clientRefreshRequest = null;
-          }
-        }
-      } else {
-        redirect(`/logout`);
+  if (res.status === ENTITY_ERROR_STATUS) {
+    console.log('ENTITY_ERROR_STATUS___', res);
+
+    throw new EntityError(
+      data as {
+        status: 422;
+        payload: EntityErrorPayload;
       }
-      // if (isClient) {
-      //   if (!clientLogoutRequest) {
-      //     clientLogoutRequest = fetch('/api/auth/logout', {
-      //       method: 'POST',
-      //       body: null,
-      //       headers: {
-      //         ...baseHeaders,
-      //       } as any,
-      //     });
-      //     try {
-      //       await clientLogoutRequest;
-      //     } catch (error) {
-      //       console.error('error', error);
-      //     } finally {
-      //       clientLogoutRequest = null;
-      //     }
-      //   }
-      // } else {
-      //   redirect(`/logout`);
-      // }
-    } else {
-      throw new HttpError(data);
-    }
+    );
+  }
+  // console.log('res___request', res);
+  if (res.status !== 200) {
+    throw new HttpError({
+      status: res.status,
+      payload,
+    });
   }
 
   return data.payload;

@@ -14,10 +14,27 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function TestAuthPage() {
   const { user, isAuthenticated, isLoading, logout } = useAuthState();
   const { address, isConnected } = useAccount();
+  const [testResult, setTestResult] = useState<any>(null);
+  const [isTesting, setIsTesting] = useState(false);
+
+  const testRefreshToken = async () => {
+    setIsTesting(true);
+    setTestResult(null);
+    try {
+      const response = await fetch('/api/test-refresh');
+      const data = await response.json();
+      setTestResult(data);
+    } catch (error) {
+      setTestResult({ success: false, error: 'Failed to test refresh token' });
+    } finally {
+      setIsTesting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -165,6 +182,35 @@ export default function TestAuthPage() {
                 }}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Refresh Token Test */}
+        <Card className='md:col-span-2'>
+          <CardHeader>
+            <CardTitle>Test Refresh Token</CardTitle>
+            <CardDescription>
+              Test function refreshServerOnce để set cookies sau khi refresh
+              token
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            <Button
+              onClick={testRefreshToken}
+              disabled={isTesting}
+              className='w-full'
+            >
+              {isTesting ? 'Đang test...' : 'Test Refresh Token'}
+            </Button>
+
+            {testResult && (
+              <div className='mt-4 p-4 bg-muted rounded-lg'>
+                <h4 className='font-semibold mb-2'>Kết quả test:</h4>
+                <pre className='text-sm overflow-auto'>
+                  {JSON.stringify(testResult, null, 2)}
+                </pre>
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -22,10 +22,15 @@ const authApiRequest = {
     http.post('/api/auth/login', body, {
       baseUrl: '',
     }),
-  nextRefreshToken: (body: any) =>
-    http.post('/api/auth/refresh', body, {
-      baseUrl: '',
-    }),
+  nextRefreshToken: (csrfToken: string) =>
+    http.post(
+      '/api/auth/refresh',
+      {},
+      {
+        baseUrl: '',
+        headers: { ['x-csrf-token']: csrfToken },
+      }
+    ),
 };
 
 export default authApiRequest;

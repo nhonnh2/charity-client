@@ -9,6 +9,8 @@ import http from '@/lib/http';
 
 const campaignsApiRequest = {
   overview: () => http.get<any>('/campaigns/stats/overview'),
+  overviewServer: () =>
+    http.get<any>('/campaigns/stats/overview?isServer=true'),
 };
 
 export default campaignsApiRequest;

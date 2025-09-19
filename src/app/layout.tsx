@@ -1,9 +1,9 @@
 import type React from 'react';
 import { Inter } from 'next/font/google';
 import '@/styles/globals.css';
-import '@rainbow-me/rainbowkit/styles.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Providers } from '@/components/providers';
+import TokenKeeper from '@/components/token-keeper';
 import RouteProgress from '@/components/route-progress';
 
 const inter = Inter({
@@ -28,6 +28,7 @@ export default function RootLayout({
     <html lang='vi' suppressHydrationWarning className={inter.variable}>
       <body className={inter.className}>
         <RouteProgress />
+        <TokenKeeper />
         <ThemeProvider
           attribute='class'
           defaultTheme='light'

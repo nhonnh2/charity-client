@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const response = await authApiRequest.login(body);
-
+    console.log('response___', response);
     if (response?.data) {
       const resNext = NextResponse.json({}, { status: 200 });
       resNext.cookies.set('accessToken', response.data.accessToken ?? '', {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       return resNext;
     }
 
-    return NextResponse.json(response, { status: 200 });
+    return response;
   } catch (error: unknown) {
     console.error('Login route error:', error);
     if (error instanceof EntityError || error instanceof HttpError) {
