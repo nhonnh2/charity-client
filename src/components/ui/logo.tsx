@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Heart } from 'lucide-react';
 
 interface LogoProps {
@@ -6,7 +5,7 @@ interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function Logo({ className, size = 'md' }: LogoProps) {
+export function Logo({ className = '', size = 'md' }: LogoProps) {
   const iconSizes = {
     sm: 'h-4 w-4',
     md: 'h-5 w-5',
@@ -26,7 +25,7 @@ export function Logo({ className, size = 'md' }: LogoProps) {
   };
 
   return (
-    <Link href="/" className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-2 ${className}`}>
       <div
         className={`flex items-center justify-center ${containerSizes[size]} rounded-lg bg-primary text-primary-foreground`}
       >
@@ -37,6 +36,6 @@ export function Logo({ className, size = 'md' }: LogoProps) {
       >
         TrustCharity
       </span>
-    </Link>
+    </div>
   );
 }

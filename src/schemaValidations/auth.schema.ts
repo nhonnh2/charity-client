@@ -1,6 +1,7 @@
 import z from 'zod';
 
-export const RegisterBody = z
+// Schema cho form validation (bao gồm confirmPassword)
+export const RegisterFormBody = z
   .object({
     name: z.string().trim().min(2).max(256),
     email: z.string().email(),
@@ -17,6 +18,17 @@ export const RegisterBody = z
       });
     }
   });
+
+export type RegisterFormBodyType = z.TypeOf<typeof RegisterFormBody>;
+
+// Schema cho API request (chỉ có name, email, password)
+export const RegisterBody = z
+  .object({
+    name: z.string().trim().min(2).max(256),
+    email: z.string().email(),
+    password: z.string().min(6).max(100),
+  })
+  .strict();
 
 export type RegisterBodyType = z.TypeOf<typeof RegisterBody>;
 

@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
-import { FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,90 +69,97 @@ function LoginForm() {
         {/* Login Form */}
         <div className='space-y-6'>
           {/* Email Login Form */}
-          <form
-            onSubmit={form.handleSubmit(handleLogin, err => {
-              console.error(err);
-            })}
-            className='space-y-4'
-          >
-            <FormField
-              name='email'
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <Label htmlFor='email' className='text-slate-700 font-medium'>
-                    Email
-                  </Label>
-                  <div className='relative'>
-                    <Mail className='absolute left-3 top-3.5 h-5 w-5 text-slate-500' />
-                    <Input
-                      id='email'
-                      type='email'
-                      placeholder='your@email.com'
-                      className='pl-10 h-12'
-                      required
-                      {...field}
-                    />
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              name='password'
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <div className='flex items-center justify-between'>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleLogin, err => {
+                console.error(err);
+              })}
+              className='space-y-4'
+            >
+              <FormField
+                name='email'
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
                     <Label
-                      htmlFor='password'
+                      htmlFor='email'
                       className='text-slate-700 font-medium'
                     >
-                      Mật khẩu
+                      Email
                     </Label>
-                    <Link
-                      href='/forgot-password'
-                      className='text-sm text-amber-600 hover:text-amber-700 hover:underline font-medium'
-                    >
-                      Quên mật khẩu?
-                    </Link>
-                  </div>
-                  <div className='relative'>
-                    <Lock className='absolute left-3 top-3.5 h-5 w-5 text-slate-500' />
-                    <Input
-                      id='password'
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder='••••••••'
-                      className='pl-10 pr-10 h-12'
-                      required
-                      {...field}
-                    />
-                    <button
-                      type='button'
-                      onClick={() => setShowPassword(!showPassword)}
-                      className='absolute right-3 top-3.5 text-slate-500 hover:text-slate-700 transition-colors'
-                    >
-                      {showPassword ? (
-                        <EyeOff className='h-5 w-5' />
-                      ) : (
-                        <Eye className='h-5 w-5' />
-                      )}
-                    </button>
-                  </div>
-                </FormItem>
-              )}
-            />
+                    <div className='relative'>
+                      <Mail className='absolute left-3 top-3.5 h-5 w-5 text-slate-500' />
+                      <Input
+                        id='email'
+                        type='email'
+                        placeholder='your@email.com'
+                        className='pl-10 h-12'
+                        required
+                        {...field}
+                      />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button
-              type='submit'
-              className='w-full h-12'
-              size='lg'
-              loading={isLoading}
-              loadingText='Đang đăng nhập...'
-            >
-              Đăng nhập
-            </Button>
-          </form>
+              <FormField
+                name='password'
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='flex items-center justify-between'>
+                      <Label
+                        htmlFor='password'
+                        className='text-slate-700 font-medium'
+                      >
+                        Mật khẩu
+                      </Label>
+                      <Link
+                        href='/forgot-password'
+                        className='text-sm text-amber-600 hover:text-amber-700 hover:underline font-medium'
+                      >
+                        Quên mật khẩu?
+                      </Link>
+                    </div>
+                    <div className='relative'>
+                      <Lock className='absolute left-3 top-3.5 h-5 w-5 text-slate-500' />
+                      <Input
+                        id='password'
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder='••••••••'
+                        className='pl-10 pr-10 h-12'
+                        required
+                        {...field}
+                      />
+                      <button
+                        type='button'
+                        onClick={() => setShowPassword(!showPassword)}
+                        className='absolute right-3 top-3.5 text-slate-500 hover:text-slate-700 transition-colors'
+                      >
+                        {showPassword ? (
+                          <EyeOff className='h-5 w-5' />
+                        ) : (
+                          <Eye className='h-5 w-5' />
+                        )}
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type='submit'
+                className='w-full h-12'
+                size='lg'
+                loading={isLoading}
+                loadingText='Đang đăng nhập...'
+              >
+                Đăng nhập
+              </Button>
+            </form>
+          </Form>
 
           <div className='relative'>
             <div className='absolute inset-0 flex items-center'>

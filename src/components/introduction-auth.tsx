@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { Shield, Users, TrendingUp } from 'lucide-react';
 
@@ -27,14 +28,20 @@ const features = [
 function IntroductionSide() {
   return (
     <div className='hidden lg:flex lg:flex-1 lg:max-w-[55%] bg-gradient-to-br from-primary/20 via-primary/10 to-background relative overflow-hidden'>
-      {/* Background Image shifted right */}
-      <div
-        className='absolute inset-0 bg-cover bg-no-repeat opacity-60'
-        style={{
-          backgroundImage: "url('/treemlaocai_flipped.jpeg')",
-          backgroundPosition: '30% 30%',
-        }}
-      />
+      {/* Optimized Background Image */}
+      <div className='absolute inset-0'>
+        <Image
+          src='/treemlaocai_flipped.jpeg'
+          alt='Background'
+          fill
+          className='object-cover opacity-60'
+          style={{
+            objectPosition: '30% 30%',
+          }}
+          priority // Preload this image
+          quality={85} // Optimize quality
+        />
+      </div>
       {/* Gradient overlay for text readability */}
       <div className='absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-800/50 to-transparent' />
       {/* Additional vertical gradient */}

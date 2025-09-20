@@ -160,7 +160,7 @@ const request = async <Response>(
     );
   }
   // console.log('res___request', res);
-  if (res.status !== 200) {
+  if (res.status !== 200 && res.status !== 201) {
     throw new HttpError({
       status: res.status,
       payload,
