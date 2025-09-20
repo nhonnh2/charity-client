@@ -1,30 +1,39 @@
-import crypto from 'crypto';
-import { NextResponse } from 'next/server';
+import envConfig from '@/config';
 
-// single-flight refresh to back end
+const isClient = typeof window !== 'undefined';
 
-type P = Promise<NextResponse>;
-const locks = new Map<string, P>();
+// single-flight logout
 
-export function keyFromRefresh(rt: string) {
-  return crypto.createHash('sha256').update(rt).digest('base64url');
-}
+let logoutRequest: null | Promise<boolean> = null;
+export async function logoutOnce() {
+  if (!logoutRequest) {
+    const url = isClient
+      ? '/api/auth/logout' // Client-side: relative path
+      : `${envConfig.NEXT_PUBLIC_URL}/api/auth/logout`; // Server-side: full URL
 
-export function withRefreshLock(
-  key: string,
-  task: () => Promise<NextResponse>
-): P {
-  const ex = locks.get(key);
-  if (ex) return ex;
-  const p = task().finally(() => locks.delete(key));
-  locks.set(key, p);
-  return p;
+    logoutRequest = fetch(url, {
+      method: 'POST',
+      cache: 'no-store',
+      credentials: 'include',
+      ...(isClient ? { credentials: 'include' } : {}),
+    })
+      .then(async r => {
+        return r.ok;
+      })
+      .catch(error => {
+        console.error('❌ Logout request failed:', error);
+        return false;
+      })
+      .finally(() => {
+        logoutRequest = null;
+      });
+  }
+  return logoutRequest;
 }
 
 // singe-flight refresh request front end
 
 let refreshRequest: null | Promise<boolean> = null;
-const isClient = typeof window !== 'undefined';
 
 // Gọi refresh 1 lần duy nhất tại một thời điểm
 export async function refreshOnce(): Promise<boolean | string> {
@@ -51,22 +60,4 @@ export async function refreshOnce(): Promise<boolean | string> {
       });
   }
   return refreshRequest;
-}
-
-// single-flight logout
-
-let logoutRequest: null | Promise<any> = null;
-export async function logoutOnce() {
-  if (!isClient) return;
-  if (!logoutRequest) {
-    logoutRequest = fetch('/api/auth/logout', {
-      method: 'POST',
-      cache: 'no-store',
-    }).finally(() => {
-      logoutRequest = null;
-    });
-  }
-  try {
-    await logoutRequest;
-  } catch {}
 }

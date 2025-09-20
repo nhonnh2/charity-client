@@ -25,8 +25,6 @@ function RefreshToken() {
     const res = await refreshOnce();
     if (res) {
       router.replace(pathNameRedirect);
-    } else {
-      router.replace('/');
     }
   };
 

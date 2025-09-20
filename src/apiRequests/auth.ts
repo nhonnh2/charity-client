@@ -17,7 +17,7 @@ const authApiRequest = {
     http.post('/api/auth', body, {
       baseUrl: '',
     }),
-  logout: () => http.post('/api/auth/logout', null, { baseUrl: '' }),
+  logout: (refreshBody: any) => http.post('/auth/logout', refreshBody),
   nextLogin: (body: LoginBodyType) =>
     http.post('/api/auth/login', body, {
       baseUrl: '',

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { EntityError, HttpError } from '@/lib/http';
+import { logoutOnce } from '@/lib/singe-flight';
 
 import authApiRequest from '@/apiRequests/auth';
 
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
 
   try {
     const response = await authApiRequest.refreshToken({ refreshToken });
-
+    console.log('refreshToken_____', response);
     if (response?.data) {
       const resNext = NextResponse.json({}, { status: 200 });
       resNext.cookies.set('accessToken', response.data.accessToken ?? '', {
@@ -54,7 +55,11 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     console.error('Login route error:', error);
     if (error instanceof EntityError || error instanceof HttpError) {
-      return NextResponse.json(error.payload, { status: error.status });
+      const nextResError = NextResponse.json(error.payload, {
+        status: error.status,
+      });
+
+      return nextResError;
     }
     return NextResponse.json(
       { message: 'Internal Server Error' },

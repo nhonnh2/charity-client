@@ -58,13 +58,13 @@ export class EntityError extends HttpError {
   }
 }
 
-const isClient = typeof window !== 'undefined';
-
 const request = async <Response>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   options?: CustomOptions | undefined
 ) => {
+  const isClient = typeof window !== 'undefined';
+
   let body: FormData | string | undefined = undefined;
   if (options?.body instanceof FormData) {
     body = options.body;
@@ -112,21 +112,35 @@ const request = async <Response>(
     });
 
   let res = await doFetch();
+  const normalizeUrl = normalizePath(url);
+  const isRefreshToken = ['auth/refresh'].includes(normalizeUrl);
 
   if (res.status === AUTHENTICATION_ERROR_STATUS) {
-    if (isClient) {
-      const resRefresh = await refreshOnce();
-      if (resRefresh) {
-        res = await doFetch();
+    console.log('AUTHENTICATION_ERROR_STATUS___', isRefreshToken, normalizeUrl);
+    if (isRefreshToken) {
+      if (isClient) {
+        const resLogout = await logoutOnce();
+        if (resLogout) {
+          redirect('/login');
+        }
       }
     } else {
-      const csrfToken = await readCookie('csrfToken');
-      const returnTo: any = (await readHeader('x-return-to')) ?? '/';
-      console.log('returnTo____', returnTo);
-      const refreshUrl = `/refresh-token?csrfToken=${encodeURIComponent(
-        csrfToken ?? ''
-      )}&returnTo=${encodeURIComponent(returnTo)}`;
-      redirect(refreshUrl);
+      if (isClient) {
+        const resRefresh = await refreshOnce();
+        if (resRefresh) {
+          res = await doFetch();
+        } else {
+          redirect('/logout');
+        }
+      } else {
+        const csrfToken = await readCookie('csrfToken');
+        const returnTo: any = (await readHeader('x-return-to')) ?? '/';
+        console.log('returnTo____', returnTo);
+        const refreshUrl = `/refresh-token?csrfToken=${encodeURIComponent(
+          csrfToken ?? ''
+        )}&returnTo=${encodeURIComponent(returnTo)}`;
+        redirect(refreshUrl);
+      }
     }
   }
 
