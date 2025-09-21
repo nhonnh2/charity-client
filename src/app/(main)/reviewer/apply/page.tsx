@@ -33,12 +33,10 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useAuthState } from '@/hooks/auth/use-auth';
 import { toast } from 'sonner';
 
 export default function ReviewerApplicationPage() {
   const router = useRouter();
-  const { user } = useAuthState();
 
   const [formData, setFormData] = useState({
     motivation: '',

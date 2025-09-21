@@ -47,12 +47,9 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useAuthState } from '@/hooks/auth/use-auth';
 
 export default function CreateCampaignPage() {
-  const { user } = useAuthState();
-  const userReputation = user?.reputation || 0;
-
+  const userReputation = 60;
   const [activeStep, setActiveStep] = useState(1);
   const [campaignType, setCampaignType] = useState<'regular' | 'emergency'>(
     'regular'

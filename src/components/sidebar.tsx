@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,6 +21,7 @@ import {
   HelpCircle,
   LogOut,
   MoreHorizontal,
+  Loader2,
 } from 'lucide-react';
 import { useMobile } from '@/hooks/common/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -32,6 +34,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import authApiRequest from '@/apiRequests/auth';
+import { toast } from 'sonner';
 
 interface SidebarNavProps {
   className?: string;
@@ -40,6 +44,24 @@ interface SidebarNavProps {
 export default function Sidebar({ className }: SidebarNavProps) {
   const pathname = usePathname();
   const isMobile = useMobile();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      const resLogout = await authApiRequest.nextLogout();
+      if (resLogout) {
+        toast.success('Đăng xuất thành công');
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Có lỗi xảy ra khi đăng xuất');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   // Don't render sidebar on mobile
   if (isMobile) {
@@ -216,7 +238,9 @@ export default function Sidebar({ className }: SidebarNavProps) {
       <div className='border-t p-4'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className='flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-sidebar-accent cursor-pointer transition-all'>
+            <div
+              className={`flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-sidebar-accent cursor-pointer transition-all ${isLoggingOut ? 'opacity-50' : ''}`}
+            >
               <Avatar className='h-10 w-10 border-2 border-primary/20'>
                 <AvatarImage src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face&auto=format&q=80' />
                 <AvatarFallback className='bg-primary/10 text-primary'>
@@ -229,7 +253,11 @@ export default function Sidebar({ className }: SidebarNavProps) {
                   @nguyenvana
                 </span>
               </div>
-              <MoreHorizontal className='h-4 w-4 text-muted-foreground' />
+              {isLoggingOut ? (
+                <Loader2 className='h-4 w-4 text-muted-foreground animate-spin' />
+              ) : (
+                <MoreHorizontal className='h-4 w-4 text-muted-foreground' />
+              )}
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end' className='w-56'>
@@ -246,8 +274,16 @@ export default function Sidebar({ className }: SidebarNavProps) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className='text-destructive'>
-              <LogOut className='mr-2 h-4 w-4' />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className='text-destructive'
+            >
+              {isLoggingOut ? (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <LogOut className='mr-2 h-4 w-4' />
+              )}
               Đăng xuất
             </DropdownMenuItem>
           </DropdownMenuContent>

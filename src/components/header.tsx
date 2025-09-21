@@ -25,15 +25,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useMobile } from '@/hooks/common/use-mobile';
-import { useAuthState } from '@/hooks/auth/use-auth';
 import { Logo } from '@/components/ui/logo';
 
 export default function Header() {
   const isMobile = useMobile();
-  const { user, isAuthenticated, logout } = useAuthState();
-
+  // const { user, isAuthenticated, logout } = useAuthState();
+  const user: any = null;
+  const isAuthenticated = false;
   const handleLogout = () => {
-    logout();
+    // logout();
   };
 
   return (

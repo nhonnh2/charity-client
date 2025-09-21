@@ -51,7 +51,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { useAuthState } from '@/hooks/auth/use-auth';
 
 interface ReviewItem {
   id: string;
@@ -79,7 +78,6 @@ interface ReviewItem {
 }
 
 export default function ReviewerDashboard() {
-  const { user } = useAuthState();
   const [activeTab, setActiveTab] = useState('new');
   const [isReviewer, setIsReviewer] = useState(true); // Mock data
   const [filters, setFilters] = useState({
