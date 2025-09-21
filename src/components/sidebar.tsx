@@ -35,6 +35,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import authApiRequest from '@/apiRequests/auth';
+import { useAuthStore } from '@/stores/auth-store';
 import { toast } from 'sonner';
 
 interface SidebarNavProps {
@@ -47,16 +48,22 @@ export default function Sidebar({ className }: SidebarNavProps) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  const { user, clearUser } = useAuthStore();
+
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
       const resLogout = await authApiRequest.nextLogout();
       if (resLogout) {
+        // Clear user từ store
+        clearUser();
         toast.success('Đăng xuất thành công');
         router.push('/login');
       }
     } catch (error) {
       console.error('Logout error:', error);
+      // Vẫn clear user ngay cả khi có lỗi
+      clearUser();
       toast.error('Có lỗi xảy ra khi đăng xuất');
     } finally {
       setIsLoggingOut(false);
@@ -242,16 +249,35 @@ export default function Sidebar({ className }: SidebarNavProps) {
               className={`flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-sidebar-accent cursor-pointer transition-all ${isLoggingOut ? 'opacity-50' : ''}`}
             >
               <Avatar className='h-10 w-10 border-2 border-primary/20'>
-                <AvatarImage src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face&auto=format&q=80' />
+                <AvatarImage
+                  src={
+                    user?.avatar ||
+                    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face&auto=format&q=80'
+                  }
+                />
                 <AvatarFallback className='bg-primary/10 text-primary'>
-                  TC
+                  {user?.name
+                    ? user.name
+                        .split(' ')
+                        .map(word => word.charAt(0))
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)
+                    : 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className='flex flex-col flex-1'>
-                <span className='text-sm font-medium'>Nguyễn Văn A</span>
-                <span className='text-xs text-muted-foreground'>
-                  @nguyenvana
+                <span className='text-sm font-medium'>
+                  {user?.name || 'Người dùng'}
                 </span>
+                <span className='text-xs text-muted-foreground'>
+                  {user?.email || 'user@example.com'}
+                </span>
+                {user?.role && (
+                  <span className='text-xs text-muted-foreground capitalize'>
+                    {user.role}
+                  </span>
+                )}
               </div>
               {isLoggingOut ? (
                 <Loader2 className='h-4 w-4 text-muted-foreground animate-spin' />

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 import authApiRequest from '@/apiRequests/auth';
+import { useAuthStore } from '@/stores/auth-store';
 
 import {
   RegisterFormBodyType,
@@ -37,12 +38,13 @@ function RegisterForm() {
     facebook: false,
   });
 
+  const { setUser } = useAuthStore();
+
   const handleRegister = async (data: RegisterFormBodyType) => {
     try {
       setIsLoading(true);
       // Chỉ gửi name, email, password cho API backend
       const { confirmPassword, ...registerData } = data;
-      console.log('handleRegister______', registerData);
 
       const reRegister = await authApiRequest.register(
         registerData as RegisterBodyType
@@ -54,6 +56,17 @@ function RegisterForm() {
           password: registerData.password,
         });
         if (resLogin) {
+          // Lưu user info vào store
+          const responseData = resLogin as any;
+          const userData = {
+            id: parseInt(responseData.data.user.id),
+            name: responseData.data.user.name,
+            email: responseData.data.user.email,
+            role: responseData.data.user.role,
+            avatar: responseData.data.user.avatar,
+          };
+          setUser(userData);
+
           router.push('/');
         }
       }

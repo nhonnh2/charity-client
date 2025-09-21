@@ -45,7 +45,6 @@ export async function GET(req: Request) {
       code_verifier: verifier,
     }),
   });
-  console.log('tokenRes_____1', tokenRes);
   if (!tokenRes.ok) {
     const t = await tokenRes.text().catch(() => '');
     return NextResponse.redirect(
@@ -60,7 +59,6 @@ export async function GET(req: Request) {
     expires_in: number;
     token_type: 'Bearer';
   };
-  console.log('tokenRes_____2', tokens);
 
   if (!tokens.id_token) {
     return NextResponse.redirect(abs(req, `/login?error=missing_id_token`));
@@ -75,7 +73,6 @@ export async function GET(req: Request) {
       nonce: savedNonce, // để Nest so khớp nonce trong id_token
     }),
   });
-  console.log('tokenRes_____3', nestRes, nestRes.ok);
 
   if (!nestRes.ok) {
     const t = await nestRes.text().catch(() => '');
@@ -85,7 +82,6 @@ export async function GET(req: Request) {
   }
 
   const response = await nestRes.json();
-  console.log('tokenRes_____3', nestRes, response);
 
   // Kiểm tra response từ NestJS
   if (!response.data || !response.data.accessToken) {
@@ -94,8 +90,19 @@ export async function GET(req: Request) {
     );
   }
 
+  // Lưu user info vào localStorage thông qua client-side script
+  const userData = {
+    id: parseInt(response.data.user.id),
+    name: response.data.user.name,
+    email: response.data.user.email,
+    role: response.data.user.role,
+    avatar: response.data.user.avatar,
+  };
   // Set cookie nội bộ như flow hiện tại
-  const redirectUrl = abs(req, '/');
+  const redirectUrl = abs(
+    req,
+    `/oauth-callback?userData=${encodeURIComponent(JSON.stringify(userData))}`
+  );
   console.log('Redirecting to:', redirectUrl.toString());
   const resNext = NextResponse.redirect(redirectUrl, { status: 302 });
 

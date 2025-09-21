@@ -83,8 +83,6 @@ const request = async <Response>(
   if (!isClient) {
     const accessToken = await readCookie('accessToken');
 
-    console.log('accessToken__server', accessToken, url);
-
     if (accessToken) {
       baseHeaders.Authorization = `Bearer ${accessToken}`;
     }
@@ -135,7 +133,6 @@ const request = async <Response>(
       } else {
         const csrfToken = await readCookie('csrfToken');
         const returnTo: any = (await readHeader('x-return-to')) ?? '/';
-        console.log('returnTo____', returnTo);
         const refreshUrl = `/refresh-token?csrfToken=${encodeURIComponent(
           csrfToken ?? ''
         )}&returnTo=${encodeURIComponent(returnTo)}`;
@@ -159,7 +156,6 @@ const request = async <Response>(
       }
     );
   }
-  // console.log('res___request', res);
   if (res.status !== 200 && res.status !== 201) {
     throw new HttpError({
       status: res.status,

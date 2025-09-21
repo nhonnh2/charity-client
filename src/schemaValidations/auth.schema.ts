@@ -37,11 +37,13 @@ export const RegisterRes = z.object({
     accessToken: z.string(),
     refreshToken: z.string(),
     csrfToken: z.string(),
-    expiresAt: z.string(),
-    account: z.object({
-      id: z.number(),
+    user: z.object({
+      id: z.string(),
       name: z.string(),
       email: z.string(),
+      role: z.string(),
+      avatar: z.string().optional(),
+      createdAt: z.string().transform(str => new Date(str)),
     }),
   }),
   message: z.string(),

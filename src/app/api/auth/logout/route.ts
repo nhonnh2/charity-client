@@ -9,7 +9,6 @@ export async function POST(request: Request) {
 
   const accessToken = cookieStore.get('accessToken')?.value;
   const refreshToken = cookieStore.get('refreshToken')?.value;
-  console.log('accessToken__deleted', accessToken);
 
   if (!accessToken || !refreshToken) {
     return NextResponse.json(

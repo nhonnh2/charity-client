@@ -26,7 +26,6 @@ export async function POST(request: Request) {
 
   try {
     const response = await authApiRequest.refreshToken({ refreshToken });
-    console.log('refreshToken_____', response);
     if (response?.data) {
       const resNext = NextResponse.json({}, { status: 200 });
       resNext.cookies.set('accessToken', response.data.accessToken ?? '', {

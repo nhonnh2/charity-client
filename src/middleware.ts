@@ -8,7 +8,6 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   const accessToken = request.cookies.get('accessToken')?.value;
-  console.log('accessToken__middleware', accessToken);
 
   if (privatePaths.some(path => pathname.startsWith(path))) {
     if (!accessToken) {

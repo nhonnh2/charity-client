@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { useForm } from 'react-hook-form';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 import authApiRequest from '@/apiRequests/auth';
+import { useAuthStore } from '@/stores/auth-store';
 
 import { LoginBodyType } from '@/schemaValidations/auth.schema';
 
@@ -20,6 +21,7 @@ function LoginForm() {
     defaultValues: { email: '', password: '' },
   });
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingOAuths, setIsLoadingOAuths] = useState({
@@ -27,14 +29,33 @@ function LoginForm() {
     facebook: false,
   });
 
+  const { setUser } = useAuthStore();
+
+  // Xử lý OAuth errors
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      console.error('OAuth error:', error);
+      // Có thể hiển thị toast error ở đây
+    }
+  }, [searchParams]);
+
   const handleLogin = async (data: LoginBodyType) => {
     try {
       setIsLoading(true);
-      const response = await authApiRequest.nextLogin(data);
-
-      console.log('handleLogin______', response);
-
+      const response: any = await authApiRequest.nextLogin(data);
       if (response) {
+        // Lưu user info vào store
+        const responseData = response as any;
+        const userData = {
+          id: parseInt(responseData.data.user.id),
+          name: responseData.data.user.name,
+          email: responseData.data.user.email,
+          role: responseData.data.user.role,
+          avatar: responseData.data.user.avatar,
+        };
+        setUser(userData);
+
         router.push('/');
       }
     } catch (error) {
