@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
 
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
@@ -17,10 +18,12 @@ import { useAuthStore } from '@/stores/auth-store';
 import {
   RegisterFormBodyType,
   RegisterBodyType,
+  RegisterFormBody,
 } from '@/schemaValidations/auth.schema';
 
 function RegisterForm() {
   const form = useForm<RegisterFormBodyType>({
+    resolver: zodResolver(RegisterFormBody),
     defaultValues: {
       name: '',
       email: '',

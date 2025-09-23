@@ -29,9 +29,6 @@ import {
 } from '@/components/ui/select';
 import { CampaignCard } from '@/components/campaign-card';
 import campaignsApiRequest from '@/apiRequests/campaigns';
-import ClientComponentTest from '@/components/client-component-test';
-
-let index = 0;
 
 export default async function CampaignsPage() {
   // Dữ liệu mẫu cho các chiến dịch với 3 trạng thái khác nhau
@@ -122,13 +119,8 @@ export default async function CampaignsPage() {
     },
   ];
 
-  // const resTest = await campaignsApiRequest.overviewServer();
-  // index++;
-  // console.log(`CampaignsPage_____${index}`, resTest);
-
   return (
     <div className='container mx-auto px-4 py-6 max-w-8xl'>
-      <ClientComponentTest />
       <div className='mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
         <div>
           <h1 className='text-2xl font-bold tracking-tight'>

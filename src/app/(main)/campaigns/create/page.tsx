@@ -24,6 +24,7 @@ import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   AlertCircle,
@@ -812,7 +813,7 @@ export default function CreateCampaignPage() {
 
         {/* Sidebar - 1/3 width on desktop */}
         <div className='space-y-6'>
-          <Card className='sticky top-6'>
+          <Card className='top-6'>
             <CardHeader>
               <CardTitle>Hướng dẫn</CardTitle>
             </CardHeader>

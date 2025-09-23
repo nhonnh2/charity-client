@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
@@ -14,10 +15,11 @@ import { Input } from '@/components/ui/input';
 import authApiRequest from '@/apiRequests/auth';
 import { useAuthStore } from '@/stores/auth-store';
 
-import { LoginBodyType } from '@/schemaValidations/auth.schema';
+import { LoginBodyType, LoginBody } from '@/schemaValidations/auth.schema';
 
 function LoginForm() {
   const form = useForm<LoginBodyType>({
+    resolver: zodResolver(LoginBody),
     defaultValues: { email: '', password: '' },
   });
   const router = useRouter();
