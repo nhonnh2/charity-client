@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -65,10 +65,10 @@ import {
 export default function CampaignDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const campaignId = params.id;
-
+  const resolvedParams = use(params);
+  const campaignId = resolvedParams.id;
   // Mock data - in real app, this would come from API
   const isOwner = true; // User is the campaign owner
   const currentStage = 2; // Currently on stage 2
@@ -1358,7 +1358,7 @@ export default function CampaignDetailPage({
                       </div>
                     ))}
                   </div>
-                  <Button variant='outline' className='w-full' asChild>
+                  <Button variant='outline' className='w-full'>
                     <Link href='/transactions'>
                       Xem tất cả giao dịch onchain
                     </Link>
@@ -1459,7 +1459,7 @@ export default function CampaignDetailPage({
                 </div>
               </div>
               <div className='space-y-2'>
-                <Button variant='outline' size='sm' className='w-full' asChild>
+                <Button variant='outline' size='sm' className='w-full'>
                   <Link
                     href='/transactions'
                     className='flex items-center justify-center gap-2'

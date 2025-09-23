@@ -511,7 +511,6 @@ export default function TransactionsPage() {
                                   variant='outline'
                                   size='sm'
                                   className='h-8'
-                                  asChild
                                 >
                                   <Link
                                     href={`https://polygonscan.com/tx/${tx.hash}`}
@@ -616,7 +615,7 @@ export default function TransactionsPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button variant='outline' className='w-full' asChild>
+              <Button variant='outline' className='w-full'>
                 <Link href='https://polygonscan.com/' target='_blank'>
                   <ExternalLink className='mr-2 h-4 w-4' />
                   Mở Polygon Explorer
