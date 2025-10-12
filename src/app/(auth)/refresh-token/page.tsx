@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { refreshOnce } from '@/lib/singe-flight';
+import { refreshOnce } from '@/lib/auth/single-flight';
 import authApiRequest from '@/apiRequests/auth';
 
 function RefreshToken() {

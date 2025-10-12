@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { logoutOnce } from '@/lib/singe-flight';
+import { logoutOnce } from '@/lib/auth/single-flight';
 
 function Logout() {
   const router = useRouter();

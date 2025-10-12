@@ -5,7 +5,7 @@ import {
   codeChallengeFrom,
   genState,
   genNonce,
-} from '@/lib/pkce';
+} from '@/lib/auth/pkce';
 
 const GOOGLE_AUTHZ = 'https://accounts.google.com/o/oauth2/v2/auth';
 const SCOPES = ['openid', 'email', 'profile'].join(' ');

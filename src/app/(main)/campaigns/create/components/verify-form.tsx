@@ -1,6 +1,5 @@
 'use client';
 
-import { useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,21 +10,22 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { FormField, FormItem, FormLabel } from '@/components/ui/form';
 import {
-  AlertCircle,
-  ImageIcon,
-  Upload,
-  Wallet,
-  Shield,
-  DollarSign,
-} from 'lucide-react';
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
+import { ImageUploadPreview } from '@/components/ui/image-upload-preview';
+import { AlertCircle, Wallet, Shield, DollarSign } from 'lucide-react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CreateCampaignFormType } from '@/schemaValidations/campaign.schema';
 
 type VerifyFormProps = {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CreateCampaignFormType>;
 };
 
 const VerifyForm = ({ form }: VerifyFormProps) => {
@@ -82,15 +82,22 @@ const VerifyForm = ({ form }: VerifyFormProps) => {
                   <Button
                     variant='outline'
                     size='sm'
-                    onClick={() =>
-                      field.onChange(Math.max(50000, reviewFee - 10000))
-                    }
+                    onClick={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      field.onChange(Math.max(50000, reviewFee - 10000));
+                    }}
                   >
                     -10K
                   </Button>
                   <Input
                     type='number'
                     {...field}
+                    onChange={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      field.onChange(parseFloat(e.target.value) || 50000);
+                    }}
                     min={50000}
                     step={10000}
                     className='text-center'
@@ -109,6 +116,7 @@ const VerifyForm = ({ form }: VerifyFormProps) => {
                     {reviewFee > 50000 ? 'Ưu tiên cao' : 'Ưu tiên tiêu chuẩn'}
                   </span>
                 </div>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -117,103 +125,65 @@ const VerifyForm = ({ form }: VerifyFormProps) => {
             <Shield className='h-4 w-4' />
             <AlertTitle>Cam kết minh bạch</AlertTitle>
             <AlertDescription className='text-sm'>
-              Phí duyệt sẽ được hoàn lại 100% nếu chiến dịch bị từ chối do lý do
-              không hợp lệ. Nếu chiến dịch được duyệt, phí sẽ được chuyển cho
-              người duyệt.
+              Nếu chiến dịch được duyệt 70% phí sẽ được trả cho người xét duyệt
+              và 30% phí sẽ trả cho hệ thống. Nếu chiến dịch bị từ chối 70% phí
+              vẫn sẽ trả cho người duyệt và 30% sẽ được hoàn lại cho người tạo.
             </AlertDescription>
           </Alert>
         </CardContent>
       </Card>
 
       <FormField
-        name='file[cccd_front]'
+        name='identityFront'
         control={form.control}
-        render={({ field }) => {
-          const inputRef = useRef<HTMLInputElement | null>(null);
-          const setFile = (f: File | null) => field.onChange(f ?? null);
-          return (
-            <FormItem>
-              <FormLabel className='text-sm font-medium'>
-                Tải lên CMND/CCCD (mặt trước)
-              </FormLabel>
-              <div className='border-2 border-dashed rounded-lg p-6 text-center'>
-                <ImageIcon className='h-8 w-8 mx-auto text-muted-foreground' />
-                <p className='mt-2 text-sm font-medium'>
-                  Kéo thả hoặc nhấp để tải lên
-                </p>
-                <p className='mt-1 text-xs text-muted-foreground'>
-                  JPG hoặc PNG (tối đa 5MB)
-                </p>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='mt-4'
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <Upload className='mr-2 h-4 w-4' />
-                  Chọn tệp
-                </Button>
-
-                <input
-                  ref={inputRef}
-                  name={field.name}
-                  type='file'
-                  accept='image/png,image/jpeg,image/gif,image/svg+xml'
-                  className='hidden'
-                  onChange={e => setFile(e.target.files?.[0] ?? null)}
-                />
-              </div>
-            </FormItem>
-          );
-        }}
+        render={({ field, fieldState }) => (
+          <FormItem>
+            <FormLabel className='text-sm font-medium'>
+              Tải lên CMND/CCCD (mặt trước)
+            </FormLabel>
+            <FormControl>
+              <ImageUploadPreview
+                value={field.value}
+                onChange={field.onChange}
+                onClearError={() => form.clearErrors('identityFront')}
+                error={fieldState.error?.message}
+                label='Kéo thả hoặc nhấp để tải lên'
+                description='JPG hoặc PNG (tối đa 5MB)'
+                accept='image/png,image/jpeg,image/jpg'
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
       />
 
       <FormField
-        name='file[cccd_front]'
+        name='identityBack'
         control={form.control}
-        render={({ field }) => {
-          const inputRef = useRef<HTMLInputElement | null>(null);
-          const setFile = (f: File | null) => field.onChange(f ?? null);
-          return (
-            <FormItem>
-              <FormLabel className='text-sm font-medium'>
-                Tải lên CMND/CCCD (mặt sau)
-              </FormLabel>
-              <div className='border-2 border-dashed rounded-lg p-6 text-center'>
-                <ImageIcon className='h-8 w-8 mx-auto text-muted-foreground' />
-                <p className='mt-2 text-sm font-medium'>
-                  Kéo thả hoặc nhấp để tải lên
-                </p>
-                <p className='mt-1 text-xs text-muted-foreground'>
-                  JPG hoặc PNG (tối đa 5MB)
-                </p>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='mt-4'
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <Upload className='mr-2 h-4 w-4' />
-                  Chọn tệp
-                </Button>
-
-                <input
-                  ref={inputRef}
-                  name={field.name}
-                  type='file'
-                  accept='image/png,image/jpeg,image/gif,image/svg+xml'
-                  className='hidden'
-                  onChange={e => setFile(e.target.files?.[0] ?? null)}
-                />
-              </div>
-            </FormItem>
-          );
-        }}
+        render={({ field, fieldState }) => (
+          <FormItem>
+            <FormLabel className='text-sm font-medium'>
+              Tải lên CMND/CCCD (mặt sau)
+            </FormLabel>
+            <FormControl>
+              <ImageUploadPreview
+                value={field.value}
+                onChange={field.onChange}
+                onClearError={() => form.clearErrors('identityBack')}
+                error={fieldState.error?.message}
+                label='Kéo thả hoặc nhấp để tải lên'
+                description='JPG hoặc PNG (tối đa 5MB)'
+                accept='image/png,image/jpeg,image/jpg'
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
       />
 
       <Separator />
 
-      <div className='space-y-2'>
+      {/* <div className='space-y-2'>
         <label className='text-sm font-medium'>Kết nối ví blockchain</label>
         <Card>
           <CardContent className='p-4'>
@@ -227,35 +197,46 @@ const VerifyForm = ({ form }: VerifyFormProps) => {
                   </p>
                 </div>
               </div>
-              <Button>Kết nối</Button>
+              <Button type='button'>Kết nối</Button>
             </div>
           </CardContent>
         </Card>
         <p className='text-xs text-muted-foreground'>
           Chiến dịch sẽ sử dụng mạng Polygon để giảm phí giao dịch
         </p>
-      </div>
+      </div> */}
 
-      <div className='space-y-2'>
-        <div className='flex items-center space-x-2'>
-          <input
-            type='checkbox'
-            id='terms'
-            className='rounded border-gray-300'
-          />
-          <label htmlFor='terms' className='text-sm'>
-            Tôi đồng ý với{' '}
-            <Link href='#' className='text-blue-600 hover:underline'>
-              điều khoản sử dụng
-            </Link>{' '}
-            và
-            <Link href='#' className='text-blue-600 hover:underline'>
-              {' '}
-              chính sách bảo mật
-            </Link>
-          </label>
-        </div>
-      </div>
+      <FormField
+        name='agreedToTerms'
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <div className='flex items-center space-x-2'>
+              <FormControl>
+                <input
+                  type='checkbox'
+                  id='terms'
+                  className='rounded border-gray-300'
+                  checked={field.value}
+                  onChange={field.onChange}
+                />
+              </FormControl>
+              <label htmlFor='terms' className='text-sm'>
+                Tôi đồng ý với{' '}
+                <Link href='#' className='text-blue-600 hover:underline'>
+                  điều khoản sử dụng
+                </Link>{' '}
+                và
+                <Link href='#' className='text-blue-600 hover:underline'>
+                  {' '}
+                  chính sách bảo mật
+                </Link>
+              </label>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
 };

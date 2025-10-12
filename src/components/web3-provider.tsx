@@ -9,7 +9,7 @@ import {
 import '@rainbow-me/rainbowkit/styles.css';
 import { WagmiProvider } from 'wagmi';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { config } from '@/lib/wagmi-config';
+import { config } from '@/lib/web3/wagmi';
 import { useTheme } from 'next-themes';
 
 const queryClient = new QueryClient();

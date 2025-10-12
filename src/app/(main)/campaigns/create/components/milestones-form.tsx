@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,69 +9,42 @@ import {
   FormItem,
   FormControl,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
-import { FileText, Info, Plus, Trash2, Upload, Zap } from 'lucide-react';
-import { useWatch, UseFormReturn } from 'react-hook-form';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Info, Plus, Trash2, Zap } from 'lucide-react';
+import { useWatch, UseFormReturn, useFieldArray } from 'react-hook-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CreateCampaignFormType } from '@/schemaValidations/campaign.schema';
 
 type MileStonesFormProps = {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CreateCampaignFormType>;
 };
 
 const MileStonesForm = ({ form }: MileStonesFormProps) => {
-  const [phases, setPhases] = useState([
-    {
-      id: 1,
-      title: 'Hoàn thành móng và khung',
-      description:
-        'Đào móng, đổ bê tông và xây dựng khung chính của trường học.',
-      budget: 30000000,
-      duration: '30 ngày',
-      documents: [] as File[],
-    },
-    {
-      id: 2,
-      title: 'Xây tường và mái',
-      description:
-        'Xây tường, lắp đặt cửa sổ, cửa ra vào và hoàn thiện mái nhà.',
-      budget: 40000000,
-      duration: '30 ngày',
-      documents: [] as File[],
-    },
-    {
-      id: 3,
-      title: 'Hoàn thiện và trang thiết bị',
-      description:
-        'Hoàn thiện nội thất, lắp đặt bàn ghế, bảng, và các thiết bị học tập cơ bản.',
-      budget: 30000000,
-      duration: '30 ngày',
-      documents: [] as File[],
-    },
-  ]);
-
-  const [type, fundingType] = useWatch({
+  // Use useFieldArray to manage milestones - syncs with form data
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: ['type', 'fundingType'],
+    name: 'milestones',
+  });
+
+  const type = useWatch({
+    control: form.control,
+    name: 'type',
   });
 
   const addPhase = () => {
-    const newId =
-      phases.length > 0 ? Math.max(...phases.map(p => p.id)) + 1 : 1;
-    setPhases([
-      ...phases,
-      {
-        id: newId,
-        title: '',
-        description: '',
-        budget: 0,
-        duration: '',
-        documents: [],
-      },
-    ]);
+    append({
+      title: '',
+      description: '',
+      budget: 0,
+      durationDays: 0,
+      documents: [],
+    });
   };
 
-  const removePhase = (id: number) => {
-    setPhases(phases.filter(phase => phase.id !== id));
+  const removePhase = (index: number) => {
+    remove(index);
   };
 
   return (
@@ -100,9 +72,9 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
       )}
 
       <div className='space-y-4'>
-        {(type === 'emergency' ? phases.slice(0, 1) : phases).map(
-          (phase, index) => (
-            <Card key={phase.id}>
+        {(type === 'emergency' ? fields.slice(0, 1) : fields).map(
+          (field, index) => (
+            <Card key={field.id}>
               <CardHeader className='pb-2'>
                 <div className='flex items-center justify-between'>
                   <CardTitle className='text-base'>
@@ -110,11 +82,12 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                       ? 'Thông tin chiến dịch khẩn cấp'
                       : `Giai đoạn ${index + 1}`}
                   </CardTitle>
-                  {phases.length > 1 && type !== 'emergency' && (
+                  {fields.length > 1 && type !== 'emergency' && (
                     <Button
+                      type='button'
                       variant='ghost'
                       size='sm'
-                      onClick={() => removePhase(phase.id)}
+                      onClick={() => removePhase(index)}
                       className='h-8 w-8 p-0 text-muted-foreground hover:text-destructive'
                     >
                       <Trash2 className='h-4 w-4' />
@@ -124,7 +97,7 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
               </CardHeader>
               <CardContent className='space-y-4 pt-0'>
                 <FormField
-                  name='milestones[title]'
+                  name={`milestones.${index}.title`}
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
@@ -143,11 +116,12 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
-                  name='milestones[description]'
+                  name={`milestones.${index}.description`}
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
@@ -167,69 +141,55 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
                 <FormField
-                  name='milestones[documents]'
+                  name={`milestones.${index}.documents`}
                   control={form.control}
-                  render={({ field }) => {
-                    const inputRef = useRef<HTMLInputElement | null>(null);
-                    const setFile = (f: File | null) =>
-                      field.onChange(f ?? null);
-                    return (
-                      <FormItem>
-                        <FormLabel>
-                          {type === 'emergency'
-                            ? 'Tài liệu chứng minh khẩn cấp'
-                            : 'Tài liệu giai đoạn'}
-                        </FormLabel>
-                        <div className='space-y-3'>
-                          <div className='border-2 border-dashed rounded-lg p-4 text-center'>
-                            <FileText className='h-6 w-6 mx-auto text-muted-foreground mb-2' />
-                            <p className='text-sm font-medium'>
-                              {type === 'emergency'
-                                ? 'Tải lên giấy tờ chứng minh tình trạng khẩn cấp'
-                                : 'Tải lên tài liệu kế hoạch, báo giá, giấy phép...'}
-                            </p>
-                            <p className='text-xs text-muted-foreground mt-1'>
-                              PDF, JPG, PNG (tối đa 10MB mỗi file)
-                            </p>
-                            <Button
-                              variant='outline'
-                              size='sm'
-                              className='mt-3'
-                            >
-                              <Upload className='mr-2 h-4 w-4' />
-                              Chọn tệp
-                            </Button>
-                            <input
-                              ref={inputRef}
-                              name={field.name}
-                              type='file'
-                              accept='image/png,image/jpeg,image/gif,image/svg+xml'
-                              className='hidden'
-                              onChange={e =>
-                                setFile(e.target.files?.[0] ?? null)
-                              }
-                            />
-                          </div>
-                          {type === 'emergency' && (
-                            <div className='text-xs text-orange-600 bg-orange-50 p-2 rounded'>
-                              <strong>Lưu ý:</strong> Chiến dịch khẩn cấp cần
-                              cung cấp tài liệu chứng minh tính khẩn cấp (báo
-                              cáo y tế, giấy xác nhận thiên tai, v.v.)
-                            </div>
-                          )}
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {type === 'emergency'
+                          ? 'Tài liệu chứng minh khẩn cấp'
+                          : 'Tài liệu giai đoạn'}
+                      </FormLabel>
+                      <FormControl>
+                        <DocumentUpload
+                          value={field.value || []}
+                          onChange={field.onChange}
+                          onClearError={() =>
+                            form.clearErrors(
+                              `milestones.${index}.documents` as any
+                            )
+                          }
+                          error={fieldState.error?.message}
+                          label={
+                            type === 'emergency'
+                              ? 'Tải lên giấy tờ chứng minh tình trạng khẩn cấp'
+                              : 'Tải lên tài liệu kế hoạch, báo giá, giấy phép...'
+                          }
+                          description='PDF, Images, Word, Excel (tối đa 10MB mỗi file)'
+                          accept='application/pdf,image/png,image/jpeg,image/jpg,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain'
+                          multiple={true}
+                        />
+                      </FormControl>
+                      {type === 'emergency' && (
+                        <div className='text-xs text-orange-600 bg-orange-50 p-2 rounded mt-2'>
+                          <strong>Lưu ý:</strong> Chiến dịch khẩn cấp cần cung
+                          cấp tài liệu chứng minh tính khẩn cấp (báo cáo y tế,
+                          giấy xác nhận thiên tai, v.v.)
                         </div>
-                      </FormItem>
-                    );
-                  }}
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
 
                 <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                   <FormField
-                    name='milestones[budget]'
+                    name={`milestones.${index}.budget`}
                     control={form.control}
                     render={({ field }) => (
                       <FormItem>
@@ -239,14 +199,18 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                             type='number'
                             placeholder='Nhập số tiền...'
                             {...field}
+                            onChange={e =>
+                              field.onChange(parseFloat(e.target.value) || 0)
+                            }
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
 
                   <FormField
-                    name='milestones[durationDays]'
+                    name={`milestones.${index}.durationDays`}
                     control={form.control}
                     render={({ field }) => (
                       <FormItem>
@@ -257,14 +221,17 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            type='number'
                             placeholder={
-                              type === 'emergency'
-                                ? 'Ví dụ: Ngay lập tức'
-                                : 'Ví dụ: 30 ngày'
+                              type === 'emergency' ? 'Ví dụ: 1' : 'Ví dụ: 30'
                             }
                             {...field}
+                            onChange={e =>
+                              field.onChange(parseInt(e.target.value) || 0)
+                            }
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -274,7 +241,12 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
           )
         )}
         {type !== 'emergency' && (
-          <Button variant='outline' onClick={addPhase} className='w-full'>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={addPhase}
+            className='w-full'
+          >
             <Plus className='mr-2 h-4 w-4' />
             Thêm giai đoạn
           </Button>

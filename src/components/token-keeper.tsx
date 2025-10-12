@@ -1,7 +1,7 @@
 // app/token-keeper.tsx
 'use client';
 import { useEffect } from 'react';
-import { refreshOnce } from '@/lib/singe-flight';
+import { refreshOnce } from '@/lib/auth/single-flight';
 
 const TIMEOUT = 590000;
 

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import dynamic from 'next/dynamic';
+import { Toaster } from '@/components/ui/sonner';
 
 // Import Web3Provider với dynamic để tránh SSR
 const Web3Provider = dynamic(() => import('./web3-provider'), {
@@ -9,5 +10,10 @@ const Web3Provider = dynamic(() => import('./web3-provider'), {
 });
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <Web3Provider>{children}</Web3Provider>;
+  return (
+    <Web3Provider>
+      {children}
+      <Toaster />
+    </Web3Provider>
+  );
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,12 +18,13 @@ import {
   FormItem,
   FormControl,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
+import { ImageUploadPreview } from '@/components/ui/image-upload-preview';
+import { ImageGalleryUpload } from '@/components/ui/image-gallery-upload';
 import {
   Calendar,
-  ImageIcon,
   Info,
-  Upload,
   Zap,
   Clock,
   Target,
@@ -32,6 +32,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
+import { CreateCampaignFormType } from '@/schemaValidations/campaign.schema';
 import {
   canCreateEmergency,
   maxEmergencyAmount,
@@ -39,7 +40,7 @@ import {
 } from '../constant';
 
 type InfomationBasicFormProps = {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CreateCampaignFormType>;
 };
 
 const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
@@ -112,7 +113,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                 </div>
               </div>
             </RadioGroup>
-            {/* <FormMessage /> */}
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -165,6 +166,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                 </div>
               </div>
             </RadioGroup>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -182,6 +184,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
             <p className='text-xs text-muted-foreground'>
               Tiêu đề ngắn gọn, rõ ràng về mục đích của chiến dịch
             </p>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -205,6 +208,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                 <SelectItem value='other'>Khác</SelectItem>
               </SelectContent>
             </Select>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -226,6 +230,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
             <p className='text-xs text-muted-foreground'>
               Mô tả càng chi tiết càng tăng độ tin cậy cho chiến dịch của bạn
             </p>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -242,6 +247,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                 type='number'
                 placeholder='Nhập số tiền...'
                 {...field}
+                onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
                 max={type === 'emergency' ? maxEmergencyAmount : undefined}
               />
             </FormControl>
@@ -264,6 +270,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                 </p>
               </div>
             )}
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -282,6 +289,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                   <Input type='date' className='pl-10' {...field} />
                 </FormControl>
               </div>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -300,51 +308,63 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                   <Input type='date' className='pl-10' {...field} />
                 </FormControl>
               </div>
+              <FormMessage />
             </FormItem>
           )}
         />
       </div>
       <FormField
-        name='file[cover]'
+        name='coverImage'
         control={form.control}
-        render={({ field }) => {
-          const inputRef = useRef<HTMLInputElement | null>(null);
-          const setFile = (f: File | null) => field.onChange(f ?? null);
-          return (
-            <FormItem>
-              <FormLabel className='text-sm font-medium'>
-                Hình ảnh chiến dịch
-              </FormLabel>
-              <div className='border-2 border-dashed rounded-lg p-6 text-center'>
-                <ImageIcon className='h-8 w-8 mx-auto text-muted-foreground' />
-                <p className='mt-2 text-sm font-medium'>
-                  Kéo thả hoặc nhấp để tải lên
-                </p>
-                <p className='mt-1 text-xs text-muted-foreground'>
-                  SVG, PNG, JPG hoặc GIF (tối đa 5MB)
-                </p>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='mt-4'
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <Upload className='mr-2 h-4 w-4' />
-                  Chọn tệp
-                </Button>
-
-                <input
-                  ref={inputRef}
-                  name={field.name}
-                  type='file'
-                  accept='image/png,image/jpeg,image/gif,image/svg+xml'
-                  className='hidden'
-                  onChange={e => setFile(e.target.files?.[0] ?? null)}
-                />
-              </div>
-            </FormItem>
-          );
-        }}
+        render={({ field, fieldState }) => (
+          <FormItem>
+            <FormLabel className='text-sm font-medium'>
+              Hình ảnh đại diện (Cover)
+            </FormLabel>
+            <FormControl>
+              <ImageUploadPreview
+                value={field.value}
+                onChange={field.onChange}
+                onClearError={() => form.clearErrors('coverImage')}
+                error={fieldState.error?.message}
+                label='Kéo thả hoặc nhấp để tải lên ảnh cover'
+                description='PNG, JPG, GIF hoặc SVG (tối đa 5MB)'
+                accept='image/png,image/jpeg,image/jpg,image/gif,image/svg+xml'
+              />
+            </FormControl>
+            <p className='text-xs text-muted-foreground'>
+              Ảnh đại diện sẽ được hiển thị ở trang danh sách chiến dịch
+            </p>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        name='images'
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <FormItem>
+            <FormLabel className='text-sm font-medium'>
+              Gallery hình ảnh chiến dịch
+            </FormLabel>
+            <FormControl>
+              <ImageGalleryUpload
+                value={field.value}
+                onChange={field.onChange}
+                onClearError={() => form.clearErrors('images')}
+                error={fieldState.error?.message}
+                label='Tải lên hình ảnh cho chiến dịch'
+                description='PNG, JPG, GIF hoặc SVG (tối đa 5MB mỗi ảnh, tối đa 10 ảnh)'
+                accept='image/png,image/jpeg,image/jpg,image/gif,image/svg+xml'
+                maxFiles={10}
+              />
+            </FormControl>
+            <p className='text-xs text-muted-foreground'>
+              Gallery hình ảnh sẽ được hiển thị trong trang chi tiết chiến dịch
+            </p>
+            <FormMessage />
+          </FormItem>
+        )}
       />
     </>
   );

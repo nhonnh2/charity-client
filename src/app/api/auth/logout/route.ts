@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { EntityError, HttpError } from '@/lib/http';
+import { EntityError, HttpError } from '@/lib/api/http';
 
 import authApiRequest from '@/apiRequests/auth';
 

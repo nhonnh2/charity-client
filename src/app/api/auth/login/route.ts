@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import authApiRequest from '@/apiRequests/auth';
-import { EntityError, HttpError } from '@/lib/http';
+import { EntityError, HttpError } from '@/lib/api/http';
 
 export async function POST(request: Request) {
   try {

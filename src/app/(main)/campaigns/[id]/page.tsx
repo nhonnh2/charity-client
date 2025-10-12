@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -41,11 +41,15 @@ import {
   Target,
   Banknote,
   Calendar as CalendarIcon,
+  ArrowLeft,
+  Eye,
+  Users,
+  DollarSign,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Dialog,
   DialogContent,
@@ -56,11 +60,149 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import campaignsApiRequest from '@/apiRequests/campaigns';
+import { CampaignResponseType } from '@/schemaValidations/campaign.schema';
+import { toast } from 'sonner';
+import { getApiErrorMessage } from '@/lib/api/errors';
+
+// Helper function to get status badge
+function getStatusBadge(status: string) {
+  const statusConfig = {
+    pending_review: {
+      label: 'Chờ duyệt',
+      className: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    },
+    approved: {
+      label: 'Đã duyệt',
+      className: 'bg-blue-50 text-blue-700 border-blue-200',
+    },
+    rejected: {
+      label: 'Bị từ chối',
+      className: 'bg-red-50 text-red-700 border-red-200',
+    },
+    fundraising: {
+      label: 'Đang gây quỹ',
+      className: 'bg-green-50 text-green-700 border-green-200',
+    },
+    implementation: {
+      label: 'Đang triển khai',
+      className: 'bg-purple-50 text-purple-700 border-purple-200',
+    },
+    completed: {
+      label: 'Hoàn thành',
+      className: 'bg-gray-50 text-gray-700 border-gray-200',
+    },
+    cancelled: {
+      label: 'Đã hủy',
+      className: 'bg-gray-50 text-gray-700 border-gray-200',
+    },
+  };
+
+  const config = statusConfig[status as keyof typeof statusConfig] || {
+    label: status,
+    className: 'bg-gray-50 text-gray-700 border-gray-200',
+  };
+
+  return (
+    <Badge variant='outline' className={config.className}>
+      {config.label}
+    </Badge>
+  );
+}
+
+// Helper function to get category label
+function getCategoryLabel(category: string) {
+  const categories: Record<string, string> = {
+    education: 'Giáo dục',
+    health: 'Y tế',
+    environment: 'Môi trường',
+    disaster: 'Thiên tai',
+    other: 'Khác',
+  };
+  return categories[category] || category;
+}
+
+// Helper function to format currency
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('vi-VN').format(amount);
+}
+
+// Helper function to format date - handle both Date and string
+function formatDate(date: Date | string) {
+  const dateObj = date instanceof Date ? date : new Date(date);
+  return new Intl.DateTimeFormat('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(dateObj);
+}
+
+// Loading skeleton component
+function CampaignDetailSkeleton() {
+  return (
+    <div className='container mx-auto px-4 py-6 max-w-8xl'>
+      <div className='mb-4'>
+        <Skeleton className='h-10 w-32' />
+      </div>
+      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+        <div className='md:col-span-2 space-y-6'>
+          <Skeleton className='h-96 w-full rounded-lg' />
+          <Skeleton className='h-24 w-full' />
+          <Skeleton className='h-64 w-full' />
+        </div>
+        <div className='space-y-6'>
+          <Skeleton className='h-96 w-full' />
+          <Skeleton className='h-48 w-full' />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Error display component
+function CampaignError({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  const router = useRouter();
+
+  return (
+    <div className='container mx-auto px-4 py-12 max-w-2xl'>
+      <Card>
+        <CardContent className='pt-6'>
+          <div className='flex flex-col items-center text-center space-y-4'>
+            <div className='rounded-full bg-red-100 p-3'>
+              <AlertCircle className='h-6 w-6 text-red-600' />
+            </div>
+            <div>
+              <h3 className='text-lg font-semibold'>
+                Không thể tải thông tin chiến dịch
+              </h3>
+              <p className='text-muted-foreground mt-2'>{message}</p>
+            </div>
+            <div className='flex gap-2'>
+              <Button variant='outline' onClick={() => router.back()}>
+                <ArrowLeft className='mr-2 h-4 w-4' />
+                Quay lại
+              </Button>
+              <Button onClick={onRetry}>Thử lại</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function CampaignDetailPage({
   params,
@@ -69,1089 +211,392 @@ export default function CampaignDetailPage({
 }) {
   const resolvedParams = use(params);
   const campaignId = resolvedParams.id;
-  // Mock data - in real app, this would come from API
-  const isOwner = true; // User is the campaign owner
-  const currentStage = 2; // Currently on stage 2
-  const needExpenseProof = true; // Current stage needs expense proof to unlock next stage
+  const router = useRouter();
 
-  // Campaign status - trong triển khai, chỉ hiện đóng góp nếu có kêu gọi bổ sung
-  const isImplementing = true; // Đang trong quá trình triển khai
-  const hasAdditionalFunding = false; // Có kêu gọi bổ sung không - thay đổi để test
-  const showDonationSection = isImplementing ? hasAdditionalFunding : true; // Logic đóng góp
+  const [campaign, setCampaign] = useState<CampaignResponseType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // State cho việc hiển thị tài liệu
-  const [showAllDocsStage1, setShowAllDocsStage1] = useState(false);
-  const [showAllDocsStage2, setShowAllDocsStage2] = useState(false);
-  const [showAllDocsStage3, setShowAllDocsStage3] = useState(false);
+  // Fetch campaign data
+  const fetchCampaign = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await campaignsApiRequest.getById(campaignId);
+      setCampaign(response.data);
+    } catch (err: any) {
+      const errorMessage = getApiErrorMessage(err);
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCampaign();
+  }, [campaignId]);
+
+  // Show loading state
+  if (isLoading) {
+    return <CampaignDetailSkeleton />;
+  }
+  console.log('CampaignDetailPage_____render', error, campaign);
+  // Show error state
+  if (error || !campaign) {
+    return (
+      <CampaignError
+        message={error || 'Không tìm thấy chiến dịch'}
+        onRetry={fetchCampaign}
+      />
+    );
+  }
+
+  // Calculate progress percentage
+  const progressPercentage = campaign.targetAmount
+    ? Math.round((campaign.currentAmount / campaign.targetAmount) * 100)
+    : 0;
+
+  // Calculate days remaining - handle both Date and string
+  const endDate =
+    campaign.endDate instanceof Date
+      ? campaign.endDate
+      : new Date(campaign.endDate);
+  const daysRemaining = Math.max(
+    0,
+    Math.ceil(
+      (endDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    )
+  );
+
+  // Check if fundraising is active
+  const isFundraising = campaign.status === 'fundraising';
+  const isImplementing = campaign.status === 'implementation';
 
   return (
     <div className='container mx-auto px-4 py-6 max-w-8xl'>
+      {/* Back button */}
+      <div className='mb-4'>
+        <Button variant='ghost' size='sm' onClick={() => router.back()}>
+          <ArrowLeft className='mr-2 h-4 w-4' />
+          Quay lại danh sách
+        </Button>
+      </div>
+
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
         {/* Main content - 2/3 width on desktop */}
         <div className='md:col-span-2 space-y-6'>
+          {/* Cover image */}
           <div className='relative h-64 md:h-96 w-full overflow-hidden rounded-lg'>
             <img
-              src='https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'
-              alt='Campaign Cover'
+              src={
+                campaign.coverImage?.url ||
+                '/placeholder.svg?height=400&width=800&text=Campaign'
+              }
+              alt={campaign.title}
               className='h-full w-full object-cover'
             />
             <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white'>
               <Badge className='mb-2 bg-green-600 hover:bg-green-700'>
-                Giáo dục
+                {getCategoryLabel(campaign.category)}
               </Badge>
               <h1 className='text-2xl font-bold md:text-3xl'>
-                Xây trường học cho trẻ em vùng cao
+                {campaign.title}
               </h1>
             </div>
           </div>
 
+          {/* Creator info & actions */}
           <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
             <div className='flex items-center space-x-4'>
               <Avatar className='h-10 w-10'>
                 <AvatarImage
-                  src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80'
-                  alt='Avatar'
+                  src={campaign.creatorId.avatar}
+                  alt={campaign.creatorId.name}
                 />
-                <AvatarFallback>TH</AvatarFallback>
+                <AvatarFallback>
+                  {campaign.creatorId.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div>
                 <div className='flex items-center space-x-2'>
-                  <span className='font-semibold'>Trần Hùng</span>
-                  <Badge variant='outline' className='bg-blue-50 text-blue-700'>
-                    <TrendingUp className='mr-1 h-3 w-3' />
-                    <span>Uy tín 85</span>
-                  </Badge>
+                  <span className='font-semibold'>
+                    {campaign.creatorId.name}
+                  </span>
+                  {campaign.creatorId.reputation !== undefined && (
+                    <Badge
+                      variant='outline'
+                      className='bg-blue-50 text-blue-700'
+                    >
+                      <TrendingUp className='mr-1 h-3 w-3' />
+                      <span>Uy tín {campaign.creatorId.reputation}</span>
+                    </Badge>
+                  )}
                 </div>
                 <p className='text-xs text-muted-foreground'>
-                  Đã xác minh danh tính
+                  Người tạo chiến dịch
                 </p>
               </div>
             </div>
-            <div className='flex flex-wrap gap-2'>
+            <div className='flex flex-wrap items-center gap-2'>
               <Button
                 variant='outline'
                 size='sm'
-                className='flex items-center gap-1'
+                className='flex items-center gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer'
               >
                 <Heart className='h-4 w-4' />
-                <span>Yêu thích</span>
+                <span className='font-medium'>0</span>
+                <span className='text-xs text-muted-foreground'>Quan tâm</span>
               </Button>
               <Button
                 variant='outline'
                 size='sm'
-                className='flex items-center gap-1'
+                className='flex items-center gap-2 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-colors cursor-pointer'
               >
                 <Share2 className='h-4 w-4' />
-                <span>Chia sẻ</span>
+                <span className='font-medium'>
+                  {campaign.shareCount.toLocaleString('vi-VN')}
+                </span>
+                <span className='text-xs text-muted-foreground'>Chia sẻ</span>
               </Button>
-              {isOwner && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      className='flex items-center gap-1 bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100'
-                    >
-                      <Plus className='h-4 w-4' />
-                      <span>Kêu gọi bổ sung</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className='sm:max-w-[500px]'>
-                    <DialogHeader>
-                      <DialogTitle>Kêu gọi bổ sung chiến dịch</DialogTitle>
-                      <DialogDescription>
-                        Tạo chiến dịch con để kêu gọi thêm kinh phí cho chiến
-                        dịch hiện tại
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className='space-y-4'>
-                      <div className='space-y-2'>
-                        <Label htmlFor='additional-title'>
-                          Tiêu đề kêu gọi bổ sung
-                        </Label>
-                        <Input
-                          id='additional-title'
-                          placeholder='VD: Bổ sung thiết bị học tập cho trường'
-                        />
-                      </div>
-                      <div className='space-y-2'>
-                        <Label htmlFor='additional-amount'>
-                          Số tiền cần kêu gọi thêm (VNĐ)
-                        </Label>
-                        <Input
-                          id='additional-amount'
-                          type='number'
-                          placeholder='20000000'
-                        />
-                      </div>
-                      <div className='space-y-2'>
-                        <Label htmlFor='additional-reason'>
-                          Lý do cần kêu gọi bổ sung
-                        </Label>
-                        <Textarea
-                          id='additional-reason'
-                          placeholder='Giải thích lý do tại sao cần thêm kinh phí...'
-                          rows={4}
-                        />
-                      </div>
-                      <Alert>
-                        <AlertCircle className='h-4 w-4' />
-                        <AlertDescription>
-                          Kêu gọi bổ sung sẽ được gửi đến tất cả người đóng góp
-                          và cộng đồng để xem xét.
-                        </AlertDescription>
-                      </Alert>
-                    </div>
-                    <DialogFooter>
-                      <Button variant='outline'>Hủy</Button>
-                      <Button>Tạo kêu gọi bổ sung</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              )}
+              <Separator
+                orientation='vertical'
+                className='h-8 mx-1 hidden md:block'
+              />
             </div>
           </div>
 
-          {/* Expense Proof Alert for Owner */}
-          {isOwner && needExpenseProof && (
-            <Alert className='border-orange-200 bg-orange-50'>
-              <Receipt className='h-4 w-4' />
-              <AlertDescription className='flex items-center justify-between'>
-                <span>
-                  Bạn cần xác nhận hoàn thành và chứng minh chi tiêu giai đoạn
-                  hiện tại để mở khóa giải ngân giai đoạn tiếp theo.
-                </span>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button size='sm' variant='outline' className='ml-2'>
-                      <Check className='h-4 w-4 mr-1' />
-                      Xác nhận hoàn thành
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className='sm:max-w-[600px]'>
-                    <DialogHeader>
-                      <DialogTitle>
-                        Xác nhận hoàn thành và chứng minh chi tiêu giai đoạn{' '}
-                        {currentStage}
-                      </DialogTitle>
-                      <DialogDescription>
-                        Upload tài liệu, hóa đơn và báo cáo chi tiêu để chứng
-                        minh việc sử dụng kinh phí hợp lý
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className='space-y-4'>
-                      <div className='space-y-2'>
-                        <Label>Tổng chi tiêu thực tế (VNĐ)</Label>
-                        <Input
-                          type='number'
-                          placeholder='35000000'
-                          defaultValue='35000000'
-                        />
-                        <p className='text-sm text-muted-foreground'>
-                          Ngân sách dự kiến cho giai đoạn này: 35.000.000 VNĐ
-                        </p>
-                      </div>
-
-                      <div className='grid grid-cols-2 gap-4'>
-                        <div className='space-y-2'>
-                          <Label>Số tiền thừa (nếu có)</Label>
-                          <Input type='number' placeholder='0' />
-                        </div>
-                        <div className='space-y-2'>
-                          <Label>Số tiền thiếu (nếu có)</Label>
-                          <Input type='number' placeholder='0' />
-                        </div>
-                      </div>
-
-                      <div className='space-y-2'>
-                        <Label>Báo cáo chi tiêu chi tiết</Label>
-                        <Textarea
-                          placeholder='Mô tả chi tiết về các khoản chi tiêu trong giai đoạn này...'
-                          rows={4}
-                        />
-                      </div>
-
-                      <div className='space-y-2'>
-                        <Label>Upload tài liệu chứng minh</Label>
-                        <div className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center'>
-                          <Upload className='h-8 w-8 mx-auto mb-2 text-muted-foreground' />
-                          <p className='text-sm text-muted-foreground mb-2'>
-                            Kéo thả file hoặc click để chọn
-                          </p>
-                          <p className='text-xs text-muted-foreground'>
-                            Hỗ trợ: PDF, JPG, PNG (tối đa 10MB mỗi file)
-                          </p>
-                          <Button variant='outline' size='sm' className='mt-2'>
-                            Chọn file
-                          </Button>
-                        </div>
-                      </div>
-
-                      <Alert>
-                        <AlertCircle className='h-4 w-4' />
-                        <AlertDescription>
-                          Sau khi submit, tài liệu sẽ được gửi đến hệ thống
-                          duyệt để xác minh. Giai đoạn tiếp theo chỉ được giải
-                          ngân khi chứng minh chi tiêu được phê duyệt.
-                        </AlertDescription>
-                      </Alert>
-                    </div>
-                    <DialogFooter>
-                      <Button variant='outline'>Hủy</Button>
-                      <Button>
-                        <Receipt className='h-4 w-4 mr-2' />
-                        Submit chứng minh chi tiêu
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </AlertDescription>
-            </Alert>
-          )}
-
+          {/* Campaign info card */}
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin chiến dịch</CardTitle>
+              <div className='flex items-center justify-between'>
+                <CardTitle>Thông tin chiến dịch</CardTitle>
+                {getStatusBadge(campaign.status)}
+              </div>
             </CardHeader>
             <CardContent className='space-y-4'>
-              {!isImplementing ? (
-                // Giai đoạn gây quỹ - hiện progress và thời gian còn lại
-                <>
-                  <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
-                    <div className='space-y-1'>
-                      <p className='text-xs text-muted-foreground'>Mục tiêu</p>
-                      <p className='font-medium'>100.000.000 VNĐ</p>
-                    </div>
-                    <div className='space-y-1'>
-                      <p className='text-xs text-muted-foreground'>
-                        Đã quyên góp
-                      </p>
-                      <p className='font-medium'>85.000.000 VNĐ</p>
-                    </div>
-                    <div className='space-y-1'>
-                      <p className='text-xs text-muted-foreground'>
-                        Người đóng góp
-                      </p>
-                      <p className='font-medium'>128 người</p>
-                    </div>
-                    <div className='space-y-1'>
-                      <p className='text-xs text-muted-foreground'>
-                        Thời gian còn lại
-                      </p>
-                      <p className='font-medium'>15 ngày</p>
-                    </div>
+              {/* Stats grid */}
+              <TooltipProvider>
+                <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
+                  <div className='space-y-1'>
+                    <p className='text-xs text-muted-foreground'>Mục tiêu</p>
+                    <p className='font-medium'>
+                      {formatCurrency(campaign.targetAmount)} VNĐ
+                    </p>
                   </div>
 
-                  <Progress value={85} className='h-2' />
+                  {/* Loại chiến dịch với tooltip */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className='space-y-1 cursor-pointer group -mx-2 -my-1 px-2 py-1 rounded hover:bg-slate-50 transition-colors'>
+                        <div className='flex items-center gap-1.5'>
+                          <p className='text-xs text-muted-foreground transition-colors'>
+                            Loại chiến dịch
+                          </p>
+                          <AlertCircle className='h-3.5 w-3.5 text-blue-500/70 group-hover:text-blue-600 transition-colors' />
+                        </div>
+                        <p className='font-medium'>
+                          {campaign.type === 'normal'
+                            ? 'Thông thường'
+                            : 'Khẩn cấp'}
+                        </p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side='bottom' className='max-w-xs p-3'>
+                      <div className='space-y-2'>
+                        <div className='flex items-start gap-2'>
+                          {campaign.type === 'emergency' ? (
+                            <AlertCircle className='h-4 w-4 text-red-500 mt-0.5 flex-shrink-0' />
+                          ) : (
+                            <Check className='h-4 w-4 text-green-500 mt-0.5 flex-shrink-0' />
+                          )}
+                          <div>
+                            <p className='font-medium text-sm mb-1'>
+                              {campaign.type === 'normal'
+                                ? 'Chiến dịch thông thường'
+                                : 'Chiến dịch khẩn cấp'}
+                            </p>
+                            <p className='text-xs text-muted-foreground leading-relaxed'>
+                              {campaign.type === 'normal'
+                                ? 'Chiến dịch được lên kế hoạch trước, có thời gian gây quỹ dài hạn và kế hoạch thực hiện chi tiết.'
+                                : 'Chiến dịch cần hỗ trợ gấp do tình huống khẩn cấp, thiên tai hoặc hoàn cảnh đột xuất cần giải quyết nhanh.'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
 
+                  {/* Loại mục tiêu với tooltip */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className='space-y-1 cursor-pointer group -mx-2 -my-1 px-2 py-1 rounded hover:bg-slate-50 transition-colors'>
+                        <div className='flex items-center gap-1.5'>
+                          <p className='text-xs  transition-colors'>
+                            Loại mục tiêu
+                          </p>
+                          <AlertCircle className='h-3.5 w-3.5 text-blue-500/70 group-hover:text-blue-600 transition-colors' />
+                        </div>
+                        <p className='font-medium'>
+                          {campaign.fundingType === 'fixed'
+                            ? 'Cố định'
+                            : 'Linh hoạt'}
+                        </p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side='bottom' className='max-w-sm p-3'>
+                      <div className='space-y-2'>
+                        <div className='flex items-start gap-2'>
+                          {campaign.fundingType === 'fixed' ? (
+                            <Target className='h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0' />
+                          ) : (
+                            <TrendingUp className='h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0' />
+                          )}
+                          <div>
+                            <p className='font-medium text-sm mb-1'>
+                              {campaign.fundingType === 'fixed'
+                                ? 'Mục tiêu cố định'
+                                : 'Mục tiêu linh hoạt'}
+                            </p>
+                            <p className='text-xs text-muted-foreground leading-relaxed'>
+                              {campaign.fundingType === 'fixed'
+                                ? 'Chiến dịch chỉ nhận tiền nếu đạt được 100% mục tiêu. Nếu không đạt, tiền sẽ được hoàn trả cho nhà hỗ trợ.'
+                                : 'Chiến dịch nhận mọi khoản quyên góp bất kể có đạt mục tiêu hay không. Phù hợp cho các dự án có thể triển khai theo từng phần.'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <div className='space-y-1'>
+                    <p className='text-xs text-muted-foreground'>
+                      Thời gian dự kiến
+                    </p>
+                    <p className='font-medium'>
+                      {formatDate(campaign.startDate)} -{' '}
+                      {formatDate(campaign.endDate)}
+                    </p>
+                  </div>
+                </div>
+              </TooltipProvider>
+
+              {/* Progress bar (only show for fundraising status) */}
+              {isFundraising && (
+                <>
+                  <Progress value={progressPercentage} className='h-2' />
                   <div className='flex items-center justify-between text-sm'>
-                    <span>85% đạt được</span>
+                    <span>{progressPercentage}% đạt được</span>
                     <div className='flex items-center space-x-1'>
                       <Calendar className='h-3 w-3 text-muted-foreground' />
                       <span className='text-muted-foreground'>
-                        Kết thúc: 30/06/2023
+                        Kết thúc: {formatDate(campaign.endDate)}
                       </span>
                     </div>
                   </div>
-                </>
-              ) : (
-                // Giai đoạn triển khai - hiện kết quả và số tiền đã giải ngân
-                <>
-                  <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
-                    <div className='space-y-1'>
-                      <p className='text-xs text-muted-foreground'>
-                        Tổng quyên góp
-                      </p>
-                      <p className='font-medium text-green-600'>
-                        100.000.000 VNĐ
-                      </p>
-                    </div>
-                    <div className='space-y-1'>
-                      <p className='text-xs text-muted-foreground'>
-                        Đã giải ngân
-                      </p>
-                      <p className='font-medium text-blue-600'>
-                        70.000.000 VNĐ
-                      </p>
-                    </div>
-                    <div className='space-y-1'>
-                      <p className='text-xs text-muted-foreground'>
-                        Người đóng góp
-                      </p>
-                      <p className='font-medium'>128 người</p>
-                    </div>
-                    <div className='space-y-1'>
-                      <p className='text-xs text-muted-foreground'>
-                        Trạng thái
-                      </p>
-                      <Badge className='bg-blue-100 text-blue-700'>
-                        Đang triển khai
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
-                    <div className='flex items-center justify-between mb-2'>
-                      <div className='flex items-center gap-2'>
-                        <Banknote className='h-4 w-4 text-blue-600' />
-                        <h4 className='font-medium'>Tình hình giải ngân</h4>
-                      </div>
-                    </div>
-                    <div className='space-y-2 text-sm'>
-                      <div className='flex justify-between items-center'>
-                        <span>Giai đoạn 1 (Hoàn thành):</span>
-                        <span className='font-medium text-green-600'>
-                          35.000.000 VNĐ
-                        </span>
-                      </div>
-                      <div className='flex justify-between items-center'>
-                        <span>Giai đoạn 2 (Đang thực hiện):</span>
-                        <span className='font-medium text-blue-600'>
-                          35.000.000 VNĐ
-                        </span>
-                      </div>
-                      <div className='flex justify-between items-center'>
-                        <span>Giai đoạn 3 (Chờ mở khóa):</span>
-                        <span className='font-medium text-gray-500'>
-                          30.000.000 VNĐ
-                        </span>
-                      </div>
-                      <Separator />
-                      <div className='flex justify-between items-center font-medium'>
-                        <span>Còn lại trong quỹ:</span>
-                        <span className='text-orange-600'>30.000.000 VNĐ</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {hasAdditionalFunding && (
-                    <Alert className='border-orange-200 bg-orange-50'>
-                      <Plus className='h-4 w-4' />
-                      <AlertDescription>
-                        Có kêu gọi bổ sung đang diễn ra để hỗ trợ thêm cho các
-                        nhu cầu phát sinh.
-                      </AlertDescription>
-                    </Alert>
-                  )}
                 </>
               )}
 
               <Separator />
 
+              {/* Description */}
               <div className='space-y-4'>
                 <h3 className='font-semibold'>Mô tả chiến dịch</h3>
-                <p>
-                  Chiến dịch "Xây trường học cho trẻ em vùng cao" nhằm mục đích
-                  xây dựng một trường học mới cho hơn 200 trẻ em tại xã Tả Phìn,
-                  huyện Sa Pa, tỉnh Lào Cai. Hiện tại, trẻ em ở đây phải đi bộ
-                  hơn 5km đường núi để đến trường, gặp nhiều khó khăn trong mùa
-                  mưa.
+                <p className='text-gray-700 whitespace-pre-wrap'>
+                  {campaign.description}
                 </p>
-                <p>
-                  Trường học mới sẽ có 6 phòng học, 1 thư viện nhỏ, và các thiết
-                  bị cơ bản phục vụ việc học tập. Dự án được chia thành 3 giai
-                  đoạn, với tổng kinh phí dự kiến là 100 triệu đồng.
-                </p>
-                <div className='grid grid-cols-2 gap-2'>
-                  <img
-                    src='https://images.unsplash.com/photo-1580582932707-520aed937b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80'
-                    alt='Hình ảnh hiện trạng'
-                    className='rounded-lg object-cover h-48 w-full'
-                  />
-                  <img
-                    src='https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80'
-                    alt='Hình ảnh thiết kế'
-                    className='rounded-lg object-cover h-48 w-full'
-                  />
-                </div>
+
+                {/* Gallery */}
+                {campaign.gallery && campaign.gallery.length > 0 && (
+                  <div className='grid grid-cols-2 gap-2 mt-4'>
+                    {campaign.gallery.map((image, index) => (
+                      <img
+                        key={image.id}
+                        src={image.url}
+                        alt={image.name || `Gallery image ${index + 1}`}
+                        className='rounded-lg object-cover h-48 w-full cursor-pointer hover:opacity-90 transition-opacity'
+                        onClick={() => window.open(image.url, '_blank')}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Các giai đoạn chiến dịch</CardTitle>
-              <CardDescription>
-                Chiến dịch được chia thành 3 giai đoạn với mục tiêu và thời gian
-                cụ thể. Mỗi giai đoạn phải được chứng minh chi tiêu để mở khóa
-                giai đoạn tiếp theo.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className='space-y-8'>
-              {/* Giai đoạn 1 - Đã hoàn thành */}
-              <div className='space-y-4'>
-                <div className='flex items-start justify-between'>
-                  <div className='flex items-start space-x-3'>
-                    <div className='flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-700'>
-                      <Check className='h-4 w-4' />
-                    </div>
-                    <div className='flex-1'>
-                      <h3 className='font-semibold'>
-                        Giai đoạn 1: Hoàn thành móng và khung
-                      </h3>
-                      <p className='text-sm text-muted-foreground'>
-                        01/04/2023 - 30/04/2023 • Ngân sách: 35.000.000 VNĐ
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <Badge className='bg-green-100 text-green-700 hover:bg-green-200'>
-                      Hoàn thành
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className='ml-11 space-y-3'>
-                  <div>
-                    <p className='text-gray-700 mt-1'>
-                      Đào móng, đổ bê tông và xây dựng khung chính của trường
-                      học bao gồm chuẩn bị mặt bằng, đào móng theo thiết kế kỹ
-                      thuật và thi công khung bê tông cốt thép.
-                    </p>
-                  </div>
-
-                  {/* Tài liệu kế hoạch */}
-                  <div className='bg-slate-50 border border-slate-200 rounded-lg p-3'>
-                    <div className='flex items-center justify-between mb-3'>
-                      <div className='flex items-center gap-2'>
-                        <FileText className='h-4 w-4 text-slate-600' />
-                        <h4 className='font-medium text-slate-800'>
-                          Tài liệu kế hoạch
-                        </h4>
-                      </div>
-                    </div>
-                    <div className='space-y-2'>
-                      <div className='flex items-center gap-2 flex-wrap'>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='flex items-center gap-1'
-                        >
-                          <Download className='h-4 w-4' />
-                          <span>Kế hoạch chi tiết.pdf</span>
-                        </Button>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='flex items-center gap-1'
-                        >
-                          <Download className='h-4 w-4' />
-                          <span>Thiết kế kỹ thuật.pdf</span>
-                        </Button>
-                        {!showAllDocsStage1 && (
-                          <Button
-                            variant='link'
-                            size='sm'
-                            onClick={() => setShowAllDocsStage1(true)}
-                            className='text-blue-600 hover:text-blue-800'
-                          >
-                            +3 tài liệu khác...
-                          </Button>
-                        )}
-                      </div>
-                      {showAllDocsStage1 && (
-                        <div className='flex items-center gap-2 flex-wrap'>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Báo giá vật tư.pdf</span>
-                          </Button>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Giấy phép xây dựng.pdf</span>
-                          </Button>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Hồ sơ địa chất.pdf</span>
-                          </Button>
-                          <Button
-                            variant='link'
-                            size='sm'
-                            onClick={() => setShowAllDocsStage1(false)}
-                            className='text-blue-600 hover:text-blue-800'
-                          >
-                            Thu gọn
-                          </Button>
+          {/* Milestones */}
+          {campaign.milestones && campaign.milestones.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Các giai đoạn chiến dịch</CardTitle>
+                <CardDescription>
+                  Kế hoạch thực hiện chi tiết cho chiến dịch
+                </CardDescription>
+              </CardHeader>
+              <CardContent className='space-y-6'>
+                {campaign.milestones.map((milestone, index) => (
+                  <div key={index} className='space-y-4'>
+                    <div className='flex items-start justify-between'>
+                      <div className='flex items-start space-x-3'>
+                        <div className='flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700'>
+                          {index + 1}
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Kết quả hoàn thành */}
-                  <div className='bg-green-50 border border-green-200 rounded-lg p-3'>
-                    <div className='flex items-center gap-2 mb-2'>
-                      <Target className='h-4 w-4 text-green-600' />
-                      <h4 className='font-medium'>Kết quả hoàn thành</h4>
-                    </div>
-                    {/* <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p><strong>Chi tiêu thực tế:</strong> 34.500.000 VNĐ</p>
-                        <p><strong>Tiết kiệm:</strong> 500.000 VNĐ</p>
-                      </div>
-                      <div>
-                        <p><strong>Tình nguyện viên:</strong> 15 người</p>
-                        <p><strong>Tiến độ:</strong> 100% hoàn thành</p>
-                      </div>
-                    </div> */}
-
-                    <p className='text-sm'>
-                      Đã hoàn thành 100% công việc giai đoạn 1. Móng được đổ
-                      vững chắc, khung chính đã dựng xong với sự tham gia của 15
-                      tình nguyện viên địa phương. Chất lượng công trình đạt
-                      tiêu chuẩn kỹ thuật.
-                    </p>
-                    <div className='grid grid-cols-2 gap-2'>
-                      <img
-                        src='https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80'
-                        alt='Móng hoàn thành'
-                        className='rounded-md object-cover h-24 w-full'
-                      />
-                      <img
-                        src='https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80'
-                        alt='Móng hoàn thành'
-                        className='rounded-md object-cover h-24 w-full'
-                      />
-                    </div>
-                    <div className='space-y-2 text-sm mt-3'>
-                      <div className='flex justify-between items-center'>
-                        <span className='font-medium text-gray-700'>
-                          Chi phí thực tế:
-                        </span>
-                        <span className='font-semibold text-gray-900'>
-                          28.500.000 VNĐ
-                        </span>
-                      </div>
-                      <div className='flex justify-between items-center'>
-                        <span className='font-medium text-gray-700'>
-                          Tiền thừa:
-                        </span>
-                        <span className='font-semibold text-green-600'>
-                          5.000.000 VNĐ
-                        </span>
-                      </div>
-                      <div className='flex justify-between items-center'>
-                        <span className='font-medium text-gray-700'>
-                          Thời gian hoàn thành:
-                        </span>
-                        <span className='font-semibold text-gray-900'>
-                          17 ngày
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='flex items-center space-x-2'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      className='flex items-center gap-1'
-                    >
-                      <History className='h-4 w-4' />
-                      <span>Xem lịch sử cập nhật (4)</span>
-                    </Button>
-                    <Link href={`/campaigns/${campaignId}/expense-reports`}>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        className='flex items-center gap-1'
-                      >
-                        <Receipt className='h-4 w-4' />
-                        <span>Xem chứng minh chi tiêu</span>
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Giai đoạn 2 - Đang thực hiện */}
-              <div className='space-y-4'>
-                <div className='flex items-start justify-between'>
-                  <div className='flex items-start space-x-3'>
-                    <div className='flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-700'>
-                      <Clock className='h-4 w-4' />
-                    </div>
-                    <div className='flex-1'>
-                      <h3 className='font-semibold'>
-                        Giai đoạn 2: Xây tường và mái
-                      </h3>
-                      <p className='text-sm text-muted-foreground'>
-                        01/05/2023 - 31/05/2023 • Ngân sách: 35.000.000 VNĐ
-                      </p>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <Badge className='bg-blue-100 text-blue-700 hover:bg-blue-200'>
-                      Đang thực hiện
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className='ml-11 space-y-3'>
-                  <div>
-                    <p className='text-gray-700 mt-1'>
-                      Xây tường, lắp đặt cửa sổ, cửa ra vào và hoàn thiện mái
-                      nhà bao gồm xây tường gạch, lắp đặt khung cửa, lợp mái tôn
-                      và hệ thống thoát nước.
-                    </p>
-                  </div>
-                  {/* Tài liệu kế hoạch */}
-                  <div className='bg-slate-50 border border-slate-200 rounded-lg p-3'>
-                    <div className='flex items-center justify-between mb-3'>
-                      <div className='flex items-center gap-2'>
-                        <FileText className='h-4 w-4 text-slate-600' />
-                        <h4 className='font-medium text-slate-800'>
-                          Tài liệu kế hoạch
-                        </h4>
-                      </div>
-                    </div>
-                    <div className='space-y-2'>
-                      <div className='flex items-center gap-2 flex-wrap'>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='flex items-center gap-1'
-                        >
-                          <Download className='h-4 w-4' />
-                          <span>Kế hoạch thi công.pdf</span>
-                        </Button>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='flex items-center gap-1'
-                        >
-                          <Download className='h-4 w-4' />
-                          <span>Danh sách vật tư.pdf</span>
-                        </Button>
-                        {!showAllDocsStage2 && (
-                          <Button
-                            variant='link'
-                            size='sm'
-                            onClick={() => setShowAllDocsStage2(true)}
-                            className='text-blue-600 hover:text-blue-800'
-                          >
-                            +4 tài liệu khác...
-                          </Button>
-                        )}
-                      </div>
-                      {showAllDocsStage2 && (
-                        <div className='flex items-center gap-2 flex-wrap'>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Quy trình an toàn.pdf</span>
-                          </Button>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Bảng giá cửa sổ.pdf</span>
-                          </Button>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Thiết kế mái.pdf</span>
-                          </Button>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Hợp đồng nhà thầu.pdf</span>
-                          </Button>
-                          <Button
-                            variant='link'
-                            size='sm'
-                            onClick={() => setShowAllDocsStage2(false)}
-                            className='text-blue-600 hover:text-blue-800'
-                          >
-                            Thu gọn
-                          </Button>
+                        <div className='flex-1'>
+                          <h3 className='font-semibold'>{milestone.title}</h3>
+                          <p className='text-sm text-muted-foreground mt-1'>
+                            Ngân sách: {formatCurrency(milestone.budget)} VNĐ •
+                            Thời gian: {milestone.durationDays} ngày
+                          </p>
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Tiến độ hiện tại */}
-                  <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
-                    <div className='flex items-center justify-between mb-2'>
-                      <div className='flex items-center gap-2'>
-                        <ChartBar className='h-4 w-4 text-blue-600' />
-                        <h4 className='font-medium'>Tiến độ hiện tại</h4>
                       </div>
-                      <span className='text-sm font-medium'>
-                        60% hoàn thành
-                      </span>
                     </div>
-                    <Progress value={60} className='h-2 mb-2' />
-                    <div className='flex items-center justify-between text-sm'>
-                      <span>Đã chi tiêu: 21.500.000 VNĐ / 35.000.000 VNĐ</span>
-                      <span>Còn lại: 13.500.000 VNĐ</span>
-                    </div>
-                  </div>
 
-                  {/* Cập nhật tiến độ mới nhất */}
-                  <div className='border border-slate-200 rounded-lg p-3'>
-                    <div className='flex items-center justify-between mb-2'>
-                      <div className='flex items-center gap-2'>
-                        <CalendarIcon className='h-4 w-4 text-slate-600' />
-                        <h4 className='font-medium'>Cập nhật mới nhất</h4>
-                      </div>
-                      <span className='text-xs text-muted-foreground'>
-                        2 ngày trước
-                      </span>
-                    </div>
-                    <p className='text-sm text-gray-700 mb-2'>
-                      Đã hoàn thành xây tường phía Đông và Tây của tòa nhà. Hiện
-                      tại đang tiến hành lắp đặt khung cửa sổ và chuẩn bị vật
-                      liệu cho việc lợp mái. Dự kiến hoàn thành 70% trong tuần
-                      tới.
-                    </p>
-                    <div className='grid grid-cols-2 gap-2'>
-                      <img
-                        src='https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80'
-                        alt='Tiến độ xây tường'
-                        className='rounded-lg object-cover h-16 w-full'
-                      />
-                      <img
-                        src='https://images.unsplash.com/photo-1621905251918-48416bd8575a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80'
-                        alt='Lắp đặt cửa sổ'
-                        className='rounded-lg object-cover h-16 w-full'
-                      />
-                    </div>
-                  </div>
+                    <div className='ml-11 space-y-3'>
+                      <p className='text-gray-700'>{milestone.description}</p>
 
-                  <div className='flex items-center space-x-2'>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='flex items-center gap-1'
-                        >
-                          <History className='h-4 w-4' />
-                          <span>Xem lịch sử cập nhật (4)</span>
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className='sm:max-w-[600px]'>
-                        <DialogHeader>
-                          <DialogTitle>
-                            Lịch sử cập nhật - Giai đoạn 2
-                          </DialogTitle>
-                          <DialogDescription>
-                            Theo dõi toàn bộ quá trình cập nhật tiến độ của giai
-                            đoạn này
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className='space-y-4 max-h-96 overflow-y-auto'>
-                          <div className='border border-gray-200 rounded-lg p-3'>
-                            <div className='flex items-center justify-between mb-2'>
-                              <span className='text-sm font-medium'>
-                                15/05/2023
-                              </span>
-                              <span className='text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded'>
-                                40%
-                              </span>
-                            </div>
-                            <p className='text-sm text-gray-700'>
-                              Bắt đầu xây tường phía Nam, hoàn thành 50% phần
-                              móng cột. Thời tiết thuận lợi giúp công việc diễn
-                              ra suôn sẻ.
-                            </p>
-                          </div>
-                          <div className='border border-gray-200 rounded-lg p-3'>
-                            <div className='flex items-center justify-between mb-2'>
-                              <span className='text-sm font-medium'>
-                                10/05/2023
-                              </span>
-                              <span className='text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded'>
-                                20%
-                              </span>
-                            </div>
-                            <p className='text-sm text-gray-700'>
-                              Hoàn thành việc chuẩn bị vật liệu và bắt đầu xây
-                              tường phía Bắc. Đã đặt hàng khung cửa sổ và cửa
-                              chính.
-                            </p>
-                          </div>
-                          <div className='border border-gray-200 rounded-lg p-3'>
-                            <div className='flex items-center justify-between mb-2'>
-                              <span className='text-sm font-medium'>
-                                05/05/2023
-                              </span>
-                              <span className='text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded'>
-                                10%
-                              </span>
-                            </div>
-                            <p className='text-sm text-gray-700'>
-                              Vận chuyển vật liệu xây dựng lên công trường và
-                              bắt đầu chuẩn bị mặt bằng cho giai đoạn 2.
-                            </p>
-                          </div>
-                          <div className='border border-gray-200 rounded-lg p-3'>
-                            <div className='flex items-center justify-between mb-2'>
-                              <span className='text-sm font-medium'>
-                                01/05/2023
-                              </span>
-                              <span className='text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded'>
-                                0%
-                              </span>
-                            </div>
-                            <p className='text-sm text-gray-700'>
-                              Khởi động giai đoạn 2 - Họp bàn với đội thi công
-                              và lập kế hoạch chi tiết cho việc xây tường và
-                              mái.
-                            </p>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-
-                    {isOwner && (
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            size='sm'
-                            className='bg-orange-600 hover:bg-orange-700 flex items-center gap-1'
-                          >
-                            <Check className='h-4 w-4' />
-                            <span>
-                              Xác nhận hoàn thành và chứng minh chi tiêu
-                            </span>
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className='sm:max-w-[600px]'>
-                          <DialogHeader>
-                            <DialogTitle>
-                              Xác nhận hoàn thành và chứng minh chi tiêu giai
-                              đoạn 2
-                            </DialogTitle>
-                            <DialogDescription>
-                              Upload tài liệu, hóa đơn và báo cáo chi tiêu để
-                              chứng minh việc sử dụng kinh phí hợp lý
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className='space-y-4'>
-                            <div className='space-y-2'>
-                              <Label>Tổng chi tiêu thực tế (VNĐ)</Label>
-                              <Input
-                                type='number'
-                                placeholder='35000000'
-                                defaultValue='36500000'
-                              />
-                              <p className='text-sm text-muted-foreground'>
-                                Ngân sách dự kiến cho giai đoạn này: 35.000.000
-                                VNĐ
-                              </p>
-                            </div>
-
-                            <div className='grid grid-cols-2 gap-4'>
-                              <div className='space-y-2'>
-                                <Label>Số tiền thừa (nếu có)</Label>
-                                <Input type='number' placeholder='0' />
-                              </div>
-                              <div className='space-y-2'>
-                                <Label>Số tiền thiếu (nếu có)</Label>
-                                <Input
-                                  type='number'
-                                  placeholder='1500000'
-                                  defaultValue='1500000'
-                                />
+                      {/* Documents */}
+                      {milestone.documents &&
+                        milestone.documents.length > 0 && (
+                          <div className='bg-slate-50 border border-slate-200 rounded-lg p-3'>
+                            <div className='flex items-center justify-between mb-3'>
+                              <div className='flex items-center gap-2'>
+                                <FileText className='h-4 w-4 text-slate-600' />
+                                <h4 className='font-medium text-slate-800'>
+                                  Tài liệu ({milestone.documents.length})
+                                </h4>
                               </div>
                             </div>
-
-                            <div className='space-y-2'>
-                              <Label>Báo cáo chi tiêu chi tiết</Label>
-                              <Textarea
-                                placeholder='Mô tả chi tiết về các khoản chi tiêu trong giai đoạn này...'
-                                rows={4}
-                                defaultValue='Chi tiêu vượt dự kiến 1.5M VNĐ do giá vật liệu tăng. Đã dùng 500K từ tiết kiệm giai đoạn 1, cần thêm 1M từ quỹ dự phòng.'
-                              />
-                            </div>
-
-                            <div className='space-y-2'>
-                              <Label>Upload tài liệu chứng minh</Label>
-                              <div className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center'>
-                                <Upload className='h-8 w-8 mx-auto mb-2 text-muted-foreground' />
-                                <p className='text-sm text-muted-foreground mb-2'>
-                                  Kéo thả file hoặc click để chọn
-                                </p>
-                                <p className='text-xs text-muted-foreground'>
-                                  Hỗ trợ: PDF, JPG, PNG (tối đa 10MB mỗi file)
-                                </p>
+                            <div className='flex items-center gap-2 flex-wrap'>
+                              {milestone.documents.map(doc => (
                                 <Button
+                                  key={doc.id}
                                   variant='outline'
                                   size='sm'
-                                  className='mt-2'
+                                  className='flex items-center gap-1'
+                                  onClick={() => window.open(doc.url, '_blank')}
                                 >
-                                  Chọn file
+                                  <Download className='h-4 w-4' />
+                                  <span className='max-w-[200px] truncate'>
+                                    {doc.name}
+                                  </span>
                                 </Button>
-                              </div>
+                              ))}
                             </div>
-
-                            <Alert>
-                              <AlertCircle className='h-4 w-4' />
-                              <AlertDescription>
-                                Sau khi submit, tài liệu sẽ được gửi đến hệ
-                                thống duyệt để xác minh. Giai đoạn tiếp theo chỉ
-                                được giải ngân khi chứng minh chi tiêu được phê
-                                duyệt.
-                              </AlertDescription>
-                            </Alert>
                           </div>
-                          <DialogFooter>
-                            <Button variant='outline'>Hủy</Button>
-                            <Button>
-                              <Receipt className='h-4 w-4 mr-2' />
-                              Submit chứng minh chi tiêu
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                        )}
+                    </div>
+
+                    {index < (campaign.milestones?.length || 0) - 1 && (
+                      <Separator />
                     )}
                   </div>
-                </div>
-              </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
-              <Separator />
-
-              {/* Giai đoạn 3 - Chưa bắt đầu */}
-              <div className='space-y-4'>
-                <div className='flex items-start justify-between'>
-                  <div className='flex items-start space-x-3'>
-                    <div className='flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700'>
-                      <Clock className='h-4 w-4' />
-                    </div>
-                    <div className='flex-1'>
-                      <h3 className='font-semibold'>
-                        Giai đoạn 3: Hoàn thiện và trang thiết bị
-                      </h3>
-                      <p className='text-sm text-muted-foreground'>
-                        01/06/2023 - 30/06/2023 • Ngân sách: 30.000.000 VNĐ
-                      </p>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <Badge variant='outline' className='bg-gray-50'>
-                      {needExpenseProof ? 'Bị khóa' : 'Chưa bắt đầu'}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className='ml-11 space-y-3'>
-                  <div>
-                    <p className='text-gray-700 mt-1'>
-                      Hoàn thiện nội thất, lắp đặt bàn ghế, bảng, và các thiết
-                      bị học tập cơ bản bao gồm sơn tường, lắp đặt hệ thống
-                      điện, nước và trang bị đầy đủ đồ dùng học tập.
-                    </p>
-                  </div>
-
-                  {/* Tài liệu kế hoạch */}
-                  <div className='bg-slate-50 border border-slate-200 rounded-lg p-3'>
-                    <div className='flex items-center justify-between mb-3'>
-                      <div className='flex items-center gap-2'>
-                        <FileText className='h-4 w-4 text-slate-600' />
-                        <h4 className='font-medium text-slate-800'>
-                          Tài liệu kế hoạch
-                        </h4>
-                      </div>
-                    </div>
-                    <div className='space-y-2'>
-                      <div className='flex items-center gap-2 flex-wrap'>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='flex items-center gap-1'
-                        >
-                          <Download className='h-4 w-4' />
-                          <span>Kế hoạch hoàn thiện.pdf</span>
-                        </Button>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          className='flex items-center gap-1'
-                        >
-                          <Download className='h-4 w-4' />
-                          <span>Danh sách trang thiết bị.pdf</span>
-                        </Button>
-                        {!showAllDocsStage3 && (
-                          <Button
-                            variant='link'
-                            size='sm'
-                            onClick={() => setShowAllDocsStage3(true)}
-                            className='text-blue-600 hover:text-blue-800'
-                          >
-                            +2 tài liệu khác...
-                          </Button>
-                        )}
-                      </div>
-                      {showAllDocsStage3 && (
-                        <div className='flex items-center gap-2 flex-wrap'>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Thiết kế nội thất.pdf</span>
-                          </Button>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='flex items-center gap-1'
-                          >
-                            <Download className='h-4 w-4' />
-                            <span>Báo giá điện nước.pdf</span>
-                          </Button>
-                          <Button
-                            variant='link'
-                            size='sm'
-                            onClick={() => setShowAllDocsStage3(false)}
-                            className='text-blue-600 hover:text-blue-800'
-                          >
-                            Thu gọn
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {needExpenseProof && (
-                    <Alert className='border-gray-200 bg-gray-50'>
-                      <AlertCircle className='h-4 w-4' />
-                      <AlertDescription>
-                        Giai đoạn này sẽ được mở khóa sau khi xác nhận hoàn
-                        thành và chứng minh chi tiêu giai đoạn 2 được phê duyệt.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
+          {/* Community section - Placeholder for now */}
           <Card>
             <CardHeader>
               <CardTitle>Cộng đồng</CardTitle>
@@ -1160,209 +605,23 @@ export default function CampaignDetailPage({
               <Tabs defaultValue='updates'>
                 <TabsList className='w-full'>
                   <TabsTrigger value='updates' className='flex-1'>
-                    Bài đăng (8)
+                    Bài đăng
                   </TabsTrigger>
                   <TabsTrigger value='donors' className='flex-1'>
-                    Người đóng góp (128)
-                  </TabsTrigger>
-                  <TabsTrigger value='transactions' className='flex-1'>
-                    Giao dịch (15)
+                    Người đóng góp ({campaign.donorCount})
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value='updates' className='mt-4 space-y-4'>
-                  <div className='space-y-4'>
-                    <div className='flex items-start space-x-3'>
-                      <Avatar>
-                        <AvatarImage
-                          src='/placeholder.svg?height=40&width=40'
-                          alt='Avatar'
-                        />
-                        <AvatarFallback>TH</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className='flex items-center space-x-2'>
-                          <span className='font-semibold'>Trần Hùng</span>
-                          <span className='text-xs text-muted-foreground'>
-                            2 ngày trước
-                          </span>
-                        </div>
-                        <p className='mt-1'>
-                          Chúng tôi vừa hoàn thành 60% giai đoạn 2! Cảm ơn tất
-                          cả mọi người đã đóng góp và ủng hộ. Dưới đây là một số
-                          hình ảnh cập nhật về tiến độ xây dựng.
-                        </p>
-                        <div className='mt-2 grid grid-cols-2 gap-2'>
-                          <img
-                            src='https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80'
-                            alt='Cập nhật 1'
-                            className='rounded-lg object-cover h-40 w-full'
-                          />
-                          <img
-                            src='https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80'
-                            alt='Cập nhật 2'
-                            className='rounded-lg object-cover h-40 w-full'
-                          />
-                        </div>
-                        <div className='mt-2 flex items-center space-x-4'>
-                          <button className='flex items-center space-x-1 text-muted-foreground hover:text-foreground'>
-                            <Heart className='h-4 w-4' />
-                            <span className='text-xs'>32</span>
-                          </button>
-                          <button className='flex items-center space-x-1 text-muted-foreground hover:text-foreground'>
-                            <MessageCircle className='h-4 w-4' />
-                            <span className='text-xs'>8</span>
-                          </button>
-                          <button className='flex items-center space-x-1 text-muted-foreground hover:text-foreground'>
-                            <Share2 className='h-4 w-4' />
-                            <span className='text-xs'>Chia sẻ</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <Separator />
-                    <div className='flex items-start space-x-3'>
-                      <Avatar>
-                        <AvatarImage
-                          src='/placeholder.svg?height=40&width=40'
-                          alt='Avatar'
-                        />
-                        <AvatarFallback>TH</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className='flex items-center space-x-2'>
-                          <span className='font-semibold'>Trần Hùng</span>
-                          <span className='text-xs text-muted-foreground'>
-                            1 tuần trước
-                          </span>
-                        </div>
-                        <p className='mt-1'>
-                          Chúng tôi đã bắt đầu giai đoạn 2 của dự án! Cảm ơn tất
-                          cả mọi người đã đóng góp. Chúng tôi đã mua vật liệu
-                          xây dựng và thuê thêm nhân công để đẩy nhanh tiến độ.
-                        </p>
-                        <div className='mt-2 flex items-center space-x-4'>
-                          <button className='flex items-center space-x-1 text-muted-foreground hover:text-foreground'>
-                            <Heart className='h-4 w-4' />
-                            <span className='text-xs'>45</span>
-                          </button>
-                          <button className='flex items-center space-x-1 text-muted-foreground hover:text-foreground'>
-                            <MessageCircle className='h-4 w-4' />
-                            <span className='text-xs'>12</span>
-                          </button>
-                          <button className='flex items-center space-x-1 text-muted-foreground hover:text-foreground'>
-                            <Share2 className='h-4 w-4' />
-                            <span className='text-xs'>Chia sẻ</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                <TabsContent value='updates' className='mt-4'>
+                  <div className='text-center py-8 text-muted-foreground'>
+                    <MessageCircle className='h-12 w-12 mx-auto mb-2 opacity-50' />
+                    <p>Chưa có bài đăng nào</p>
                   </div>
-                  <Button variant='outline' className='w-full'>
-                    Xem tất cả cập nhật
-                  </Button>
                 </TabsContent>
-                <TabsContent value='donors' className='mt-4 space-y-4'>
-                  <div className='space-y-3'>
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <div
-                        key={i}
-                        className='flex items-center justify-between'
-                      >
-                        <div className='flex items-center space-x-3'>
-                          <Avatar className='h-8 w-8'>
-                            <AvatarImage
-                              src={`https://images.unsplash.com/photo-${1507003211169 + i * 10000000}?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150&q=80`}
-                              alt='Donor'
-                            />
-                            <AvatarFallback>D{i}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className='font-medium'>
-                              Người đóng góp {i}
-                            </div>
-                            <div className='text-xs text-muted-foreground'>
-                              {i} ngày trước
-                            </div>
-                          </div>
-                        </div>
-                        <div className='text-right'>
-                          <div className='font-medium'>
-                            {(i * 1000000).toLocaleString()} VNĐ
-                          </div>
-                          {i === 2 && (
-                            <div className='text-xs text-muted-foreground'>
-                              Ẩn danh
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                <TabsContent value='donors' className='mt-4'>
+                  <div className='text-center py-8 text-muted-foreground'>
+                    <Users className='h-12 w-12 mx-auto mb-2 opacity-50' />
+                    <p>Chưa có người đóng góp</p>
                   </div>
-                  <Button variant='outline' className='w-full'>
-                    Xem tất cả người đóng góp
-                  </Button>
-                </TabsContent>
-                <TabsContent value='transactions' className='mt-4 space-y-4'>
-                  <div className='space-y-3'>
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <div
-                        key={i}
-                        className='flex items-center justify-between border-b pb-3'
-                      >
-                        <div className='flex items-center gap-3'>
-                          <div
-                            className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                              i % 3 === 0
-                                ? 'bg-green-100 text-green-600'
-                                : i % 3 === 1
-                                  ? 'bg-blue-100 text-blue-600'
-                                  : 'bg-purple-100 text-purple-600'
-                            }`}
-                          >
-                            {i % 3 === 0 ? (
-                              <ArrowUpRight className='h-4 w-4' />
-                            ) : i % 3 === 1 ? (
-                              <ArrowDownLeft className='h-4 w-4' />
-                            ) : (
-                              <Check className='h-4 w-4' />
-                            )}
-                          </div>
-                          <div>
-                            <h4 className='text-sm font-medium'>
-                              {i % 3 === 0
-                                ? 'Đóng góp'
-                                : i % 3 === 1
-                                  ? 'Giải ngân'
-                                  : 'Xác nhận giai đoạn'}
-                            </h4>
-                            <p className='text-xs text-muted-foreground'>
-                              {new Date(2023, 4, 15 - i).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <div className='text-right'>
-                          {i % 3 !== 2 && (
-                            <div className='font-medium'>
-                              {(i * 1000000).toLocaleString()} VNĐ
-                            </div>
-                          )}
-                          <Button
-                            variant='link'
-                            size='sm'
-                            className='h-auto p-0'
-                          >
-                            <ExternalLink className='mr-1 h-3 w-3' />
-                            <span className='text-xs'>Xem trên Polygon</span>
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <Button variant='outline' className='w-full'>
-                    <Link href='/transactions'>
-                      Xem tất cả giao dịch onchain
-                    </Link>
-                  </Button>
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -1371,19 +630,14 @@ export default function CampaignDetailPage({
 
         {/* Sidebar - 1/3 width on desktop */}
         <div className='space-y-6 sticky top-6 self-start'>
-          {/* Card đóng góp - chỉ hiện khi không trong quá trình triển khai hoặc có kêu gọi bổ sung */}
-          {showDonationSection && (
+          {/* Donation card - Only show for fundraising status */}
+          {isFundraising && (
             <Card>
               <CardHeader>
-                <CardTitle>
-                  {hasAdditionalFunding && isImplementing
-                    ? 'Đóng góp bổ sung'
-                    : 'Đóng góp cho chiến dịch'}
-                </CardTitle>
+                <CardTitle>Đóng góp cho chiến dịch</CardTitle>
                 <CardDescription>
-                  {hasAdditionalFunding && isImplementing
-                    ? 'Hỗ trợ thêm cho các nhu cầu phát sinh trong quá trình triển khai'
-                    : 'Mọi đóng góp đều được ghi lại trên blockchain để đảm bảo tính minh bạch'}
+                  Mọi đóng góp đều được ghi lại trên blockchain để đảm bảo tính
+                  minh bạch
                 </CardDescription>
               </CardHeader>
               <CardContent className='space-y-4'>
@@ -1419,28 +673,153 @@ export default function CampaignDetailPage({
                     rows={3}
                   />
                 </div>
-              </CardContent>
-              <CardFooter className='flex flex-col space-y-4'>
+
                 <Button className='w-full bg-green-600 hover:bg-green-700'>
                   <Wallet className='mr-2 h-4 w-4' />
-                  {hasAdditionalFunding && isImplementing
-                    ? 'Đóng góp bổ sung'
-                    : 'Đóng góp ngay'}
+                  Đóng góp ngay
                 </Button>
+
                 <p className='text-xs text-center text-muted-foreground'>
                   Bằng cách đóng góp, bạn đồng ý với{' '}
                   <Link href='#' className='underline'>
                     điều khoản sử dụng
-                  </Link>{' '}
-                  của chúng tôi
+                  </Link>
                 </p>
-              </CardFooter>
+              </CardContent>
             </Card>
           )}
+          {isFundraising ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className='text-lg'>Thông tin thêm</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <TooltipProvider>
+                  <div className='flex items-center justify-between text-sm'>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className='flex items-center gap-1 cursor-pointer'>
+                          <span className='text-muted-foreground'>
+                            Loại chiến dịch
+                          </span>
+                          <AlertCircle className='h-3 w-3 text-muted-foreground' />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side='left' className='max-w-xs'>
+                        <p className='font-semibold mb-1'>
+                          {campaign.type === 'normal'
+                            ? 'Chiến dịch thông thường'
+                            : 'Chiến dịch khẩn cấp'}
+                        </p>
+                        <p className='text-xs'>
+                          {campaign.type === 'normal'
+                            ? 'Chiến dịch được lên kế hoạch trước, có thời gian gây quỹ dài hạn và kế hoạch thực hiện chi tiết.'
+                            : 'Chiến dịch cần hỗ trợ gấp do tình huống khẩn cấp, thiên tai hoặc hoàn cảnh đột xuất cần giải quyết nhanh.'}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Badge
+                      variant='outline'
+                      className={
+                        campaign.type === 'emergency'
+                          ? 'bg-red-50 text-red-700 border-red-200'
+                          : ''
+                      }
+                    >
+                      {campaign.type === 'normal' ? 'Thông thường' : 'Khẩn cấp'}
+                    </Badge>
+                  </div>
+
+                  <div className='flex items-center justify-between text-sm'>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className='flex items-center gap-1 cursor-pointer'>
+                          <span className='text-muted-foreground'>
+                            Mục tiêu quyên góp
+                          </span>
+                          <AlertCircle className='h-3 w-3 text-muted-foreground' />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side='left' className='max-w-xs'>
+                        <p className='font-semibold mb-1'>
+                          {campaign.fundingType === 'fixed'
+                            ? 'Mục tiêu cố định'
+                            : 'Mục tiêu linh hoạt'}
+                        </p>
+                        <p className='text-xs'>
+                          {campaign.fundingType === 'fixed'
+                            ? 'Chiến dịch chỉ nhận tiền nếu đạt được 100% mục tiêu. Nếu không đạt, tiền sẽ được hoàn trả cho nhà hỗ trợ.'
+                            : 'Chiến dịch nhận mọi khoản quyên góp bất kể có đạt mục tiêu hay không. Phù hợp cho các dự án có thể triển khai theo từng phần.'}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Badge
+                      variant='outline'
+                      className={
+                        campaign.fundingType === 'flexible'
+                          ? 'bg-blue-50 text-blue-700 border-blue-200'
+                          : ''
+                      }
+                    >
+                      {campaign.fundingType === 'fixed'
+                        ? 'Cố định'
+                        : 'Linh hoạt'}
+                    </Badge>
+                  </div>
+                </TooltipProvider>
+
+                <Separator />
+
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-muted-foreground'>Danh mục</span>
+                  <span className='font-medium'>
+                    {getCategoryLabel(campaign.category)}
+                  </span>
+                </div>
+
+                <Separator />
+
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-muted-foreground'>
+                    Ngày bắt đầu dự kiến
+                  </span>
+                  <span className='font-medium'>
+                    {formatDate(campaign.startDate)}
+                  </span>
+                </div>
+
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-muted-foreground'>
+                    Ngày kết thúc dự kiến
+                  </span>
+                  <span className='font-medium'>
+                    {formatDate(campaign.endDate)}
+                  </span>
+                </div>
+
+                <Separator />
+
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-muted-foreground'>Ngày tạo</span>
+                  <span className='font-medium'>
+                    {formatDate(campaign.createdAt)}
+                  </span>
+                </div>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-muted-foreground'>
+                    Cập nhật lần cuối
+                  </span>
+                  <span className='font-medium'>
+                    {formatDate(campaign.updatedAt)}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
 
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin blockchain</CardTitle>
+              <CardTitle className='text-lg'>Thông tin blockchain</CardTitle>
             </CardHeader>
             <CardContent className='space-y-4'>
               <div className='space-y-2'>
@@ -1474,7 +853,7 @@ export default function CampaignDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Chiến dịch liên quan</CardTitle>
+              <CardTitle className='text-lg'>Chiến dịch liên quan</CardTitle>
             </CardHeader>
             <CardContent className='space-y-4'>
               {[1, 2, 3].map(i => (
@@ -1505,6 +884,24 @@ export default function CampaignDetailPage({
               ))}
             </CardContent>
           </Card>
+
+          {/* Tags */}
+          {campaign.tags && campaign.tags.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className='text-lg'>Tags</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='flex flex-wrap gap-2'>
+                  {campaign.tags.map((tag, index) => (
+                    <Badge key={index} variant='outline'>
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

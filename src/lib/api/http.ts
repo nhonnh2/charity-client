@@ -1,8 +1,8 @@
 import envConfig from '@/config';
 
-import { normalizePath } from './utils';
-import { readCookie, readHeader } from './read-on-server';
-import { refreshOnce, logoutOnce } from './singe-flight';
+import { normalizePath } from '@/lib/utils/path';
+import { readCookie, readHeader } from '@/lib/auth/server';
+import { refreshOnce, logoutOnce } from '@/lib/auth/single-flight';
 
 import { redirect } from 'next/navigation';
 
@@ -25,6 +25,8 @@ export class HttpError extends Error {
   status: number;
   payload: {
     message: string;
+    error_code?: string;
+    errorCode?: string;
     [key: string]: any;
   };
   constructor({
