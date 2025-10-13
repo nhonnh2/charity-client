@@ -53,6 +53,7 @@ export default function CreateCampaignPage() {
       targetAmount: 0,
       startDate: '',
       endDate: '',
+      fundraisingDays: 30,
       coverImage: undefined,
       images: [],
       milestones: [

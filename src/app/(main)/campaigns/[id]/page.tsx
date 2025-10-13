@@ -1,8 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { useState, use, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,239 +14,55 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Calendar,
   Check,
-  Clock,
   Copy,
   ExternalLink,
   FileText,
-  Heart,
   MessageCircle,
-  Share2,
-  ThumbsUp,
   TrendingUp,
-  Wallet,
-  ArrowUpRight,
-  ArrowDownLeft,
-  Upload,
-  Plus,
-  Receipt,
   AlertCircle,
-  ChartBar,
-  Image as ImageIcon,
   Download,
-  History,
   Target,
   Banknote,
-  Calendar as CalendarIcon,
-  ArrowLeft,
-  Eye,
   Users,
-  DollarSign,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import campaignsApiRequest from '@/apiRequests/campaigns';
 import { CampaignResponseType } from '@/schemaValidations/campaign.schema';
-import { toast } from 'sonner';
-import { getApiErrorMessage } from '@/lib/api/errors';
+import {
+  campaignStatus,
+  campaignStatusClassName,
+  campaignCategory,
+} from '@/constants/type';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import { notFound } from 'next/navigation';
+import { getCampaignData } from './data';
+import { generateMetadata } from './metadata';
+import DonationCard from '@/app/(main)/campaigns/[id]/components/donation-card';
+import CampaignActions from '@/app/(main)/campaigns/[id]/components/campaign-actions';
+import GalleryImage from '@/app/(main)/campaigns/[id]/components/gallery-image';
+import DocumentButton from '@/app/(main)/campaigns/[id]/components/document-button';
 
-// Helper function to get status badge
-function getStatusBadge(status: string) {
-  const statusConfig = {
-    pending_review: {
-      label: 'Chờ duyệt',
-      className: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    },
-    approved: {
-      label: 'Đã duyệt',
-      className: 'bg-blue-50 text-blue-700 border-blue-200',
-    },
-    rejected: {
-      label: 'Bị từ chối',
-      className: 'bg-red-50 text-red-700 border-red-200',
-    },
-    fundraising: {
-      label: 'Đang gây quỹ',
-      className: 'bg-green-50 text-green-700 border-green-200',
-    },
-    implementation: {
-      label: 'Đang triển khai',
-      className: 'bg-purple-50 text-purple-700 border-purple-200',
-    },
-    completed: {
-      label: 'Hoàn thành',
-      className: 'bg-gray-50 text-gray-700 border-gray-200',
-    },
-    cancelled: {
-      label: 'Đã hủy',
-      className: 'bg-gray-50 text-gray-700 border-gray-200',
-    },
-  };
+export { generateMetadata };
 
-  const config = statusConfig[status as keyof typeof statusConfig] || {
-    label: status,
-    className: 'bg-gray-50 text-gray-700 border-gray-200',
-  };
-
-  return (
-    <Badge variant='outline' className={config.className}>
-      {config.label}
-    </Badge>
-  );
-}
-
-// Helper function to get category label
-function getCategoryLabel(category: string) {
-  const categories: Record<string, string> = {
-    education: 'Giáo dục',
-    health: 'Y tế',
-    environment: 'Môi trường',
-    disaster: 'Thiên tai',
-    other: 'Khác',
-  };
-  return categories[category] || category;
-}
-
-// Helper function to format currency
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('vi-VN').format(amount);
-}
-
-// Helper function to format date - handle both Date and string
-function formatDate(date: Date | string) {
-  const dateObj = date instanceof Date ? date : new Date(date);
-  return new Intl.DateTimeFormat('vi-VN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(dateObj);
-}
-
-// Loading skeleton component
-function CampaignDetailSkeleton() {
-  return (
-    <div className='container mx-auto px-4 py-6 max-w-8xl'>
-      <div className='mb-4'>
-        <Skeleton className='h-10 w-32' />
-      </div>
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-        <div className='md:col-span-2 space-y-6'>
-          <Skeleton className='h-96 w-full rounded-lg' />
-          <Skeleton className='h-24 w-full' />
-          <Skeleton className='h-64 w-full' />
-        </div>
-        <div className='space-y-6'>
-          <Skeleton className='h-96 w-full' />
-          <Skeleton className='h-48 w-full' />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Error display component
-function CampaignError({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}) {
-  const router = useRouter();
-
-  return (
-    <div className='container mx-auto px-4 py-12 max-w-2xl'>
-      <Card>
-        <CardContent className='pt-6'>
-          <div className='flex flex-col items-center text-center space-y-4'>
-            <div className='rounded-full bg-red-100 p-3'>
-              <AlertCircle className='h-6 w-6 text-red-600' />
-            </div>
-            <div>
-              <h3 className='text-lg font-semibold'>
-                Không thể tải thông tin chiến dịch
-              </h3>
-              <p className='text-muted-foreground mt-2'>{message}</p>
-            </div>
-            <div className='flex gap-2'>
-              <Button variant='outline' onClick={() => router.back()}>
-                <ArrowLeft className='mr-2 h-4 w-4' />
-                Quay lại
-              </Button>
-              <Button onClick={onRetry}>Thử lại</Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-export default function CampaignDetailPage({
+export default async function CampaignDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const resolvedParams = use(params);
+  const resolvedParams = await params;
   const campaignId = resolvedParams.id;
-  const router = useRouter();
 
-  const [campaign, setCampaign] = useState<CampaignResponseType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Server-side data fetching
+  const campaign = await getCampaignData(campaignId);
 
-  // Fetch campaign data
-  const fetchCampaign = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await campaignsApiRequest.getById(campaignId);
-      setCampaign(response.data);
-    } catch (err: any) {
-      const errorMessage = getApiErrorMessage(err);
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCampaign();
-  }, [campaignId]);
-
-  // Show loading state
-  if (isLoading) {
-    return <CampaignDetailSkeleton />;
-  }
-  console.log('CampaignDetailPage_____render', error, campaign);
-  // Show error state
-  if (error || !campaign) {
-    return (
-      <CampaignError
-        message={error || 'Không tìm thấy chiến dịch'}
-        onRetry={fetchCampaign}
-      />
-    );
+  // Show 404 if campaign not found
+  if (!campaign) {
+    notFound();
   }
 
   // Calculate progress percentage
@@ -258,32 +70,119 @@ export default function CampaignDetailPage({
     ? Math.round((campaign.currentAmount / campaign.targetAmount) * 100)
     : 0;
 
-  // Calculate days remaining - handle both Date and string
-  const endDate =
-    campaign.endDate instanceof Date
-      ? campaign.endDate
-      : new Date(campaign.endDate);
-  const daysRemaining = Math.max(
-    0,
-    Math.ceil(
-      (endDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    )
-  );
+  const renderInfoStatus = (status: string) => {
+    switch (status) {
+      case 'fundraising':
+        return (
+          <>
+            <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
+              <div className='space-y-1'>
+                <p className='text-xs text-muted-foreground'>Mục tiêu</p>
+                <p className='font-medium'>
+                  {formatCurrency(campaign.targetAmount)} VNĐ
+                </p>
+              </div>
+              <div className='space-y-1'>
+                <p className='text-xs text-muted-foreground'>Đã quyên góp</p>
+                <p className='font-medium text-green-600'>
+                  {formatCurrency(campaign.currentAmount)} VNĐ
+                </p>
+              </div>
+              <div className='space-y-1'>
+                <p className='text-xs text-muted-foreground'>Người đóng góp</p>
+                <p className='font-medium'>{campaign.donorCount} người</p>
+              </div>
+              <div className='space-y-1'>
+                <p className='text-xs text-muted-foreground'>
+                  Thời gian nguyên góp còn
+                </p>
+                <p className='font-medium'>{campaign.fundraisingDays}</p>
+              </div>
+            </div>
+            <Progress value={progressPercentage} className='h-3' />
+            <div className='flex items-center justify-between text-sm'>
+              <span className='font-medium'>
+                {progressPercentage}% đạt được
+              </span>
+              <div className='flex items-center space-x-1'>
+                <Calendar className='h-3 w-3 text-muted-foreground' />
+                <span className='text-muted-foreground'>
+                  Kết thúc: {formatDate(campaign.endDate)}
+                </span>
+              </div>
+            </div>
+          </>
+        );
+      case 'implementation':
+        return (
+          <>
+            <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
+              <div className='space-y-1'>
+                <p className='text-xs text-muted-foreground'>Tổng quyên góp</p>
+                <p className='font-medium text-green-600'>100.000.000 VNĐ</p>
+              </div>
+              <div className='space-y-1'>
+                <p className='text-xs text-muted-foreground'>Đã giải ngân</p>
+                <p className='font-medium text-blue-600'>70.000.000 VNĐ</p>
+              </div>
+              <div className='space-y-1'>
+                <p className='text-xs text-muted-foreground'>Người đóng góp</p>
+                <p className='font-medium'>128 người</p>
+              </div>
+              <div className='space-y-1'>
+                <p className='text-xs text-muted-foreground'>
+                  Giai đoạn doàn thành
+                </p>
+                <p className='font-medium'>2/3</p>
+              </div>
+            </div>
+            <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
+              <div className='flex items-center justify-between mb-2'>
+                <div className='flex items-center gap-2'>
+                  <Banknote className='h-4 w-4 text-blue-600' />
+                  <h4 className='font-medium'>Tình hình giải ngân</h4>
+                </div>
+              </div>
+              <div className='space-y-2 text-sm'>
+                <div className='flex justify-between items-center'>
+                  <span>Giai đoạn 1 (Hoàn thành):</span>
+                  <span className='font-medium text-green-600'>
+                    35.000.000 VNĐ
+                  </span>
+                </div>
+                <div className='flex justify-between items-center'>
+                  <span>Giai đoạn 2 (Đang thực hiện):</span>
+                  <span className='font-medium text-blue-600'>
+                    35.000.000 VNĐ
+                  </span>
+                </div>
+                <div className='flex justify-between items-center'>
+                  <span>Giai đoạn 3 (Chờ mở khóa):</span>
+                  <span className='font-medium text-gray-500'>
+                    30.000.000 VNĐ
+                  </span>
+                </div>
+                <Separator />
+                <div className='flex justify-between items-center font-medium'>
+                  <span>Còn lại trong quỹ:</span>
+                  <span className='text-orange-600'>30.000.000 VNĐ</span>
+                </div>
+              </div>
+            </div>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
 
   // Check if fundraising is active
+  const isPendingReview = campaign.status === 'pending_review';
   const isFundraising = campaign.status === 'fundraising';
-  const isImplementing = campaign.status === 'implementation';
+  // const isImplementing = campaign.status === 'implementation';
 
   return (
     <div className='container mx-auto px-4 py-6 max-w-8xl'>
-      {/* Back button */}
-      <div className='mb-4'>
-        <Button variant='ghost' size='sm' onClick={() => router.back()}>
-          <ArrowLeft className='mr-2 h-4 w-4' />
-          Quay lại danh sách
-        </Button>
-      </div>
-
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
         {/* Main content - 2/3 width on desktop */}
         <div className='md:col-span-2 space-y-6'>
@@ -299,7 +198,11 @@ export default function CampaignDetailPage({
             />
             <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white'>
               <Badge className='mb-2 bg-green-600 hover:bg-green-700'>
-                {getCategoryLabel(campaign.category)}
+                {
+                  campaignCategory[
+                    campaign.category as keyof typeof campaignCategory
+                  ]
+                }
               </Badge>
               <h1 className='text-2xl font-bold md:text-3xl'>
                 {campaign.title}
@@ -339,32 +242,7 @@ export default function CampaignDetailPage({
                 </p>
               </div>
             </div>
-            <div className='flex flex-wrap items-center gap-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                className='flex items-center gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer'
-              >
-                <Heart className='h-4 w-4' />
-                <span className='font-medium'>0</span>
-                <span className='text-xs text-muted-foreground'>Quan tâm</span>
-              </Button>
-              <Button
-                variant='outline'
-                size='sm'
-                className='flex items-center gap-2 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-colors cursor-pointer'
-              >
-                <Share2 className='h-4 w-4' />
-                <span className='font-medium'>
-                  {campaign.shareCount.toLocaleString('vi-VN')}
-                </span>
-                <span className='text-xs text-muted-foreground'>Chia sẻ</span>
-              </Button>
-              <Separator
-                orientation='vertical'
-                className='h-8 mx-1 hidden md:block'
-              />
-            </div>
+            <CampaignActions campaign={campaign} />
           </div>
 
           {/* Campaign info card */}
@@ -372,131 +250,148 @@ export default function CampaignDetailPage({
             <CardHeader>
               <div className='flex items-center justify-between'>
                 <CardTitle>Thông tin chiến dịch</CardTitle>
-                {getStatusBadge(campaign.status)}
+                <Badge
+                  variant='outline'
+                  className={
+                    campaignStatusClassName[
+                      campaign.status as keyof typeof campaignStatusClassName
+                    ]
+                  }
+                >
+                  {
+                    campaignStatus[
+                      campaign.status as keyof typeof campaignStatus
+                    ]
+                  }
+                </Badge>
               </div>
             </CardHeader>
-            <CardContent className='space-y-4'>
-              {/* Stats grid */}
-              <TooltipProvider>
-                <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
-                  <div className='space-y-1'>
-                    <p className='text-xs text-muted-foreground'>Mục tiêu</p>
-                    <p className='font-medium'>
-                      {formatCurrency(campaign.targetAmount)} VNĐ
-                    </p>
-                  </div>
-
-                  {/* Loại chiến dịch với tooltip */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className='space-y-1 cursor-pointer group -mx-2 -my-1 px-2 py-1 rounded hover:bg-slate-50 transition-colors'>
-                        <div className='flex items-center gap-1.5'>
-                          <p className='text-xs text-muted-foreground transition-colors'>
-                            Loại chiến dịch
-                          </p>
-                          <AlertCircle className='h-3.5 w-3.5 text-blue-500/70 group-hover:text-blue-600 transition-colors' />
-                        </div>
+            <CardContent className='space-y-6'>
+              {/* render info status */}
+              {renderInfoStatus(campaign.status)}
+              {/* Secondary Info - Campaign details */}
+              <div className={`${!isPendingReview ? 'pt-4' : ''}`}>
+                <TooltipProvider>
+                  <div className='grid grid-cols-1 gap-3 sm:grid-cols-4'>
+                    {isPendingReview ? (
+                      <div className='space-y-1 -mx-2 -my-1 px-2 py-1 '>
+                        <p className='text-xs text-muted-foreground'>
+                          Mục tiêu
+                        </p>
                         <p className='font-medium'>
-                          {campaign.type === 'normal'
-                            ? 'Thông thường'
-                            : 'Khẩn cấp'}
+                          {formatCurrency(campaign.targetAmount)} VNĐ
                         </p>
                       </div>
-                    </TooltipTrigger>
-                    <TooltipContent side='bottom' className='max-w-xs p-3'>
-                      <div className='space-y-2'>
-                        <div className='flex items-start gap-2'>
-                          {campaign.type === 'emergency' ? (
-                            <AlertCircle className='h-4 w-4 text-red-500 mt-0.5 flex-shrink-0' />
-                          ) : (
-                            <Check className='h-4 w-4 text-green-500 mt-0.5 flex-shrink-0' />
-                          )}
-                          <div>
-                            <p className='font-medium text-sm mb-1'>
-                              {campaign.type === 'normal'
-                                ? 'Chiến dịch thông thường'
-                                : 'Chiến dịch khẩn cấp'}
-                            </p>
-                            <p className='text-xs text-muted-foreground leading-relaxed'>
-                              {campaign.type === 'normal'
-                                ? 'Chiến dịch được lên kế hoạch trước, có thời gian gây quỹ dài hạn và kế hoạch thực hiện chi tiết.'
-                                : 'Chiến dịch cần hỗ trợ gấp do tình huống khẩn cấp, thiên tai hoặc hoàn cảnh đột xuất cần giải quyết nhanh.'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  {/* Loại mục tiêu với tooltip */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className='space-y-1 cursor-pointer group -mx-2 -my-1 px-2 py-1 rounded hover:bg-slate-50 transition-colors'>
-                        <div className='flex items-center gap-1.5'>
-                          <p className='text-xs  transition-colors'>
-                            Loại mục tiêu
-                          </p>
-                          <AlertCircle className='h-3.5 w-3.5 text-blue-500/70 group-hover:text-blue-600 transition-colors' />
-                        </div>
+                    ) : (
+                      <div className='space-y-1 -mx-2 -my-1 px-2 py-1 '>
+                        <p className='text-xs text-muted-foreground'>
+                          Danh mục
+                        </p>
                         <p className='font-medium'>
-                          {campaign.fundingType === 'fixed'
-                            ? 'Cố định'
-                            : 'Linh hoạt'}
+                          {
+                            campaignCategory[
+                              campaign.category as keyof typeof campaignCategory
+                            ]
+                          }
                         </p>
                       </div>
-                    </TooltipTrigger>
-                    <TooltipContent side='bottom' className='max-w-sm p-3'>
-                      <div className='space-y-2'>
-                        <div className='flex items-start gap-2'>
-                          {campaign.fundingType === 'fixed' ? (
-                            <Target className='h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0' />
-                          ) : (
-                            <TrendingUp className='h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0' />
-                          )}
-                          <div>
-                            <p className='font-medium text-sm mb-1'>
-                              {campaign.fundingType === 'fixed'
-                                ? 'Mục tiêu cố định'
-                                : 'Mục tiêu linh hoạt'}
+                    )}
+
+                    {/* Loại chiến dịch với tooltip */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className='space-y-1 cursor-pointer group -mx-2 -my-1 px-2 py-1 rounded hover:bg-slate-50 transition-colors'>
+                          <div className='flex items-center gap-1.5'>
+                            <p className='text-xs text-muted-foreground transition-colors'>
+                              Loại chiến dịch
                             </p>
-                            <p className='text-xs text-muted-foreground leading-relaxed'>
-                              {campaign.fundingType === 'fixed'
-                                ? 'Chiến dịch chỉ nhận tiền nếu đạt được 100% mục tiêu. Nếu không đạt, tiền sẽ được hoàn trả cho nhà hỗ trợ.'
-                                : 'Chiến dịch nhận mọi khoản quyên góp bất kể có đạt mục tiêu hay không. Phù hợp cho các dự án có thể triển khai theo từng phần.'}
-                            </p>
+                            <AlertCircle className='h-3.5 w-3.5 text-blue-500/70 group-hover:text-blue-600 transition-colors' />
+                          </div>
+                          <p className='font-medium'>
+                            {campaign.type === 'normal'
+                              ? 'Thông thường'
+                              : 'Khẩn cấp'}
+                          </p>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side='bottom' className='max-w-xs p-3'>
+                        <div className='space-y-2'>
+                          <div className='flex items-start gap-2'>
+                            {campaign.type === 'emergency' ? (
+                              <AlertCircle className='h-4 w-4 text-red-500 mt-0.5 flex-shrink-0' />
+                            ) : (
+                              <Check className='h-4 w-4 text-green-500 mt-0.5 flex-shrink-0' />
+                            )}
+                            <div>
+                              <p className='font-medium text-sm mb-1'>
+                                {campaign.type === 'normal'
+                                  ? 'Chiến dịch thông thường'
+                                  : 'Chiến dịch khẩn cấp'}
+                              </p>
+                              <p className='text-xs text-muted-foreground leading-relaxed'>
+                                {campaign.type === 'normal'
+                                  ? 'Chiến dịch được lên kế hoạch trước, có thời gian gây quỹ dài hạn và kế hoạch thực hiện chi tiết.'
+                                  : 'Chiến dịch cần hỗ trợ gấp do tình huống khẩn cấp, thiên tai hoặc hoàn cảnh đột xuất cần giải quyết nhanh.'}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
+                      </TooltipContent>
+                    </Tooltip>
 
-                  <div className='space-y-1'>
-                    <p className='text-xs text-muted-foreground'>
-                      Thời gian dự kiến
-                    </p>
-                    <p className='font-medium'>
-                      {formatDate(campaign.startDate)} -{' '}
-                      {formatDate(campaign.endDate)}
-                    </p>
-                  </div>
-                </div>
-              </TooltipProvider>
+                    {/* Loại mục tiêu với tooltip */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className='space-y-1 cursor-pointer group -mx-2 -my-1 px-2 py-1 rounded hover:bg-slate-50 transition-colors'>
+                          <div className='flex items-center gap-1.5'>
+                            <p className='text-xs text-muted-foreground transition-colors'>
+                              Loại mục tiêu
+                            </p>
+                            <AlertCircle className='h-3.5 w-3.5 text-blue-500/70 group-hover:text-blue-600 transition-colors' />
+                          </div>
+                          <p className='font-medium'>
+                            {campaign.fundingType === 'fixed'
+                              ? 'Cố định'
+                              : 'Linh hoạt'}
+                          </p>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side='bottom' className='max-w-sm p-3'>
+                        <div className='space-y-1'>
+                          <div className='flex items-start gap-2'>
+                            {campaign.fundingType === 'fixed' ? (
+                              <Target className='h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0' />
+                            ) : (
+                              <TrendingUp className='h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0' />
+                            )}
+                            <div>
+                              <p className='font-medium text-sm mb-1'>
+                                {campaign.fundingType === 'fixed'
+                                  ? 'Mục tiêu cố định'
+                                  : 'Mục tiêu linh hoạt'}
+                              </p>
+                              <p className='text-xs text-muted-foreground leading-relaxed'>
+                                {campaign.fundingType === 'fixed'
+                                  ? 'Chiến dịch chỉ nhận tiền nếu đạt được 100% mục tiêu. Nếu không đạt, tiền sẽ được hoàn trả cho nhà hỗ trợ.'
+                                  : 'Chiến dịch nhận mọi khoản quyên góp bất kể có đạt mục tiêu hay không. Phù hợp cho các dự án có thể triển khai theo từng phần.'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
 
-              {/* Progress bar (only show for fundraising status) */}
-              {isFundraising && (
-                <>
-                  <Progress value={progressPercentage} className='h-2' />
-                  <div className='flex items-center justify-between text-sm'>
-                    <span>{progressPercentage}% đạt được</span>
-                    <div className='flex items-center space-x-1'>
-                      <Calendar className='h-3 w-3 text-muted-foreground' />
-                      <span className='text-muted-foreground'>
-                        Kết thúc: {formatDate(campaign.endDate)}
-                      </span>
+                    <div className='space-y-1 -mx-2 -my-1 px-2 py-1 '>
+                      <p className='text-xs text-muted-foreground'>
+                        Thời gian dự kiến
+                      </p>
+                      <p className='font-medium'>
+                        {`${formatDate(campaign.startDate)} - ${formatDate(campaign.endDate)}`}
+                      </p>
                     </div>
                   </div>
-                </>
-              )}
+                </TooltipProvider>
+              </div>
 
               <Separator />
 
@@ -511,12 +406,10 @@ export default function CampaignDetailPage({
                 {campaign.gallery && campaign.gallery.length > 0 && (
                   <div className='grid grid-cols-2 gap-2 mt-4'>
                     {campaign.gallery.map((image, index) => (
-                      <img
+                      <GalleryImage
                         key={image.id}
-                        src={image.url}
-                        alt={image.name || `Gallery image ${index + 1}`}
-                        className='rounded-lg object-cover h-48 w-full cursor-pointer hover:opacity-90 transition-opacity'
-                        onClick={() => window.open(image.url, '_blank')}
+                        image={image}
+                        index={index}
                       />
                     ))}
                   </div>
@@ -569,18 +462,7 @@ export default function CampaignDetailPage({
                             </div>
                             <div className='flex items-center gap-2 flex-wrap'>
                               {milestone.documents.map(doc => (
-                                <Button
-                                  key={doc.id}
-                                  variant='outline'
-                                  size='sm'
-                                  className='flex items-center gap-1'
-                                  onClick={() => window.open(doc.url, '_blank')}
-                                >
-                                  <Download className='h-4 w-4' />
-                                  <span className='max-w-[200px] truncate'>
-                                    {doc.name}
-                                  </span>
-                                </Button>
+                                <DocumentButton key={doc.id} document={doc} />
                               ))}
                             </div>
                           </div>
@@ -631,191 +513,7 @@ export default function CampaignDetailPage({
         {/* Sidebar - 1/3 width on desktop */}
         <div className='space-y-6 sticky top-6 self-start'>
           {/* Donation card - Only show for fundraising status */}
-          {isFundraising && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Đóng góp cho chiến dịch</CardTitle>
-                <CardDescription>
-                  Mọi đóng góp đều được ghi lại trên blockchain để đảm bảo tính
-                  minh bạch
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='space-y-2'>
-                  <label className='text-sm font-medium'>
-                    Số tiền đóng góp (VNĐ)
-                  </label>
-                  <div className='grid grid-cols-3 gap-2'>
-                    <Button variant='outline' className='w-full'>
-                      100K
-                    </Button>
-                    <Button variant='outline' className='w-full'>
-                      500K
-                    </Button>
-                    <Button variant='outline' className='w-full'>
-                      1M
-                    </Button>
-                  </div>
-                  <input
-                    type='text'
-                    placeholder='Nhập số tiền khác...'
-                    className='w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
-                  />
-                </div>
-
-                <div className='space-y-2'>
-                  <label className='text-sm font-medium'>
-                    Lời nhắn (tùy chọn)
-                  </label>
-                  <textarea
-                    placeholder='Nhập lời nhắn của bạn...'
-                    className='w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
-                    rows={3}
-                  />
-                </div>
-
-                <Button className='w-full bg-green-600 hover:bg-green-700'>
-                  <Wallet className='mr-2 h-4 w-4' />
-                  Đóng góp ngay
-                </Button>
-
-                <p className='text-xs text-center text-muted-foreground'>
-                  Bằng cách đóng góp, bạn đồng ý với{' '}
-                  <Link href='#' className='underline'>
-                    điều khoản sử dụng
-                  </Link>
-                </p>
-              </CardContent>
-            </Card>
-          )}
-          {isFundraising ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className='text-lg'>Thông tin thêm</CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <TooltipProvider>
-                  <div className='flex items-center justify-between text-sm'>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className='flex items-center gap-1 cursor-pointer'>
-                          <span className='text-muted-foreground'>
-                            Loại chiến dịch
-                          </span>
-                          <AlertCircle className='h-3 w-3 text-muted-foreground' />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side='left' className='max-w-xs'>
-                        <p className='font-semibold mb-1'>
-                          {campaign.type === 'normal'
-                            ? 'Chiến dịch thông thường'
-                            : 'Chiến dịch khẩn cấp'}
-                        </p>
-                        <p className='text-xs'>
-                          {campaign.type === 'normal'
-                            ? 'Chiến dịch được lên kế hoạch trước, có thời gian gây quỹ dài hạn và kế hoạch thực hiện chi tiết.'
-                            : 'Chiến dịch cần hỗ trợ gấp do tình huống khẩn cấp, thiên tai hoặc hoàn cảnh đột xuất cần giải quyết nhanh.'}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Badge
-                      variant='outline'
-                      className={
-                        campaign.type === 'emergency'
-                          ? 'bg-red-50 text-red-700 border-red-200'
-                          : ''
-                      }
-                    >
-                      {campaign.type === 'normal' ? 'Thông thường' : 'Khẩn cấp'}
-                    </Badge>
-                  </div>
-
-                  <div className='flex items-center justify-between text-sm'>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className='flex items-center gap-1 cursor-pointer'>
-                          <span className='text-muted-foreground'>
-                            Mục tiêu quyên góp
-                          </span>
-                          <AlertCircle className='h-3 w-3 text-muted-foreground' />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side='left' className='max-w-xs'>
-                        <p className='font-semibold mb-1'>
-                          {campaign.fundingType === 'fixed'
-                            ? 'Mục tiêu cố định'
-                            : 'Mục tiêu linh hoạt'}
-                        </p>
-                        <p className='text-xs'>
-                          {campaign.fundingType === 'fixed'
-                            ? 'Chiến dịch chỉ nhận tiền nếu đạt được 100% mục tiêu. Nếu không đạt, tiền sẽ được hoàn trả cho nhà hỗ trợ.'
-                            : 'Chiến dịch nhận mọi khoản quyên góp bất kể có đạt mục tiêu hay không. Phù hợp cho các dự án có thể triển khai theo từng phần.'}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Badge
-                      variant='outline'
-                      className={
-                        campaign.fundingType === 'flexible'
-                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : ''
-                      }
-                    >
-                      {campaign.fundingType === 'fixed'
-                        ? 'Cố định'
-                        : 'Linh hoạt'}
-                    </Badge>
-                  </div>
-                </TooltipProvider>
-
-                <Separator />
-
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='text-muted-foreground'>Danh mục</span>
-                  <span className='font-medium'>
-                    {getCategoryLabel(campaign.category)}
-                  </span>
-                </div>
-
-                <Separator />
-
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='text-muted-foreground'>
-                    Ngày bắt đầu dự kiến
-                  </span>
-                  <span className='font-medium'>
-                    {formatDate(campaign.startDate)}
-                  </span>
-                </div>
-
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='text-muted-foreground'>
-                    Ngày kết thúc dự kiến
-                  </span>
-                  <span className='font-medium'>
-                    {formatDate(campaign.endDate)}
-                  </span>
-                </div>
-
-                <Separator />
-
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='text-muted-foreground'>Ngày tạo</span>
-                  <span className='font-medium'>
-                    {formatDate(campaign.createdAt)}
-                  </span>
-                </div>
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='text-muted-foreground'>
-                    Cập nhật lần cuối
-                  </span>
-                  <span className='font-medium'>
-                    {formatDate(campaign.updatedAt)}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          ) : null}
+          {isFundraising && <DonationCard campaign={campaign} />}
 
           <Card>
             <CardHeader>

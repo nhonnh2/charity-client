@@ -29,6 +29,7 @@ export const transformFormToApiData = (
     category: formData.category,
     description: formData.description,
     targetAmount: formData.targetAmount,
+    fundraisingDays: formData.fundraisingDays,
     startDate: new Date(formData.startDate).toISOString(),
     endDate: new Date(formData.endDate).toISOString(),
 

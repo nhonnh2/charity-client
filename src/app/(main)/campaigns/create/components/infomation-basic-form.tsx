@@ -274,6 +274,30 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
           </FormItem>
         )}
       />
+      <FormField
+        name='fundraisingDays'
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='text-sm font-medium'>
+              Số ngày kêu gọi quyên góp
+            </FormLabel>
+            <FormControl>
+              <Input
+                type='number'
+                placeholder='Nhập số ngày...'
+                {...field}
+                onChange={e =>
+                  field.onChange(parseInt(e.target.value, 10) || 0)
+                }
+                min={1}
+                max={365}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
         <FormField
           name='startDate'

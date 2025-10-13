@@ -17,8 +17,24 @@ const ACCEPTED_DOCUMENT_TYPES = [
   'image/png',
 ];
 
-// File validation schema
-const fileSchema = z.instanceof(File, { message: 'File là bắt buộc' });
+// File validation schema - Handle both server and client side
+const fileSchema = z.any().refine(
+  file => {
+    // Check if we're in browser environment and file is a File instance
+    if (typeof window !== 'undefined' && file instanceof File) {
+      return true;
+    }
+    // For server-side or other file-like objects
+    return (
+      file &&
+      typeof file === 'object' &&
+      'name' in file &&
+      'size' in file &&
+      'type' in file
+    );
+  },
+  { message: 'File là bắt buộc' }
+);
 
 const imageFileSchema = fileSchema
   .refine(
@@ -110,6 +126,11 @@ export const CreateCampaignFormSchema = z
         return inputDate >= today;
       }, 'Ngày bắt đầu phải từ hôm nay trở đi'),
     endDate: z.string().min(1, 'Ngày kết thúc là bắt buộc'),
+    fundraisingDays: z
+      .number({ invalid_type_error: 'Số ngày kêu gọi phải là số' })
+      .int('Số ngày kêu gọi phải là số nguyên')
+      .positive('Số ngày kêu gọi phải lớn hơn 0')
+      .max(365, 'Số ngày kêu gọi không được vượt quá 365 ngày'),
     coverImage: imageFileSchema,
     images: z
       .array(imageFileSchema)
@@ -274,6 +295,7 @@ export const CampaignResponse = z.object({
   category: z.string(),
   status: CampaignStatus,
   targetAmount: z.number(),
+  fundraisingDays: z.number().optional(),
   currentAmount: z.number().optional().default(0),
   startDate: z.string().transform(str => new Date(str)),
   endDate: z.string().transform(str => new Date(str)),

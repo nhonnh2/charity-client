@@ -6,3 +6,5 @@ export * from './cn';
 export * from './path';
 export * from './file';
 export * from './id';
+export * from './number';
+export * from './date';

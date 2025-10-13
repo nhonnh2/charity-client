@@ -23,6 +23,7 @@ export type CreateCampaignDto = {
   category: string;
   description: string;
   targetAmount: number;
+  fundraisingDays: number;
   startDate: string;
   endDate: string;
 
@@ -121,10 +122,11 @@ const campaignsApiRequest = {
    * Get campaign by ID
    * GET /api/campaigns/:id
    */
-  getById: async (id: string) => {
-    const response = await http.get(`/campaigns/${id}`);
-    console.log('campaignsApiRequest.getById_____response', response);
-    // Parse and transform response through schema
+  getById: async (
+    id: string,
+    options?: Omit<Parameters<typeof http.get>[1], 'body'>
+  ) => {
+    const response = await http.get(`/campaigns/${id}`, options);
     return SingleCampaignResponse.parse(response);
   },
 
