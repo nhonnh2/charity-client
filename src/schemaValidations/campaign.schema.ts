@@ -38,11 +38,11 @@ const fileSchema = z.any().refine(
 
 const imageFileSchema = fileSchema
   .refine(
-    file => file.size <= MAX_IMAGE_SIZE,
+    file => file && file.size <= MAX_IMAGE_SIZE,
     'Kích thước file không được vượt quá 5MB'
   )
   .refine(
-    file => ACCEPTED_IMAGE_TYPES.includes(file.type),
+    file => file && ACCEPTED_IMAGE_TYPES.includes(file.type),
     'Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, SVG)'
   );
 
@@ -59,11 +59,11 @@ const ACCEPTED_MIXED_TYPES = [
 
 const documentFileSchema = fileSchema
   .refine(
-    file => file.size <= MAX_DOCUMENT_SIZE,
+    file => file && file.size <= MAX_DOCUMENT_SIZE,
     'Kích thước file không được vượt quá 10MB'
   )
   .refine(
-    file => ACCEPTED_MIXED_TYPES.includes(file.type),
+    file => file && ACCEPTED_MIXED_TYPES.includes(file.type),
     'Chỉ chấp nhận file ảnh, PDF, Word, Excel hoặc text'
   );
 
