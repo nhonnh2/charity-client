@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { DocumentUpload } from '@/components/ui/document-upload';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 import { Info, Plus, Trash2, Zap } from 'lucide-react';
 import { useWatch, UseFormReturn, useFieldArray } from 'react-hook-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -71,7 +72,7 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
         </Alert>
       )}
 
-      <div className='space-y-4'>
+      <div className='space-y-6'>
         {(type === 'emergency' ? fields.slice(0, 1) : fields).map(
           (field, index) => (
             <Card key={field.id}>
@@ -95,7 +96,7 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className='space-y-4 pt-0'>
+              <CardContent className='space-y-6 pt-0'>
                 <FormField
                   name={`milestones.${index}.title`}
                   control={form.control}
@@ -123,7 +124,7 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                 <FormField
                   name={`milestones.${index}.description`}
                   control={form.control}
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>
                         {type === 'emergency'
@@ -131,14 +132,15 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                           : 'Mô tả giai đoạn'}
                       </FormLabel>
                       <FormControl>
-                        <Textarea
+                        <RichTextEditor
+                          content={field.value}
+                          onChange={field.onChange}
                           placeholder={
                             type === 'emergency'
                               ? 'Mô tả chi tiết tình trạng khẩn cấp và lý do cần hỗ trợ ngay...'
                               : 'Mô tả chi tiết công việc trong giai đoạn này...'
                           }
-                          rows={type === 'emergency' ? 5 : 3}
-                          {...field}
+                          error={fieldState.error?.message}
                         />
                       </FormControl>
                       <FormMessage />

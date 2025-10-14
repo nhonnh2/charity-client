@@ -286,7 +286,7 @@ export default function CreateCampaignPage() {
   console.log('re_render_form_create____', activeStep);
 
   return (
-    <div className='container mx-auto px-4 py-6 max-w-6xl'>
+    <div className='container mx-auto px-4 py-6 max-w-7xl'>
       <div className='mb-6'>
         <h1 className='text-2xl font-bold tracking-tight'>
           Tạo chiến dịch mới
@@ -296,9 +296,9 @@ export default function CreateCampaignPage() {
         </p>
       </div>
 
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-        {/* Main content - 2/3 width on desktop */}
-        <div className='md:col-span-2 space-y-6' ref={formRef}>
+      <div className='grid grid-cols-1 gap-4 lg:grid-cols-4'>
+        {/* Main content - 3/4 width on desktop */}
+        <div className='lg:col-span-3 space-y-6' ref={formRef}>
           <Card>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSubmitCampaign)}>

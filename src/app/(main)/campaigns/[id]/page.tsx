@@ -39,6 +39,7 @@ import {
   campaignCategory,
 } from '@/constants/type';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import RichTextDisplay from '@/components/ui/rich-text-display';
 import { notFound } from 'next/navigation';
 import { getCampaignData } from './data';
 import { generateMetadata } from './metadata';
@@ -446,7 +447,7 @@ export default async function CampaignDetailPage({
                     </div>
 
                     <div className='ml-11 space-y-3'>
-                      <p className='text-gray-700'>{milestone.description}</p>
+                      <RichTextDisplay content={milestone.description} />
 
                       {/* Documents */}
                       {milestone.documents &&
@@ -517,7 +518,7 @@ export default async function CampaignDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle className='text-lg'>Thông tin blockchain</CardTitle>
+              <CardTitle className='text-xl'>Thông tin blockchain</CardTitle>
             </CardHeader>
             <CardContent className='space-y-4'>
               <div className='space-y-2'>
@@ -551,7 +552,7 @@ export default async function CampaignDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle className='text-lg'>Chiến dịch liên quan</CardTitle>
+              <CardTitle className='text-xl'>Chiến dịch liên quan</CardTitle>
             </CardHeader>
             <CardContent className='space-y-4'>
               {[1, 2, 3].map(i => (
@@ -587,7 +588,7 @@ export default async function CampaignDetailPage({
           {campaign.tags && campaign.tags.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className='text-lg'>Tags</CardTitle>
+                <CardTitle className='text-xl'>Tags</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className='flex flex-wrap gap-2'>

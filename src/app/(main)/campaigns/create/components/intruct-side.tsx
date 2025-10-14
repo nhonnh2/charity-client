@@ -16,7 +16,7 @@ export default function InstructSide() {
     <div className='space-y-6'>
       <Card className='top-6'>
         <CardHeader>
-          <CardTitle>Hướng dẫn</CardTitle>
+          <CardTitle className='text-xl'>Hướng dẫn</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
           <div className='space-y-2'>
@@ -59,7 +59,7 @@ export default function InstructSide() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Thông tin quan trọng</CardTitle>
+          <CardTitle className='text-xl'>Thông tin quan trọng</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
           <Alert>

@@ -50,7 +50,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
   });
 
   return (
-    <>
+    <div className='space-y-8'>
       {/* Campaign Type Selection */}
       <FormField
         name='type'
@@ -63,7 +63,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
               value={field.value}
               className='space-y-3'
             >
-              <div className='flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50'>
+              <div className='flex items-start space-x-4 p-6 border rounded-lg hover:bg-muted/50'>
                 <RadioGroupItem value='regular' id='regular' className='mt-1' />
                 <div className='space-y-1 flex-1'>
                   <Label
@@ -126,9 +126,9 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
             <RadioGroup
               value={field.value}
               onValueChange={field.onChange}
-              className='space-y-3'
+              className='space-y-4'
             >
-              <div className='flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50'>
+              <div className='flex items-start space-x-4 p-6 border rounded-lg hover:bg-muted/50'>
                 <RadioGroupItem value='fixed' id='fixed' className='mt-1' />
                 <div className='space-y-1 flex-1'>
                   <Label
@@ -145,7 +145,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                 </div>
               </div>
 
-              <div className='flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50'>
+              <div className='flex items-start space-x-4 p-6 border rounded-lg hover:bg-muted/50'>
                 <RadioGroupItem
                   value='flexible'
                   id='flexible'
@@ -179,7 +179,11 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
               Tiêu đề chiến dịch
             </FormLabel>
             <FormControl>
-              <Input placeholder='Nhập tiêu đề chiến dịch...' {...field} />
+              <Input
+                placeholder='Nhập tiêu đề chiến dịch...'
+                className='h-12 text-base'
+                {...field}
+              />
             </FormControl>
             <p className='text-xs text-muted-foreground'>
               Tiêu đề ngắn gọn, rõ ràng về mục đích của chiến dịch
@@ -223,7 +227,8 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
             <FormControl>
               <Textarea
                 placeholder='Mô tả chi tiết về chiến dịch, mục đích, đối tượng hưởng lợi...'
-                rows={6}
+                rows={8}
+                className='text-base resize-none'
                 {...field}
               />
             </FormControl>
@@ -390,7 +395,7 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
           </FormItem>
         )}
       />
-    </>
+    </div>
   );
 };
 

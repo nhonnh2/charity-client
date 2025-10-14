@@ -72,21 +72,29 @@ const milestoneSchema = z.object({
   title: z
     .string()
     .min(1, 'Tiêu đề giai đoạn là bắt buộc')
-    .min(10, 'Tiêu đề giai đoạn phải có ít nhất 10 ký tự')
+    .min(5, 'Tiêu đề giai đoạn phải có ít nhất 5 ký tự')
     .max(200, 'Tiêu đề giai đoạn không được quá 200 ký tự'),
   description: z
     .string()
     .min(1, 'Mô tả giai đoạn là bắt buộc')
-    .min(30, 'Mô tả giai đoạn phải có ít nhất 30 ký tự')
-    .max(2000, 'Mô tả giai đoạn không được quá 2000 ký tự'),
+    .refine(value => {
+      // Remove HTML tags to count actual text content
+      const textContent = value.replace(/<[^>]*>/g, '').trim();
+      return textContent.length >= 10;
+    }, 'Mô tả giai đoạn phải có ít nhất 10 ký tự (không tính HTML tags)')
+    .refine(value => {
+      // Remove HTML tags to count actual text content
+      const textContent = value.replace(/<[^>]*>/g, '').trim();
+      return textContent.length <= 2000;
+    }, 'Mô tả giai đoạn không được quá 2000 ký tự (không tính HTML tags)'),
   budget: z
     .number({ invalid_type_error: 'Ngân sách phải là số' })
-    .positive('Ngân sách phải lớn hơn 0')
+    .min(1, 'Ngân sách phải lớn hơn 0')
     .max(1000000000, 'Ngân sách không được vượt quá 1 tỷ VNĐ'),
   durationDays: z
     .number({ invalid_type_error: 'Thời gian phải là số' })
     .int('Thời gian phải là số nguyên')
-    .positive('Thời gian phải lớn hơn 0')
+    .min(1, 'Thời gian phải lớn hơn 0')
     .max(365, 'Thời gian không được vượt quá 365 ngày'),
   documents: z.array(documentFileSchema).optional().default([]),
 });
