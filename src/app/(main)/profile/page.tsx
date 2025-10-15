@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CampaignCard } from '@/components/campaign-card';
+import { CampaignCard } from '@/app/(main)/campaigns/components/campaign-card';
 
 export default function ProfilePage() {
   // Dữ liệu mẫu cho các chiến dịch của user

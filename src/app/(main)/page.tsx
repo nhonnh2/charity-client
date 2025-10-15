@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import CreatePost from '@/components/create-post';
-import { CampaignCard } from '@/components/campaign-card';
+import { CampaignCard } from '@/app/(main)/campaigns/components/campaign-card';
 import ClientComponentTest from '@/components/client-component-test';
 
 import campaignsApiRequest from '@/apiRequests/campaigns';

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CampaignCategory } from '@/constants/campaign';
 
 // Constants
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -114,7 +115,10 @@ export const CreateCampaignFormSchema = z
       .min(1, 'Tiêu đề chiến dịch là bắt buộc')
       .min(20, 'Tiêu đề chiến dịch phải có ít nhất 20 ký tự')
       .max(200, 'Tiêu đề chiến dịch không được quá 200 ký tự'),
-    category: z.string().min(1, 'Danh mục là bắt buộc'),
+    category: z.nativeEnum(CampaignCategory, {
+      required_error: 'Danh mục là bắt buộc',
+      invalid_type_error: 'Danh mục không hợp lệ',
+    }),
     description: z
       .string()
       .min(1, 'Mô tả chiến dịch là bắt buộc')
@@ -263,7 +267,7 @@ export const GetCampaignsQuery = z.object({
   type: CampaignType.optional(),
   fundingType: FundingType.optional(),
   status: CampaignStatus.optional(),
-  category: z.string().optional(),
+  category: z.nativeEnum(CampaignCategory).optional(),
   creatorId: z.string().optional(),
   minTargetAmount: z.number().min(0).optional(),
   maxTargetAmount: z.number().min(0).optional(),
@@ -300,7 +304,7 @@ export const CampaignResponse = z.object({
   description: z.string(),
   type: CampaignType,
   fundingType: FundingType,
-  category: z.string(),
+  category: z.nativeEnum(CampaignCategory),
   status: CampaignStatus,
   targetAmount: z.number(),
   fundraisingDays: z.number().optional(),
@@ -372,30 +376,47 @@ export const SingleCampaignResponse = z
 
 export type SingleCampaignResponseType = z.infer<typeof SingleCampaignResponse>;
 
-// Campaign List Response with Pagination - Matches actual API response structure
-// API returns: { data: { data: Campaign[], pagination: {...} }, statusCode, message, timestamp }
-export const CampaignListResponse = z
-  .object({
-    data: z.object({
-      data: z.array(CampaignResponse),
-      pagination: z
-        .object({
-          current: z.number(),
-          pageSize: z.number(),
-          total: z.number(),
-          totalPages: z.number(),
-        })
-        .optional(),
-    }),
-    statusCode: z.number(),
-    message: z.string(),
-    timestamp: z.string().optional(),
-  })
-  .transform(response => ({
-    // Flatten for easier use
-    data: response.data.data,
-    pagination: response.data.pagination,
-    message: response.message,
-  }));
+// Campaign List Response with Pagination - Simple flexible schema
+export const CampaignListResponse = z.any().transform((response: any) => {
+  // Handle different response structures flexibly
+  let items: any[] = [];
+  let pagination: any = undefined;
+  let message = '';
+
+  // Try to extract items from various possible structures
+  if (response.items) {
+    items = response.items;
+    pagination = response.pagination;
+    message = response.message || '';
+  } else if (response.data) {
+    if (Array.isArray(response.data)) {
+      // { data: Campaign[], pagination: {...} }
+      items = response.data;
+      pagination = response.pagination;
+      message = response.message || '';
+    } else if (response.data.items) {
+      // { data: { items: Campaign[], pagination: {...} } }
+      items = response.data.items;
+      pagination = response.data.pagination;
+      message = response.message || '';
+    } else if (response.data.data) {
+      // { data: { data: Campaign[], pagination: {...} } }
+      items = response.data.data;
+      pagination = response.data.pagination;
+      message = response.message || '';
+    }
+  }
+
+  // Ensure items is always an array
+  if (!Array.isArray(items)) {
+    items = [];
+  }
+
+  return {
+    items,
+    pagination,
+    message,
+  };
+});
 
 export type CampaignListResponseType = z.infer<typeof CampaignListResponse>;

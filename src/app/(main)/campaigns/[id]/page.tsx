@@ -33,20 +33,17 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { CampaignResponseType } from '@/schemaValidations/campaign.schema';
-import {
-  campaignStatus,
-  campaignStatusClassName,
-  campaignCategory,
-} from '@/constants/type';
+import { campaignStatus, campaignStatusClassName } from '@/constants/type';
+import { campaignCategoryLabels } from '@/constants/campaign';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import RichTextDisplay from '@/components/ui/rich-text-display';
 import { notFound } from 'next/navigation';
 import { getCampaignData } from './data';
 import { generateMetadata } from './metadata';
-import DonationCard from '@/app/(main)/campaigns/[id]/components/donation-card';
+import DonationCard from './components/donation-card';
 import CampaignActions from '@/app/(main)/campaigns/[id]/components/campaign-actions';
-import GalleryImage from '@/app/(main)/campaigns/[id]/components/gallery-image';
-import DocumentButton from '@/app/(main)/campaigns/[id]/components/document-button';
+import GalleryImage from './components/gallery-image';
+import DocumentButton from './components/document-button';
 
 export { generateMetadata };
 
@@ -200,8 +197,8 @@ export default async function CampaignDetailPage({
             <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white'>
               <Badge className='mb-2 bg-green-600 hover:bg-green-700'>
                 {
-                  campaignCategory[
-                    campaign.category as keyof typeof campaignCategory
+                  campaignCategoryLabels[
+                    campaign.category as keyof typeof campaignCategoryLabels
                   ]
                 }
               </Badge>
@@ -290,8 +287,8 @@ export default async function CampaignDetailPage({
                         </p>
                         <p className='font-medium'>
                           {
-                            campaignCategory[
-                              campaign.category as keyof typeof campaignCategory
+                            campaignCategoryLabels[
+                              campaign.category as keyof typeof campaignCategoryLabels
                             ]
                           }
                         </p>

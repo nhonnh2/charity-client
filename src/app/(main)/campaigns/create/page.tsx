@@ -48,7 +48,7 @@ export default function CreateCampaignPage() {
       type: 'regular',
       fundingType: 'fixed',
       title: '',
-      category: '',
+      category: undefined,
       description: '',
       targetAmount: 0,
       startDate: '',
@@ -245,16 +245,105 @@ export default function CreateCampaignPage() {
       const targetAmount = formValues.targetAmount;
       const milestones = formValues.milestones;
 
+      console.log('========== MILESTONE VALIDATION ==========');
+      console.log('Milestone validation data:', {
+        type,
+        targetAmount,
+        milestonesCount: milestones.length,
+        milestones: milestones.map((m, index) => ({
+          index,
+          title: m.title,
+          description: m.description,
+          budget: m.budget,
+          durationDays: m.durationDays,
+          documentsCount: m.documents?.length || 0,
+        })),
+      });
+
       // Validate milestones array
       const isValid = await form.trigger('milestones');
 
+      // Get detailed validation errors
+      const formErrors = form.formState.errors;
+      const milestoneErrors = formErrors.milestones;
+
+      console.log('Milestone validation result:', {
+        isValid,
+        formErrors: formErrors,
+        milestoneErrors: milestoneErrors,
+      });
+
       if (!isValid) {
-        toast.error('Vui lòng điền đầy đủ thông tin các giai đoạn');
+        // Log detailed errors for each milestone
+        if (milestoneErrors && Array.isArray(milestoneErrors)) {
+          milestoneErrors.forEach((error, index) => {
+            if (error) {
+              console.log(`Milestone ${index + 1} errors:`, error);
+
+              // Check specific field errors
+              if (error.title) {
+                console.log(`  - Title error: ${error.title.message}`);
+              }
+              if (error.description) {
+                console.log(
+                  `  - Description error: ${error.description.message}`
+                );
+              }
+              if (error.budget) {
+                console.log(`  - Budget error: ${error.budget.message}`);
+              }
+              if (error.durationDays) {
+                console.log(
+                  `  - Duration error: ${error.durationDays.message}`
+                );
+              }
+              if (error.documents) {
+                console.log(`  - Documents error: ${error.documents.message}`);
+              }
+            }
+          });
+        }
+
+        // Show specific error message based on the first error found
+        let errorMessage = 'Vui lòng điền đầy đủ thông tin các giai đoạn';
+
+        if (milestoneErrors && Array.isArray(milestoneErrors)) {
+          for (let i = 0; i < milestoneErrors.length; i++) {
+            const milestoneError = milestoneErrors[i];
+            if (milestoneError) {
+              if (milestoneError.title) {
+                errorMessage = `Giai đoạn ${i + 1}: ${milestoneError.title.message}`;
+                break;
+              }
+              if (milestoneError.description) {
+                errorMessage = `Giai đoạn ${i + 1}: ${milestoneError.description.message}`;
+                break;
+              }
+              if (milestoneError.budget) {
+                errorMessage = `Giai đoạn ${i + 1}: ${milestoneError.budget.message}`;
+                break;
+              }
+              if (milestoneError.durationDays) {
+                errorMessage = `Giai đoạn ${i + 1}: ${milestoneError.durationDays.message}`;
+                break;
+              }
+              if (milestoneError.documents) {
+                errorMessage = `Giai đoạn ${i + 1}: ${milestoneError.documents.message}`;
+                break;
+              }
+            }
+          }
+        }
+
+        toast.error(errorMessage);
         return;
       }
 
       // Additional validation: Check if emergency has only 1 milestone
       if (type === 'emergency' && milestones.length > 1) {
+        console.log(
+          'Emergency campaign validation failed: too many milestones'
+        );
         toast.error('Chiến dịch khẩn cấp chỉ được có 1 giai đoạn');
         return;
       }
@@ -265,13 +354,23 @@ export default function CreateCampaignPage() {
         0
       );
 
+      console.log('Budget validation:', {
+        totalBudget,
+        targetAmount,
+        isEqual: totalBudget === targetAmount,
+      });
+
       if (totalBudget !== targetAmount) {
+        console.log(
+          'Budget validation failed: total budget does not match target amount'
+        );
         toast.error(
           `Tổng ngân sách các giai đoạn (${new Intl.NumberFormat('vi-VN').format(totalBudget)} VNĐ) phải bằng mục tiêu quyên góp (${new Intl.NumberFormat('vi-VN').format(targetAmount)} VNĐ)`
         );
         return;
       }
 
+      console.log('Milestone validation passed successfully');
       // Move to step 3
       setActiveStep(3);
       toast.success('Bước 2 hoàn thành');

@@ -38,6 +38,7 @@ import {
   maxEmergencyAmount,
   userReputation,
 } from '../constant';
+import { campaignCategoryOptions } from '@/constants/campaign';
 
 type InfomationBasicFormProps = {
   form: UseFormReturn<CreateCampaignFormType>;
@@ -205,11 +206,11 @@ const InfomationBasicForm = ({ form }: InfomationBasicFormProps) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value='education'>Giáo dục</SelectItem>
-                <SelectItem value='health'>Y tế</SelectItem>
-                <SelectItem value='environment'>Môi trường</SelectItem>
-                <SelectItem value='disaster'>Thiên tai</SelectItem>
-                <SelectItem value='other'>Khác</SelectItem>
+                {campaignCategoryOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FormMessage />

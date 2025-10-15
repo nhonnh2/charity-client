@@ -34,6 +34,25 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
     name: 'type',
   });
 
+  // Watch milestones for debugging
+  const milestones = useWatch({
+    control: form.control,
+    name: 'milestones',
+  });
+
+  // Log milestones changes for debugging
+  console.log(
+    'MileStonesForm render - milestones:',
+    milestones?.map((m, index) => ({
+      index,
+      title: m?.title || '',
+      description: m?.description || '',
+      budget: m?.budget || 0,
+      durationDays: m?.durationDays || 0,
+      documentsCount: m?.documents?.length || 0,
+    }))
+  );
+
   const addPhase = () => {
     append({
       title: '',
@@ -100,142 +119,224 @@ const MileStonesForm = ({ form }: MileStonesFormProps) => {
                 <FormField
                   name={`milestones.${index}.title`}
                   control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {type === 'emergency'
-                          ? 'Tiêu đề khẩn cấp'
-                          : 'Tiêu đề giai đoạn'}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={
-                            type === 'emergency'
-                              ? 'Ví dụ: Hỗ trợ khẩn cấp cho nạn nhân lũ lụt'
-                              : 'Ví dụ: Xây dựng móng trường học'
-                          }
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field, fieldState }) => {
+                    // Log field state for debugging
+                    if (fieldState.error) {
+                      console.log(
+                        `Milestone ${index + 1} title error:`,
+                        fieldState.error.message
+                      );
+                    }
+
+                    return (
+                      <FormItem>
+                        <FormLabel>
+                          {type === 'emergency'
+                            ? 'Tiêu đề khẩn cấp'
+                            : 'Tiêu đề giai đoạn'}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={
+                              type === 'emergency'
+                                ? 'Ví dụ: Hỗ trợ khẩn cấp cho nạn nhân lũ lụt'
+                                : 'Ví dụ: Xây dựng móng trường học'
+                            }
+                            {...field}
+                            onChange={e => {
+                              console.log(
+                                `Milestone ${index + 1} title changed:`,
+                                e.target.value
+                              );
+                              field.onChange(e);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
                 <FormField
                   name={`milestones.${index}.description`}
                   control={form.control}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {type === 'emergency'
-                          ? 'Mô tả tình trạng khẩn cấp'
-                          : 'Mô tả giai đoạn'}
-                      </FormLabel>
-                      <FormControl>
-                        <RichTextEditor
-                          content={field.value}
-                          onChange={field.onChange}
-                          placeholder={
-                            type === 'emergency'
-                              ? 'Mô tả chi tiết tình trạng khẩn cấp và lý do cần hỗ trợ ngay...'
-                              : 'Mô tả chi tiết công việc trong giai đoạn này...'
-                          }
-                          error={fieldState.error?.message}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field, fieldState }) => {
+                    // Log field state for debugging
+                    if (fieldState.error) {
+                      console.log(
+                        `Milestone ${index + 1} description error:`,
+                        fieldState.error.message
+                      );
+                    }
+
+                    return (
+                      <FormItem>
+                        <FormLabel>
+                          {type === 'emergency'
+                            ? 'Mô tả tình trạng khẩn cấp'
+                            : 'Mô tả giai đoạn'}
+                        </FormLabel>
+                        <FormControl>
+                          <RichTextEditor
+                            content={field.value}
+                            onChange={value => {
+                              console.log(
+                                `Milestone ${index + 1} description changed:`,
+                                value
+                              );
+                              field.onChange(value);
+                            }}
+                            placeholder={
+                              type === 'emergency'
+                                ? 'Mô tả chi tiết tình trạng khẩn cấp và lý do cần hỗ trợ ngay...'
+                                : 'Mô tả chi tiết công việc trong giai đoạn này...'
+                            }
+                            error={fieldState.error?.message}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
                 <FormField
                   name={`milestones.${index}.documents`}
                   control={form.control}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {type === 'emergency'
-                          ? 'Tài liệu chứng minh khẩn cấp'
-                          : 'Tài liệu giai đoạn'}
-                      </FormLabel>
-                      <FormControl>
-                        <DocumentUpload
-                          value={field.value || []}
-                          onChange={field.onChange}
-                          onClearError={() =>
-                            form.clearErrors(
-                              `milestones.${index}.documents` as any
-                            )
-                          }
-                          error={fieldState.error?.message}
-                          label={
-                            type === 'emergency'
-                              ? 'Tải lên giấy tờ chứng minh tình trạng khẩn cấp'
-                              : 'Tải lên tài liệu kế hoạch, báo giá, giấy phép...'
-                          }
-                          description='PDF, Images, Word, Excel (tối đa 10MB mỗi file)'
-                          accept='application/pdf,image/png,image/jpeg,image/jpg,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain'
-                          multiple={true}
-                        />
-                      </FormControl>
-                      {type === 'emergency' && (
-                        <div className='text-xs text-orange-600 bg-orange-50 p-2 rounded mt-2'>
-                          <strong>Lưu ý:</strong> Chiến dịch khẩn cấp cần cung
-                          cấp tài liệu chứng minh tính khẩn cấp (báo cáo y tế,
-                          giấy xác nhận thiên tai, v.v.)
-                        </div>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field, fieldState }) => {
+                    // Log field state for debugging
+                    if (fieldState.error) {
+                      console.log(
+                        `Milestone ${index + 1} documents error:`,
+                        fieldState.error.message
+                      );
+                    }
+
+                    return (
+                      <FormItem>
+                        <FormLabel>
+                          {type === 'emergency'
+                            ? 'Tài liệu chứng minh khẩn cấp'
+                            : 'Tài liệu giai đoạn'}
+                        </FormLabel>
+                        <FormControl>
+                          <DocumentUpload
+                            value={field.value || []}
+                            onChange={value => {
+                              console.log(
+                                `Milestone ${index + 1} documents changed:`,
+                                value
+                              );
+                              field.onChange(value);
+                            }}
+                            onClearError={() => {
+                              console.log(
+                                `Milestone ${index + 1} documents error cleared`
+                              );
+                              form.clearErrors(
+                                `milestones.${index}.documents` as any
+                              );
+                            }}
+                            error={fieldState.error?.message}
+                            label={
+                              type === 'emergency'
+                                ? 'Tải lên giấy tờ chứng minh tình trạng khẩn cấp'
+                                : 'Tải lên tài liệu kế hoạch, báo giá, giấy phép...'
+                            }
+                            description='PDF, Images, Word, Excel (tối đa 10MB mỗi file)'
+                            accept='application/pdf,image/png,image/jpeg,image/jpg,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain'
+                            multiple={true}
+                          />
+                        </FormControl>
+                        {type === 'emergency' && (
+                          <div className='text-xs text-orange-600 bg-orange-50 p-2 rounded mt-2'>
+                            <strong>Lưu ý:</strong> Chiến dịch khẩn cấp cần cung
+                            cấp tài liệu chứng minh tính khẩn cấp (báo cáo y tế,
+                            giấy xác nhận thiên tai, v.v.)
+                          </div>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                   <FormField
                     name={`milestones.${index}.budget`}
                     control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Ngân sách (VNĐ)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type='number'
-                            placeholder='Nhập số tiền...'
-                            {...field}
-                            onChange={e =>
-                              field.onChange(parseFloat(e.target.value) || 0)
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field, fieldState }) => {
+                      // Log field state for debugging
+                      if (fieldState.error) {
+                        console.log(
+                          `Milestone ${index + 1} budget error:`,
+                          fieldState.error.message
+                        );
+                      }
+
+                      return (
+                        <FormItem>
+                          <FormLabel>Ngân sách (VNĐ)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='number'
+                              placeholder='Nhập số tiền...'
+                              {...field}
+                              onChange={e => {
+                                const value = parseFloat(e.target.value) || 0;
+                                console.log(
+                                  `Milestone ${index + 1} budget changed:`,
+                                  value
+                                );
+                                field.onChange(value);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <FormField
                     name={`milestones.${index}.durationDays`}
                     control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          {type === 'emergency'
-                            ? 'Thời gian cần hỗ trợ'
-                            : 'Thời gian dự kiến'}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type='number'
-                            placeholder={
-                              type === 'emergency' ? 'Ví dụ: 1' : 'Ví dụ: 30'
-                            }
-                            {...field}
-                            onChange={e =>
-                              field.onChange(parseInt(e.target.value) || 0)
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field, fieldState }) => {
+                      // Log field state for debugging
+                      if (fieldState.error) {
+                        console.log(
+                          `Milestone ${index + 1} duration error:`,
+                          fieldState.error.message
+                        );
+                      }
+
+                      return (
+                        <FormItem>
+                          <FormLabel>
+                            {type === 'emergency'
+                              ? 'Thời gian cần hỗ trợ'
+                              : 'Thời gian dự kiến'}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type='number'
+                              placeholder={
+                                type === 'emergency' ? 'Ví dụ: 1' : 'Ví dụ: 30'
+                              }
+                              {...field}
+                              onChange={e => {
+                                const value = parseInt(e.target.value) || 0;
+                                console.log(
+                                  `Milestone ${index + 1} duration changed:`,
+                                  value
+                                );
+                                field.onChange(value);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
               </CardContent>

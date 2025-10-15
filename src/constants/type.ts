@@ -1,3 +1,4 @@
+// DEPRECATED: Use campaignCategoryLabels from @/constants/campaign instead
 export const campaignCategory = {
   education: 'Giáo dục',
   health: 'Y tế',
