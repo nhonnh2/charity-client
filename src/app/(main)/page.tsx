@@ -973,35 +973,31 @@ export default async function Home() {
             </CardHeader>
             <CardContent className='space-y-4'>
               {[1, 2, 3].map(i => (
-                <CampaignCard
+                <Link
+                  href={`/campaigns/${i + 10}`}
                   key={i}
-                  id={i}
-                  title={`Chiến dịch từ thiện ${i}`}
-                  description={`Mô tả chiến dịch ${i}`}
-                  raised={(50 + i * 10) * 1000000}
-                  goal={100000000}
-                  progress={50 + i * 10}
-                  disabledStatus
-                  status={
-                    i === 1 ? 'pending' : i === 2 ? 'funding' : 'implementing'
-                  }
-                  interestedCount={i === 1 ? 25 : undefined}
-                  currentPhase={i === 3 ? 2 : undefined}
-                  totalPhases={i === 3 ? 3 : undefined}
-                  spent={i === 3 ? 40000000 : undefined}
-                  budget={i === 3 ? 60000000 : undefined}
-                  variant='compact'
-                  colorScheme={
-                    i === 1 ? 'primary' : i === 2 ? 'accent' : 'gradient'
-                  }
-                />
+                  className='flex items-start space-x-3 group'
+                >
+                  <img
+                    src='https://images.unsplash.com/photo-1580582932707-520aed937b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80'
+                    alt={`Chiến dịch ${i}`}
+                    className='h-14 w-14 rounded-md object-cover'
+                  />
+                  <div>
+                    <h4 className='text-sm font-medium group-hover:text-blue-600'>
+                      {i === 1
+                        ? 'Xây thư viện trường làng'
+                        : i === 2
+                          ? 'Học bổng cho học sinh nghèo'
+                          : 'Trang bị máy tính cho trường học'}
+                    </h4>
+                    <Progress value={40 + i * 15} className='h-1 mt-1' />
+                    <p className='text-xs text-muted-foreground mt-1'>
+                      {40 + i * 15}% · {(i + 2) * 10} ngày còn lại
+                    </p>
+                  </div>
+                </Link>
               ))}
-              <Button
-                variant='outline'
-                className='w-full hover:bg-primary/5 hover:text-primary transition-colors'
-              >
-                Xem tất cả chiến dịch
-              </Button>
             </CardContent>
           </Card>
 

@@ -22,7 +22,6 @@ import {
   CreateCampaignFormType,
 } from '@/schemaValidations/campaign.schema';
 import { toast } from 'sonner';
-import campaignsApiRequest from '@/apiRequests/campaigns';
 import {
   uploadCoverImage,
   uploadGalleryImages,
@@ -30,7 +29,8 @@ import {
   uploadAllMilestoneDocuments,
 } from './helpers/upload-helpers';
 import { transformFormToApiData } from './helpers/transform-data';
-import { getApiErrorMessage, logErrorForDev } from '@/lib/api/errors';
+import { logErrorForDev } from '@/lib/api/errors';
+import { useMutationCreateCampaign } from '@/hooks/campaigns';
 import InstructSide from './components/intruct-side';
 import InfomationBasicForm from './components/infomation-basic-form';
 import MileStonesForm from './components/milestones-form';
@@ -39,8 +39,26 @@ import VerifyForm from './components/verify-form';
 export default function CreateCampaignPage() {
   const router = useRouter();
   const [activeStep, setActiveStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
+
+  // React Query mutation để tạo campaign
+  const createCampaignMutation = useMutationCreateCampaign({
+    onSuccess: data => {
+      toast.success('Tạo chiến dịch thành công! Đang chuyển hướng...', {
+        id: 'create-campaign',
+      });
+      console.log('Campaign created:', data.data);
+
+      // Redirect to campaign detail page
+      setTimeout(() => {
+        router.push(`/campaigns/${data.data._id}`);
+      }, 1000);
+    },
+    onError: error => {
+      // Error đã được xử lý trong http client
+      logErrorForDev(error, 'Campaign Creation');
+    },
+  });
 
   const form = useForm<CreateCampaignFormType>({
     resolver: zodResolver(CreateCampaignFormSchema),
@@ -82,7 +100,7 @@ export default function CreateCampaignPage() {
     console.log('========== SUBMIT TRIGGERED ==========');
     console.log('handleSubmitCampaign_____', {
       activeStep,
-      isSubmitting,
+      isSubmitting: createCampaignMutation.isPending,
       data,
     });
 
@@ -93,10 +111,11 @@ export default function CreateCampaignPage() {
     }
 
     // Prevent double submission
-    if (isSubmitting) return;
+    if (createCampaignMutation.isPending) return;
 
-    setIsSubmitting(true);
-    const loadingToast = toast.loading('Đang tạo chiến dịch...');
+    const loadingToast = toast.loading('Đang tạo chiến dịch...', {
+      id: 'create-campaign',
+    });
 
     try {
       // ============================================
@@ -108,7 +127,6 @@ export default function CreateCampaignPage() {
       const coverImage = await uploadCoverImage(data.coverImage, data.title);
       if (!coverImage) {
         toast.error('Không thể tải lên ảnh cover', { id: loadingToast });
-        setIsSubmitting(false);
         return;
       }
 
@@ -122,7 +140,6 @@ export default function CreateCampaignPage() {
       const gallery = await uploadGalleryImages(data.images || [], data.title);
       if (gallery === null) {
         toast.error('Không thể tải lên gallery images', { id: loadingToast });
-        setIsSubmitting(false);
         return;
       }
 
@@ -134,7 +151,6 @@ export default function CreateCampaignPage() {
       );
       if (!identityDocs) {
         toast.error('Không thể tải lên giấy tờ xác minh', { id: loadingToast });
-        setIsSubmitting(false);
         return;
       }
 
@@ -147,7 +163,6 @@ export default function CreateCampaignPage() {
         toast.error('Không thể tải lên tài liệu giai đoạn', {
           id: loadingToast,
         });
-        setIsSubmitting(false);
         return;
       }
 
@@ -164,38 +179,17 @@ export default function CreateCampaignPage() {
         milestones: milestonesWithDocs,
       });
 
-      // 2.2 Create campaign
+      // 2.2 Create campaign với React Query mutation
       toast.loading('Đang tạo chiến dịch...', { id: loadingToast });
-      const response = await campaignsApiRequest.create(campaignData);
-
-      // ============================================
-      // PHASE 3: Success Handling
-      // ============================================
-
-      toast.success('Tạo chiến dịch thành công! Đang chuyển hướng...', {
-        id: loadingToast,
-      });
-      console.log('Campaign created:', response.data);
-
-      // Redirect to campaign detail page
-      setTimeout(() => {
-        router.push(`/campaigns/${response.data._id}`);
-      }, 1000); // Small delay to show success message
+      createCampaignMutation.mutate(campaignData);
     } catch (error: any) {
       // ============================================
-      // ERROR HANDLING with error_code mapping
+      // ERROR HANDLING
       // ============================================
 
       // Log error for debugging in development
       logErrorForDev(error, 'Campaign Creation');
-
-      // Get user-friendly error message
-      const userMessage = getApiErrorMessage(error);
-
-      // Show error toast
-      toast.error(userMessage, { id: loadingToast });
-
-      setIsSubmitting(false);
+      toast.error('Có lỗi xảy ra khi tạo chiến dịch', { id: loadingToast });
     }
   };
 
@@ -456,12 +450,12 @@ export default function CreateCampaignPage() {
                     <Button
                       className='bg-green-600 hover:bg-green-700'
                       type='submit'
-                      disabled={isSubmitting}
+                      disabled={createCampaignMutation.isPending}
                     >
-                      {isSubmitting
+                      {createCampaignMutation.isPending
                         ? 'Đang tạo...'
                         : 'Tạo chiến dịch & Đóng phí duyệt'}
-                      {!isSubmitting &&
+                      {!createCampaignMutation.isPending &&
                         ` (${new Intl.NumberFormat('vi-VN').format(reviewFee || 0)} VNĐ)`}
                     </Button>
                   )}

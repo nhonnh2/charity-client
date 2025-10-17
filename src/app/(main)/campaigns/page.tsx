@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,24 +9,10 @@ import { CampaignCard } from './components/campaign-card';
 import { CampaignFilters } from './components/campaign-filters';
 import { CampaignStats } from './components/campaign-stats';
 import { CampaignPagination } from './components/campaign-pagination';
-import campaignsApiRequest from '@/apiRequests/campaigns';
-import {
-  GetCampaignsQueryType,
-  CampaignListResponseType,
-} from '@/schemaValidations/campaign.schema';
-import { toast } from 'sonner';
+import { GetCampaignsQueryType } from '@/schemaValidations/campaign.schema';
+import { useQueryCampaigns } from '@/hooks/campaigns';
 
 export default function CampaignsPage() {
-  // State management
-  const [campaigns, setCampaigns] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0,
-    totalPages: 0,
-  });
-
   // Filter states
   const [filters, setFilters] = useState<GetCampaignsQueryType>({
     page: 1,
@@ -38,32 +24,17 @@ export default function CampaignsPage() {
     sortOrder: 'desc',
   });
 
-  // Fetch campaigns data
-  const fetchCampaigns = async (
-    queryParams: GetCampaignsQueryType = filters
-  ) => {
-    try {
-      setLoading(true);
-      const response: CampaignListResponseType =
-        await campaignsApiRequest.getList(queryParams);
+  // Fetch campaigns với React Query
+  const { data, isLoading, error, refetch } = useQueryCampaigns({ filters });
 
-      setCampaigns(response.items);
-      if (response.pagination) {
-        setPagination(response.pagination);
-      }
-    } catch (error: any) {
-      console.error('Error fetching campaigns:', error);
-      toast.error('Không thể tải danh sách chiến dịch');
-      setCampaigns([]);
-    } finally {
-      setLoading(false);
-    }
+  // Extract data từ response
+  const campaigns = data?.items || [];
+  const pagination = data?.pagination || {
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0,
   };
-
-  // Load campaigns on mount and when filters change
-  useEffect(() => {
-    fetchCampaigns();
-  }, [filters]);
 
   // Handle filter changes
   const handleFilterChange = (key: keyof GetCampaignsQueryType, value: any) => {
@@ -94,17 +65,26 @@ export default function CampaignsPage() {
   const renderContentList = (variantCard: 'list' | 'default') => {
     return (
       <>
-        {loading ? (
+        {isLoading ? (
           <div className='flex items-center justify-center py-12'>
             <Loader2 className='h-8 w-8 animate-spin' />
             <span className='ml-2'>Đang tải chiến dịch...</span>
+          </div>
+        ) : error ? (
+          <div className='flex flex-col items-center justify-center py-12 text-center'>
+            <div className='text-muted-foreground mb-4'>
+              Có lỗi xảy ra khi tải dữ liệu
+            </div>
+            <Button variant='outline' onClick={() => refetch()}>
+              Thử lại
+            </Button>
           </div>
         ) : campaigns.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-12 text-center'>
             <div className='text-muted-foreground mb-4'>
               Không tìm thấy chiến dịch nào
             </div>
-            <Button variant='outline' onClick={() => fetchCampaigns()}>
+            <Button variant='outline' onClick={() => refetch()}>
               Thử lại
             </Button>
           </div>
@@ -179,7 +159,7 @@ export default function CampaignsPage() {
             filters={filters}
             onFilterChange={handleFilterChange}
             onSearch={handleSearch}
-            onApplyFilters={() => fetchCampaigns()}
+            onApplyFilters={() => refetch()}
           />
 
           <CampaignStats
@@ -187,7 +167,7 @@ export default function CampaignsPage() {
             current={pagination.current}
             totalPages={pagination.totalPages}
             displayedCount={campaigns.length}
-            loading={loading}
+            loading={isLoading}
           />
         </div>
 
@@ -200,7 +180,7 @@ export default function CampaignsPage() {
                 <TabsTrigger value='list'>Danh sách</TabsTrigger>
               </TabsList>
               <span className='text-sm text-muted-foreground'>
-                {loading
+                {isLoading
                   ? 'Đang tải...'
                   : `Hiển thị ${campaigns.length} trong số ${pagination.total} chiến dịch`}
               </span>

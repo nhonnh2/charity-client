@@ -290,7 +290,7 @@ export const MediaObjectSchema = z.object({
 
 // Creator Object Schema (nested in response)
 export const CreatorObjectSchema = z.object({
-  _id: z.string(),
+  id: z.string(), // API returns 'id' not '_id'
   name: z.string(),
   email: z.string().optional(),
   avatar: z.string().optional(),
