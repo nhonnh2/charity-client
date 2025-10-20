@@ -1,115 +1,107 @@
 import { z } from 'zod';
+import {
+  MediaTypeSchema,
+  CloudProviderSchema,
+  MediaStatusSchema,
+  BaseQuerySchema,
+} from './common.schema';
 
-// Enums
-export const MediaType = z.enum(['image', 'video', 'document', 'audio']);
-export const CloudProvider = z.enum(['google_cloud', 'azure_blob', 'local']);
-export const MediaStatus = z.enum([
-  'uploading',
-  'processing',
-  'ready',
-  'failed',
-  'deleted',
-]);
-export const SortField = z.enum([
+// ============================================
+// MEDIA SPECIFIC ENUMS
+// ============================================
+
+export const SortFieldSchema = z.enum([
   'createdAt',
   'updatedAt',
   'size',
   'downloadCount',
   'viewCount',
 ]);
-export const SortOrder = z.enum(['asc', 'desc']);
 
-export type MediaTypeType = z.infer<typeof MediaType>;
-export type CloudProviderType = z.infer<typeof CloudProvider>;
-export type MediaStatusType = z.infer<typeof MediaStatus>;
-export type SortFieldType = z.infer<typeof SortField>;
-export type SortOrderType = z.infer<typeof SortOrder>;
+export type SortField = z.infer<typeof SortFieldSchema>;
 
-// Upload Media Schema
-export const UploadMediaBody = z.object({
+// ============================================
+// UPLOAD MEDIA SCHEMA
+// ============================================
+
+export const UploadMediaBodySchema = z.object({
   file: z.instanceof(File, { message: 'File là bắt buộc' }),
-  type: MediaType,
+  type: MediaTypeSchema,
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   isPublic: z.boolean().optional().default(false),
 });
 
-export type UploadMediaBodyType = z.infer<typeof UploadMediaBody>;
+export type UploadMediaBody = z.infer<typeof UploadMediaBodySchema>;
 
-// Get Media List Query Schema
-export const GetMediaListQuery = z.object({
-  page: z.number().min(1).optional().default(1),
-  limit: z.number().min(1).max(100).optional().default(20),
-  type: MediaType.optional(),
-  provider: CloudProvider.optional(),
-  status: MediaStatus.optional(),
-  search: z.string().optional(),
+// ============================================
+// QUERY SCHEMAS
+// ============================================
+
+export const GetMediaListQuerySchema = BaseQuerySchema.extend({
+  type: MediaTypeSchema.optional(),
+  provider: CloudProviderSchema.optional(),
+  status: MediaStatusSchema.optional(),
   tags: z.array(z.string()).optional(),
   isPublic: z.boolean().optional(),
-  sortBy: SortField.optional().default('createdAt'),
-  sortOrder: SortOrder.optional().default('desc'),
+  sortBy: SortFieldSchema.optional().default('createdAt'),
 });
 
-export type GetMediaListQueryType = z.infer<typeof GetMediaListQuery>;
+export type GetMediaListQuery = z.infer<typeof GetMediaListQuerySchema>;
 
-// Update Media Schema
-export const UpdateMediaBody = z.object({
+// ============================================
+// UPDATE MEDIA SCHEMA
+// ============================================
+
+export const UpdateMediaBodySchema = z.object({
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   isPublic: z.boolean().optional(),
 });
 
-export type UpdateMediaBodyType = z.infer<typeof UpdateMediaBody>;
+export type UpdateMediaBody = z.infer<typeof UpdateMediaBodySchema>;
 
-// Media Response Schema
-export const MediaResponse = z.object({
+// ============================================
+// MEDIA RESPONSE SCHEMAS
+// ============================================
+
+export const MediaResponseSchema = z.object({
   id: z.string(),
   filename: z.string(),
   originalName: z.string(),
-  mimeType: z.string(),
+  mimetype: z.string(),
   size: z.number(),
-  type: MediaType,
+  type: MediaTypeSchema,
   url: z.string(),
   thumbnailUrl: z.string().optional(),
-  provider: CloudProvider,
-  status: MediaStatus,
+  provider: CloudProviderSchema,
+  status: MediaStatusSchema,
   isPublic: z.boolean(),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   metadata: z.record(z.any()).optional(),
   downloadCount: z.number().optional(),
   viewCount: z.number().optional(),
-  userId: z.string(),
   createdAt: z.string().transform(str => new Date(str)),
   updatedAt: z.string().transform(str => new Date(str)),
 });
 
-export type MediaResponseType = z.infer<typeof MediaResponse>;
+export type MediaResponse = z.infer<typeof MediaResponseSchema>;
 
-// Media List Response Schema
-export const MediaListResponse = z.object({
-  data: z.array(MediaResponse),
-  meta: z.object({
-    page: z.number(),
-    limit: z.number(),
-    total: z.number(),
-    totalPages: z.number(),
-  }),
-  message: z.string().optional(),
-});
+// ============================================
+// LIST RESPONSE SCHEMAS - Sử dụng common schemas
+// ============================================
 
-export type MediaListResponseType = z.infer<typeof MediaListResponse>;
+// Media list response schema - chỉ validate array của media
+export const MediaListResponseSchema = z.array(MediaResponseSchema);
 
-// Single Media Response Schema
-export const SingleMediaResponse = z.object({
-  data: MediaResponse,
-  message: z.string().optional(),
-});
+export type MediaListResponse = z.infer<typeof MediaListResponseSchema>;
 
-export type SingleMediaResponseType = z.infer<typeof SingleMediaResponse>;
+// ============================================
+// DOWNLOAD RESPONSE SCHEMA
+// ============================================
 
-// Download URL Response Schema
-export const DownloadUrlResponse = z.object({
+export const DownloadUrlResponseSchema = z.object({
   data: z.object({
     url: z.string(),
     expiresAt: z.string().transform(str => new Date(str)),
@@ -117,12 +109,35 @@ export const DownloadUrlResponse = z.object({
   message: z.string().optional(),
 });
 
-export type DownloadUrlResponseType = z.infer<typeof DownloadUrlResponse>;
+export type DownloadUrlResponse = z.infer<typeof DownloadUrlResponseSchema>;
 
-// Delete Response Schema
-export const DeleteMediaResponse = z.object({
+// ============================================
+// DELETE RESPONSE SCHEMA - Sử dụng common schema
+// ============================================
+
+// Delete response schema - chỉ validate success message
+export const DeleteMediaResponseSchema = z.object({
   message: z.string(),
-  success: z.boolean().optional(),
 });
 
-export type DeleteMediaResponseType = z.infer<typeof DeleteMediaResponse>;
+export type DeleteMediaResponse = z.infer<typeof DeleteMediaResponseSchema>;
+
+// ============================================
+// LEGACY ALIASES - Để backward compatibility
+// ============================================
+
+export const UploadMediaBody = UploadMediaBodySchema;
+export const GetMediaListQuery = GetMediaListQuerySchema;
+export const UpdateMediaBody = UpdateMediaBodySchema;
+export const MediaResponse = MediaResponseSchema;
+export const MediaListResponse = MediaListResponseSchema;
+export const DownloadUrlResponse = DownloadUrlResponseSchema;
+export const DeleteMediaResponse = DeleteMediaResponseSchema;
+
+export type UploadMediaBodyType = UploadMediaBody;
+export type GetMediaListQueryType = GetMediaListQuery;
+export type UpdateMediaBodyType = UpdateMediaBody;
+export type MediaResponseType = MediaResponse;
+export type MediaListResponseType = MediaListResponse;
+export type DownloadUrlResponseType = DownloadUrlResponse;
+export type DeleteMediaResponseType = DeleteMediaResponse;

@@ -37,6 +37,7 @@ let refreshRequest: null | Promise<boolean> = null;
 
 // Gọi refresh 1 lần duy nhất tại một thời điểm
 export async function refreshOnce(): Promise<boolean | string> {
+  console.log('refreshRequest___', refreshRequest);
   if (!refreshRequest) {
     const headers: HeadersInit = {};
     // (tuỳ chọn) CSRF header nếu bạn có set csrf_token

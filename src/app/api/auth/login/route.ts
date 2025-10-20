@@ -1,29 +1,29 @@
 import { NextResponse } from 'next/server';
 
-import authApiRequest from '@/apiRequests/auth';
+import { login } from '@/apiRequests/auth';
 import { EntityError, HttpError } from '@/lib/api/http';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const response = await authApiRequest.login(body);
-    if (response?.data) {
+    const response = await login(body);
+    if (response) {
       const resNext = NextResponse.json(response, { status: 200 });
-      resNext.cookies.set('accessToken', response.data.accessToken ?? '', {
+      resNext.cookies.set('accessToken', response.accessToken ?? '', {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
       });
 
-      resNext.cookies.set('refreshToken', response.data.refreshToken ?? '', {
+      resNext.cookies.set('refreshToken', response.refreshToken ?? '', {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
       });
 
-      resNext.cookies.set('csrfToken', response.data.csrfToken ?? '', {
+      resNext.cookies.set('csrfToken', response.csrfToken ?? '', {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',

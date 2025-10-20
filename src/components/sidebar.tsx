@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Home,
@@ -34,7 +33,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import authApiRequest from '@/apiRequests/auth';
+import { nextLogout } from '@/apiRequests/auth';
 import { useAuthStore } from '@/stores/auth-store';
 import { toast } from 'sonner';
 
@@ -53,7 +52,7 @@ export default function Sidebar({ className }: SidebarNavProps) {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      const resLogout = await authApiRequest.nextLogout();
+      const resLogout = await nextLogout();
       if (resLogout) {
         // Clear user từ store
         clearUser();

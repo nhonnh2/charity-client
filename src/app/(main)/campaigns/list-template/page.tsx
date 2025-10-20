@@ -28,7 +28,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CampaignCard } from '@/app/(main)/campaigns/components/campaign-card';
-import campaignsApiRequest from '@/apiRequests/campaigns';
 
 export default async function CampaignsPage() {
   // Dữ liệu mẫu cho các chiến dịch với 3 trạng thái khác nhau
@@ -38,7 +37,7 @@ export default async function CampaignsPage() {
       title: 'Chiến dịch hỗ trợ y tế vùng cao',
       description: 'Mang y tế đến với người dân vùng cao xa xôi',
       status: 'pending_review' as const,
-      interestedCount: 45,
+      followersCount: 45,
       raised: 0,
       goal: 100000000,
       progress: 0,
@@ -80,7 +79,7 @@ export default async function CampaignsPage() {
       title: 'Hỗ trợ học bổng sinh viên nghèo',
       description: 'Trao học bổng cho sinh viên vượt khó học giỏi',
       status: 'pending_review' as const,
-      interestedCount: 28,
+      followersCount: 28,
       raised: 0,
       goal: 50000000,
       progress: 0,
@@ -265,7 +264,7 @@ export default async function CampaignsPage() {
                     raised={campaign.raised}
                     goal={campaign.goal}
                     progress={campaign.progress}
-                    interestedCount={campaign.interestedCount}
+                    followersCount={campaign.followersCount}
                     spent={campaign.spent}
                     budget={campaign.budget}
                     phase={campaign.phase}
@@ -353,7 +352,7 @@ export default async function CampaignsPage() {
                                     <span>Người quan tâm</span>
                                   </div>
                                   <span className='font-medium'>
-                                    {campaign.interestedCount}
+                                    {campaign.followersCount}
                                   </span>
                                 </>
                               )}

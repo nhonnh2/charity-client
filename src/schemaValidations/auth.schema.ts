@@ -1,7 +1,12 @@
-import z from 'zod';
+import { z } from 'zod';
+import { AuthResponseSchema, type AuthResponse } from './common.schema';
+
+// ============================================
+// FORM VALIDATION SCHEMAS - Cho UI forms
+// ============================================
 
 // Schema cho form validation (bao gồm confirmPassword)
-export const RegisterFormBody = z
+export const RegisterFormBodySchema = z
   .object({
     name: z
       .string()
@@ -28,10 +33,14 @@ export const RegisterFormBody = z
     }
   });
 
-export type RegisterFormBodyType = z.TypeOf<typeof RegisterFormBody>;
+export type RegisterFormBody = z.infer<typeof RegisterFormBodySchema>;
+
+// ============================================
+// API REQUEST SCHEMAS - Cho API calls
+// ============================================
 
 // Schema cho API request (chỉ có name, email, password)
-export const RegisterBody = z
+export const RegisterBodySchema = z
   .object({
     name: z
       .string()
@@ -46,28 +55,9 @@ export const RegisterBody = z
   })
   .strict();
 
-export type RegisterBodyType = z.TypeOf<typeof RegisterBody>;
+export type RegisterBody = z.infer<typeof RegisterBodySchema>;
 
-export const RegisterRes = z.object({
-  data: z.object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
-    csrfToken: z.string(),
-    user: z.object({
-      id: z.string(),
-      name: z.string(),
-      email: z.string(),
-      role: z.string(),
-      avatar: z.string().optional(),
-      createdAt: z.string().transform(str => new Date(str)),
-    }),
-  }),
-  message: z.string(),
-});
-
-export type RegisterResType = z.TypeOf<typeof RegisterRes>;
-
-export const LoginBody = z
+export const LoginBodySchema = z
   .object({
     email: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
     password: z
@@ -78,15 +68,48 @@ export const LoginBody = z
   })
   .strict();
 
-export type LoginBodyType = z.TypeOf<typeof LoginBody>;
+export type LoginBody = z.infer<typeof LoginBodySchema>;
 
-export const LoginRes = RegisterRes;
+// ============================================
+// API RESPONSE SCHEMAS - Sử dụng common schemas
+// ============================================
 
-export type LoginResType = z.TypeOf<typeof LoginRes>;
+// Sử dụng AuthResponseSchema từ common.schema
+export const RegisterResponseSchema = AuthResponseSchema;
+export const LoginResponseSchema = AuthResponseSchema;
 
-export const SlideSessionBody = z.object({}).strict();
+export type RegisterResponse = AuthResponse;
+export type LoginResponse = AuthResponse;
 
-export type SlideSessionBodyType = z.TypeOf<typeof SlideSessionBody>;
-export const SlideSessionRes = RegisterRes;
+// ============================================
+// LEGACY SCHEMAS - Để backward compatibility
+// ============================================
 
-export type SlideSessionResType = z.TypeOf<typeof SlideSessionRes>;
+// Alias cho backward compatibility
+export const RegisterFormBody = RegisterFormBodySchema;
+export const RegisterBody = RegisterBodySchema;
+export const LoginBody = LoginBodySchema;
+export const RegisterRes = RegisterResponseSchema;
+export const LoginRes = LoginResponseSchema;
+
+export type RegisterFormBodyType = RegisterFormBody;
+export type RegisterBodyType = RegisterBody;
+export type LoginBodyType = LoginBody;
+export type RegisterResType = RegisterResponse;
+export type LoginResType = LoginResponse;
+
+// ============================================
+// SESSION SCHEMAS - Cho slide session
+// ============================================
+
+export const SlideSessionBodySchema = z.object({}).strict();
+export const SlideSessionResponseSchema = AuthResponseSchema;
+
+export type SlideSessionBody = z.infer<typeof SlideSessionBodySchema>;
+export type SlideSessionResponse = AuthResponse;
+
+// Legacy aliases
+export const SlideSessionBody = SlideSessionBodySchema;
+export const SlideSessionRes = SlideSessionResponseSchema;
+export type SlideSessionBodyType = SlideSessionBody;
+export type SlideSessionResType = SlideSessionResponse;

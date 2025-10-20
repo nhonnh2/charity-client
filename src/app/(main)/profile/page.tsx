@@ -89,7 +89,7 @@ export default function ProfilePage() {
       description:
         'Khoan giếng và lắp đặt hệ thống nước sạch cho các vùng thiếu nước sinh hoạt',
       status: 'pending' as const,
-      interestedCount: 45,
+      followersCount: 45,
       raised: 0,
       goal: 120000000,
       progress: 0,
@@ -304,7 +304,7 @@ export default function ProfilePage() {
                 raised={campaign.raised}
                 goal={campaign.goal}
                 progress={campaign.progress}
-                interestedCount={campaign.interestedCount}
+                followersCount={campaign.followersCount}
                 spent={campaign.spent}
                 budget={campaign.budget}
                 phase={campaign.phase}

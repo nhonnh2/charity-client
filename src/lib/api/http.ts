@@ -1,4 +1,5 @@
 import envConfig from '@/config';
+import { z } from 'zod';
 
 import { normalizePath } from '@/lib/utils/path';
 import { readCookie, readHeader } from '@/lib/auth/server';
@@ -7,6 +8,15 @@ import { getApiErrorMessage, logErrorForDev } from '@/lib/api/errors';
 
 import { redirect } from 'next/navigation';
 import { toast } from 'sonner';
+
+// Base response schema - chuẩn format từ backend
+const BaseResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    data: dataSchema,
+    statusCode: z.number(),
+    message: z.string(),
+    timestamp: z.string().transform(str => new Date(str)),
+  });
 
 type CustomOptions = Omit<RequestInit, 'method'> & {
   baseUrl?: string | undefined;
@@ -30,6 +40,11 @@ type CustomOptions = Omit<RequestInit, 'method'> & {
    * Useful for replacing loading toast: { id: loadingToastId }
    */
   toastOptions?: Parameters<typeof toast.error>[1];
+  /**
+   * Zod schema để validate và extract data từ response
+   * Nếu có schema, sẽ tự động extract data từ { data, statusCode, message, timestamp }
+   */
+  dataSchema?: z.ZodTypeAny;
 };
 
 const ENTITY_ERROR_STATUS = 422;
@@ -171,7 +186,9 @@ const request = async <Response>(
         if (isClient) {
           const resLogout = await logoutOnce();
           if (resLogout) {
-            redirect('/login');
+            // Client-side navigation must not use next/navigation redirect
+            window.location.href = '/login';
+            return null as any;
           }
         }
       } else {
@@ -180,7 +197,8 @@ const request = async <Response>(
           if (resRefresh) {
             res = await doFetch();
           } else {
-            redirect('/logout');
+            window.location.href = '/logout';
+            return null;
           }
         } else {
           const csrfToken = await readCookie('csrfToken');
@@ -213,6 +231,18 @@ const request = async <Response>(
         status: res.status,
         payload,
       });
+    }
+    // 🚀 INTERCEPTOR: Tự động extract data nếu có dataSchema
+    if (options?.dataSchema) {
+      try {
+        const responseSchema = BaseResponseSchema(options.dataSchema);
+        const parsedResponse = responseSchema.parse(payload);
+        return parsedResponse.data; // Chỉ return data, không cần statusCode, message, timestamp
+      } catch (error) {
+        console.error('Response validation error:', error);
+        // Nếu validation fail, fallback về payload gốc
+        return payload;
+      }
     }
 
     return data.payload;
@@ -250,5 +280,8 @@ const http = {
     return request<Response>('DELETE', url, { ...options });
   },
 };
+
+// Export BaseResponseSchema để dùng ở nơi khác
+export { BaseResponseSchema };
 
 export default http;

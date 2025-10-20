@@ -1,150 +1,154 @@
 import http from '@/lib/api/http';
 import {
-  GetCampaignsQueryType,
-  SingleCampaignResponse,
-  SingleCampaignResponseType,
-  CampaignListResponse,
-  CampaignListResponseType,
+  CampaignSchema,
+  CampaignListSchema,
+  CampaignDetailSchema,
+  FollowStatusSchema,
+  type Campaign,
+  type CampaignList,
+  type CampaignDetail,
+  type FollowStatus,
+  type CreateCampaign,
+  type UpdateCampaign,
 } from '@/schemaValidations/campaign.schema';
 
-// Media object type
-export type MediaObject = {
-  id: string;
-  url: string;
-  name: string;
+// ============================================
+// QUERY TYPES
+// ============================================
+export type GetCampaignsQuery = {
+  page?: number;
+  limit?: number;
+  category?: string;
+  status?: string;
+  search?: string;
+  sortBy?: 'createdAt' | 'targetAmount' | 'currentAmount' | 'deadline';
+  sortOrder?: 'asc' | 'desc';
 };
 
-// DTO for creating campaign (after file uploads)
-export type CreateCampaignDto = {
-  // Basic Info
-  type: 'normal' | 'emergency'; // Note: API uses 'normal' not 'regular'
-  fundingType: 'fixed' | 'flexible';
-  title: string;
-  category: string;
-  description: string;
-  targetAmount: number;
-  fundraisingDays: number;
-  startDate: string;
-  endDate: string;
-
-  // Media objects (after upload)
-  coverImage: MediaObject;
-  gallery?: MediaObject[];
-
-  // Milestones
-  milestones: {
-    title: string;
-    description: string;
-    budget: number;
-    durationDays: number;
-    documents?: MediaObject[];
-  }[];
-
-  // Verification
-  reviewFee: number;
-  // identityFront: MediaObject;
-  // identityBack: MediaObject;
-  // walletAddress?: string;
-
-  // Optional
-  tags?: string[];
+export type GetCampaignFollowersQuery = {
+  page?: number;
+  limit?: number;
 };
 
-const campaignsApiRequest = {
-  /**
-   * Create a new campaign
-   * POST /api/campaigns
-   * Returns: Campaign data or null on error
-   */
-  create: async (
-    body: CreateCampaignDto
-  ): Promise<SingleCampaignResponseType> => {
-    // Let the error bubble up to be handled by the caller
-    // This allows proper error message extraction
-    return await http.post<SingleCampaignResponseType>('/campaigns', body);
-  },
+// ============================================
+// API METHODS - Sử dụng interceptor tự động
+// ============================================
 
-  /**
-   * Get campaigns list with filters and pagination
-   * GET /api/campaigns
-   */
-  getList: async (query?: GetCampaignsQueryType) => {
-    const params = new URLSearchParams();
-
-    if (query) {
-      // Pagination
-      if (query.page) params.append('page', String(query.page));
-      if (query.limit) params.append('limit', String(query.limit));
-
-      // Search & Filters
-      if (query.search) params.append('search', query.search);
-      if (query.type) params.append('type', query.type);
-      if (query.fundingType) params.append('fundingType', query.fundingType);
-      if (query.status) params.append('status', query.status);
-      if (query.category) params.append('category', query.category);
-      if (query.creatorId) params.append('creatorId', query.creatorId);
-
-      // Amount range
-      if (query.minTargetAmount !== undefined) {
-        params.append('minTargetAmount', String(query.minTargetAmount));
-      }
-      if (query.maxTargetAmount !== undefined) {
-        params.append('maxTargetAmount', String(query.maxTargetAmount));
-      }
-
-      // Date range
-      if (query.startDateFrom)
-        params.append('startDateFrom', query.startDateFrom);
-      if (query.startDateTo) params.append('startDateTo', query.startDateTo);
-
-      // Flags
-      if (query.isFeatured !== undefined) {
-        params.append('isFeatured', String(query.isFeatured));
-      }
-
-      // Sorting
-      if (query.sortBy) params.append('sortBy', query.sortBy);
-      if (query.sortOrder) params.append('sortOrder', query.sortOrder);
-
-      // Tags
-      if (query.tag) params.append('tag', query.tag);
+// Get campaigns list
+export const getCampaigns = async (
+  query: GetCampaignsQuery = {}
+): Promise<CampaignList> => {
+  const params = new URLSearchParams();
+  Object.entries(query).forEach(([key, value]) => {
+    if (value !== undefined) {
+      params.append(key, value.toString());
     }
+  });
 
-    const queryString = params.toString();
-    const url = queryString ? `/campaigns?${queryString}` : '/campaigns';
+  const queryString = params.toString();
+  const url = queryString ? `campaigns?${queryString}` : 'campaigns';
 
-    const response = await http.get(url);
-    // Parse and transform response through schema
-    return CampaignListResponse.parse(response);
-  },
-
-  /**
-   * Get campaign by ID
-   * GET /api/campaigns/:id
-   */
-  getById: async (
-    id: string,
-    options?: Omit<Parameters<typeof http.get>[1], 'body'>
-  ) => {
-    const response = await http.get(`/campaigns/${id}`, options);
-    return SingleCampaignResponse.parse(response);
-  },
-
-  /**
-   * Update campaign
-   * PUT /api/campaigns/:id
-   */
-  update: (id: string, body: Partial<CreateCampaignDto>) => {
-    return http.put<SingleCampaignResponseType>(`/campaigns/${id}`, body);
-  },
-
-  /**
-   * Delete campaign
-   * DELETE /api/campaigns/:id
-   */
-  delete: (id: string) => {
-    return http.delete<{ message: string }>(`/campaigns/${id}`);
-  },
+  return http.get<CampaignList>(url, { dataSchema: CampaignListSchema });
 };
 
-export default campaignsApiRequest;
+// Get single campaign
+export const getCampaign = async (
+  id: string,
+  options?: Omit<Parameters<typeof http.get>[1], 'body'>
+): Promise<CampaignDetail> => {
+  return http.get<CampaignDetail>(`campaigns/${id}`, {
+    ...options,
+    dataSchema: CampaignDetailSchema,
+  });
+};
+
+// Create campaign
+export const createCampaign = async (
+  data: CreateCampaign
+): Promise<Campaign> => {
+  return http.post<Campaign>('campaigns', data, { dataSchema: CampaignSchema });
+};
+
+// Update campaign
+export const updateCampaign = async (
+  id: string,
+  data: UpdateCampaign
+): Promise<Campaign> => {
+  return http.put<Campaign>(`campaigns/${id}`, data, {
+    dataSchema: CampaignSchema,
+  });
+};
+
+// Delete campaign
+export const deleteCampaign = async (id: string): Promise<void> => {
+  return http.delete<void>(`campaigns/${id}`);
+};
+
+// Follow campaign
+export const followCampaign = async (
+  campaignId: string
+): Promise<{ success: boolean; message: string }> => {
+  return http.post<{ success: boolean; message: string }>(`campaign-follows`, {
+    campaignId,
+  });
+};
+
+// Unfollow campaign
+export const unfollowCampaign = async (
+  id: string
+): Promise<{ success: boolean; message: string }> => {
+  return http.delete<{ success: boolean; message: string }>(
+    `campaign-follows/${id}`
+  );
+};
+
+// Get follow status
+export const getFollowStatus = async (
+  campaignId: string
+): Promise<FollowStatus> => {
+  return http.get<FollowStatus>(`campaign-follows/${campaignId}/status`, {
+    dataSchema: FollowStatusSchema,
+  });
+};
+
+// Approve campaign (admin only)
+export const approveCampaign = async (id: string): Promise<Campaign> => {
+  return http.post<Campaign>(
+    `campaigns/${id}/approve`,
+    {},
+    { dataSchema: CampaignSchema }
+  );
+};
+
+// Reject campaign (admin only)
+export const rejectCampaign = async (
+  id: string,
+  reason: string
+): Promise<Campaign> => {
+  return http.post<Campaign>(
+    `campaigns/${id}/reject`,
+    { reason },
+    { dataSchema: CampaignSchema }
+  );
+};
+
+// Complete campaign
+export const completeCampaign = async (id: string): Promise<Campaign> => {
+  return http.post<Campaign>(
+    `campaigns/${id}/complete`,
+    {},
+    { dataSchema: CampaignSchema }
+  );
+};
+
+// Cancel campaign
+export const cancelCampaign = async (
+  id: string,
+  reason: string
+): Promise<Campaign> => {
+  return http.post<Campaign>(
+    `campaigns/${id}/cancel`,
+    { reason },
+    { dataSchema: CampaignSchema }
+  );
+};

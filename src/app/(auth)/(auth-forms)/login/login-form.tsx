@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-import authApiRequest from '@/apiRequests/auth';
+import { nextLogin } from '@/apiRequests/auth';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { LoginBodyType, LoginBody } from '@/schemaValidations/auth.schema';
@@ -45,7 +45,7 @@ function LoginForm() {
   const handleLogin = async (data: LoginBodyType) => {
     try {
       setIsLoading(true);
-      const response: any = await authApiRequest.nextLogin(data);
+      const response: any = await nextLogin(data);
       if (response) {
         // Lưu user info vào store
         const responseData = response as any;

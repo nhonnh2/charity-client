@@ -1,23 +1,71 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Heart, Share2 } from 'lucide-react';
-import { CampaignResponseType } from '@/schemaValidations/campaign.schema';
+import { CampaignDataSchema } from '@/schemaValidations/campaign.schema';
+import { z } from 'zod';
+import {
+  useMutationFollowCampaign,
+  useMutationUnfollowCampaign,
+  useQueryFollowStatus,
+} from '@/hooks/campaigns';
 
 interface CampaignActionsProps {
-  campaign: CampaignResponseType;
+  campaign: z.infer<typeof CampaignDataSchema>;
 }
 
 export default function CampaignActions({ campaign }: CampaignActionsProps) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
+  const { data: followStatus } = useQueryFollowStatus({
+    campaignId: campaign.id,
+  });
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount(prev => (isLiked ? prev - 1 : prev + 1));
-  };
+  // Local state for followers count
+  const [localFollowersCount, setLocalFollowersCount] = useState(
+    campaign.followersCount || 0
+  );
+
+  // Update local state when campaign prop changes
+  useEffect(() => {
+    setLocalFollowersCount(campaign.followersCount || 0);
+  }, [campaign.followersCount]);
+
+  const followMutation = useMutationFollowCampaign();
+  const unfollowMutation = useMutationUnfollowCampaign();
+
+  const handleToggleFollow = useCallback(async () => {
+    const currentlyFollowing = Boolean(followStatus?.isFollowing);
+    if (!currentlyFollowing) {
+      // Optimistic update
+      const previousCount = localFollowersCount;
+      setLocalFollowersCount((prev: number) => prev + 1);
+
+      followMutation.mutate(campaign.id, {
+        onError: () => {
+          // Rollback on error
+          setLocalFollowersCount(previousCount);
+        },
+      });
+    } else {
+      // Optimistic update
+      const previousCount = localFollowersCount;
+      setLocalFollowersCount((prev: number) => Math.max(0, prev - 1));
+
+      unfollowMutation.mutate(campaign.id, {
+        onError: () => {
+          // Rollback on error
+          setLocalFollowersCount(previousCount);
+        },
+      });
+    }
+  }, [
+    campaign.id,
+    followStatus?.isFollowing,
+    localFollowersCount,
+    followMutation,
+    unfollowMutation,
+  ]);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -41,15 +89,18 @@ export default function CampaignActions({ campaign }: CampaignActionsProps) {
       <Button
         variant='outline'
         size='sm'
-        onClick={handleLike}
+        onClick={handleToggleFollow}
+        disabled={followMutation.isPending || unfollowMutation.isPending}
         className={`flex items-center gap-2 transition-colors cursor-pointer ${
-          isLiked
+          followStatus?.isFollowing
             ? 'bg-red-50 text-red-600 border-red-300'
             : 'hover:bg-red-50 hover:text-red-600 hover:border-red-300'
         }`}
       >
-        <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-        <span className='font-medium'>{likeCount}</span>
+        <Heart
+          className={`h-4 w-4 ${followStatus?.isFollowing ? 'fill-current' : ''}`}
+        />
+        <span className='font-medium'>{localFollowersCount}</span>
         <span className='text-xs text-muted-foreground'>Quan tâm</span>
       </Button>
       <Button
@@ -60,7 +111,7 @@ export default function CampaignActions({ campaign }: CampaignActionsProps) {
       >
         <Share2 className='h-4 w-4' />
         <span className='font-medium'>
-          {campaign.shareCount.toLocaleString('vi-VN')}
+          {(campaign.shareCount || 0).toLocaleString('vi-VN')}
         </span>
         <span className='text-xs text-muted-foreground'>Chia sẻ</span>
       </Button>

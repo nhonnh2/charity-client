@@ -1,40 +1,113 @@
 import http from '@/lib/api/http';
-
 import {
-  LoginBodyType,
-  LoginResType,
-  RegisterBodyType,
-  RegisterResType,
+  RegisterResponseSchema,
+  LoginResponseSchema,
+  type LoginBody,
+  type RegisterBody,
+  type RegisterResponse,
+  type LoginResponse,
 } from '@/schemaValidations/auth.schema';
 
-const authApiRequest = {
-  login: (body: LoginBodyType) => http.post<LoginResType>('/auth/login', body),
-  register: (body: RegisterBodyType) =>
-    http.post<RegisterResType>('/auth/register', body),
-  refreshToken: (refreshBody: any) =>
-    http.post<LoginResType>('/auth/refresh', refreshBody),
-  auth: (body: { sessionToken: string; expiresAt: string }) =>
-    http.post('/api/auth', body, {
-      baseUrl: '',
-    }),
-  logout: (refreshBody: any) => http.post('/auth/logout', refreshBody),
-  nextLogout: () =>
-    http.post('api/auth/logout', null, {
-      baseUrl: '',
-    }),
-  nextLogin: (body: LoginBodyType) =>
-    http.post('/api/auth/login', body, {
-      baseUrl: '',
-    }),
-  nextRefreshToken: (csrfToken: string) =>
-    http.post(
-      '/api/auth/refresh',
-      {},
-      {
-        baseUrl: '',
-        headers: { ['x-csrf-token']: csrfToken },
-      }
-    ),
+// ============================================
+// QUERY TYPES
+// ============================================
+export type LoginQuery = {
+  email: string;
+  password: string;
 };
 
-export default authApiRequest;
+export type RegisterQuery = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+// ============================================
+// API METHODS - Sử dụng interceptor tự động
+// ============================================
+
+// Login user
+export const login = async (data: LoginBody): Promise<LoginResponse> => {
+  return http.post<LoginResponse>('auth/login', data, {
+    dataSchema: LoginResponseSchema,
+  });
+};
+
+// Register user
+export const register = async (
+  data: RegisterBody
+): Promise<RegisterResponse> => {
+  return http.post<RegisterResponse>('auth/register', data, {
+    dataSchema: RegisterResponseSchema,
+  });
+};
+
+// Refresh token
+export const refreshToken = async (
+  refreshBody: any
+): Promise<LoginResponse> => {
+  return http.post<LoginResponse>('auth/refresh', refreshBody, {
+    dataSchema: LoginResponseSchema,
+  });
+};
+
+// Logout user
+export const logout = async (
+  refreshBody: any
+): Promise<{ success: boolean; message: string }> => {
+  return http.post<{ success: boolean; message: string }>(
+    'auth/logout',
+    refreshBody
+  );
+};
+
+// ============================================
+// NEXT.JS API ROUTES - Cho server-side auth
+// ============================================
+
+// Next.js login
+export const nextLogin = async (data: LoginBody): Promise<LoginResponse> => {
+  return http.post<LoginResponse>('api/auth/login', data, {
+    baseUrl: '',
+    dataSchema: LoginResponseSchema,
+  });
+};
+
+// Next.js logout
+export const nextLogout = async (): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  return http.post<{ success: boolean; message: string }>(
+    'api/auth/logout',
+    null,
+    {
+      baseUrl: '',
+    }
+  );
+};
+
+// Next.js refresh token
+export const nextRefreshToken = async (
+  csrfToken: string
+): Promise<LoginResponse> => {
+  return http.post<LoginResponse>(
+    'api/auth/refresh',
+    {},
+    {
+      baseUrl: '',
+      headers: { ['x-csrf-token']: csrfToken },
+      dataSchema: LoginResponseSchema,
+    }
+  );
+};
+
+// Next.js auth session
+export const auth = async (body: {
+  sessionToken: string;
+  expiresAt: string;
+}): Promise<any> => {
+  return http.post('api/auth', body, {
+    baseUrl: '',
+  });
+};

@@ -20,7 +20,6 @@ import {
   MessageCircle,
   TrendingUp,
   AlertCircle,
-  Download,
   Target,
   Banknote,
   Users,
@@ -32,7 +31,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { CampaignResponseType } from '@/schemaValidations/campaign.schema';
 import { campaignStatus, campaignStatusClassName } from '@/constants/type';
 import { campaignCategoryLabels } from '@/constants/campaign';
 import { formatCurrency, formatDate } from '@/lib/utils';
@@ -77,7 +75,7 @@ export default async function CampaignDetailPage({
               <div className='space-y-1'>
                 <p className='text-xs text-muted-foreground'>Mục tiêu</p>
                 <p className='font-medium'>
-                  {formatCurrency(campaign.targetAmount)} VNĐ
+                  {formatCurrency(campaign.targetAmount || 0)} VNĐ
                 </p>
               </div>
               <div className='space-y-1'>
@@ -213,25 +211,25 @@ export default async function CampaignDetailPage({
             <div className='flex items-center space-x-4'>
               <Avatar className='h-10 w-10'>
                 <AvatarImage
-                  src={campaign.creatorId.avatar}
-                  alt={campaign.creatorId.name}
+                  src={campaign.creator?.avatar}
+                  alt={campaign.creator?.name || 'Creator'}
                 />
                 <AvatarFallback>
-                  {campaign.creatorId.name.charAt(0).toUpperCase()}
+                  {(campaign.creator?.name || 'C').charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <div className='flex items-center space-x-2'>
                   <span className='font-semibold'>
-                    {campaign.creatorId.name}
+                    {campaign.creator?.name || 'Unknown Creator'}
                   </span>
-                  {campaign.creatorId.reputation !== undefined && (
+                  {campaign.creator?.reputation !== undefined && (
                     <Badge
                       variant='outline'
                       className='bg-blue-50 text-blue-700'
                     >
                       <TrendingUp className='mr-1 h-3 w-3' />
-                      <span>Uy tín {campaign.creatorId.reputation}</span>
+                      <span>Uy tín {campaign.creator.reputation}</span>
                     </Badge>
                   )}
                 </div>
@@ -266,7 +264,7 @@ export default async function CampaignDetailPage({
             </CardHeader>
             <CardContent className='space-y-6'>
               {/* render info status */}
-              {renderInfoStatus(campaign.status)}
+              {renderInfoStatus(campaign.status || 'draft')}
               {/* Secondary Info - Campaign details */}
               <div className={`${!isPendingReview ? 'pt-4' : ''}`}>
                 <TooltipProvider>
@@ -277,7 +275,7 @@ export default async function CampaignDetailPage({
                           Mục tiêu
                         </p>
                         <p className='font-medium'>
-                          {formatCurrency(campaign.targetAmount)} VNĐ
+                          {formatCurrency(campaign.targetAmount || 0)} VNĐ
                         </p>
                       </div>
                     ) : (
@@ -403,7 +401,7 @@ export default async function CampaignDetailPage({
                 {/* Gallery */}
                 {campaign.gallery && campaign.gallery.length > 0 && (
                   <div className='grid grid-cols-2 gap-2 mt-4'>
-                    {campaign.gallery.map((image, index) => (
+                    {campaign.gallery.map((image: any, index: number) => (
                       <GalleryImage
                         key={image.id}
                         image={image}
@@ -426,7 +424,7 @@ export default async function CampaignDetailPage({
                 </CardDescription>
               </CardHeader>
               <CardContent className='space-y-6'>
-                {campaign.milestones.map((milestone, index) => (
+                {campaign.milestones.map((milestone: any, index: number) => (
                   <div key={index} className='space-y-4'>
                     <div className='flex items-start justify-between'>
                       <div className='flex items-start space-x-3'>
@@ -459,7 +457,7 @@ export default async function CampaignDetailPage({
                               </div>
                             </div>
                             <div className='flex items-center gap-2 flex-wrap'>
-                              {milestone.documents.map(doc => (
+                              {milestone.documents.map((doc: any) => (
                                 <DocumentButton key={doc.id} document={doc} />
                               ))}
                             </div>
@@ -589,7 +587,7 @@ export default async function CampaignDetailPage({
               </CardHeader>
               <CardContent>
                 <div className='flex flex-wrap gap-2'>
-                  {campaign.tags.map((tag, index) => (
+                  {campaign.tags.map((tag: string, index: number) => (
                     <Badge key={index} variant='outline'>
                       {tag}
                     </Badge>

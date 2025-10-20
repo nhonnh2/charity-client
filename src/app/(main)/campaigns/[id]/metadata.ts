@@ -22,7 +22,7 @@ export async function generateMetadata({
     campaign.description?.slice(0, 160) ||
     'Chi tiết chiến dịch gây quỹ, thông tin mục tiêu, tiến độ và minh bạch giao dịch.';
 
-  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/campaigns/${campaign._id}`;
+  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/campaigns/${campaign.id}`;
   const cover =
     campaign.coverImage?.url ||
     `${process.env.NEXT_PUBLIC_SITE_URL}/placeholder.jpg`;
@@ -39,10 +39,8 @@ export async function generateMetadata({
       campaign.title,
       campaign.category,
     ],
-    authors: [
-      { name: campaign.creatorName || campaign.creatorId?.name || 'Charity' },
-    ],
-    creator: campaign.creatorName || campaign.creatorId?.name || 'Charity',
+    authors: [{ name: campaign.creator?.name || 'Charity' }],
+    creator: campaign.creator?.name || 'Charity',
     publisher: 'Charity',
     formatDetection: {
       email: false,
@@ -93,10 +91,10 @@ export async function generateMetadata({
       google: process.env.GOOGLE_SITE_VERIFICATION,
     },
     other: {
-      'campaign:id': campaign._id,
-      'campaign:status': campaign.status,
+      'campaign:id': campaign.id,
+      'campaign:status': campaign.status || 'draft',
       'campaign:category': campaign.category,
-      'campaign:target_amount': campaign.targetAmount?.toString(),
+      'campaign:target_amount': campaign.targetAmount?.toString() || 0,
       'campaign:current_amount': campaign.currentAmount?.toString(),
     },
   };

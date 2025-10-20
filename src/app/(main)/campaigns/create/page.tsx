@@ -19,8 +19,9 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CreateCampaignFormSchema,
-  CreateCampaignFormType,
+  type CreateCampaignFormType,
 } from '@/schemaValidations/campaign.schema';
+import { type CreateCampaign } from '@/schemaValidations/campaign.schema';
 import { toast } from 'sonner';
 import {
   uploadCoverImage,
@@ -39,6 +40,7 @@ import VerifyForm from './components/verify-form';
 export default function CreateCampaignPage() {
   const router = useRouter();
   const [activeStep, setActiveStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
   // React Query mutation để tạo campaign
@@ -47,16 +49,22 @@ export default function CreateCampaignPage() {
       toast.success('Tạo chiến dịch thành công! Đang chuyển hướng...', {
         id: 'create-campaign',
       });
-      console.log('Campaign created:', data.data);
+      console.log('Campaign created:', data);
+
+      // Reset submitting state
+      setIsSubmitting(false);
 
       // Redirect to campaign detail page
       setTimeout(() => {
-        router.push(`/campaigns/${data.data._id}`);
+        router.push(`/campaigns/${data.id}`);
       }, 1000);
     },
     onError: error => {
       // Error đã được xử lý trong http client
       logErrorForDev(error, 'Campaign Creation');
+
+      // Reset submitting state on error
+      setIsSubmitting(false);
     },
   });
 
@@ -71,9 +79,8 @@ export default function CreateCampaignPage() {
       targetAmount: 0,
       startDate: '',
       endDate: '',
-      fundraisingDays: 30,
       coverImage: undefined,
-      images: [],
+      gallery: [],
       milestones: [
         {
           title: '',
@@ -86,7 +93,6 @@ export default function CreateCampaignPage() {
       reviewFee: 50000,
       identityFront: undefined,
       identityBack: undefined,
-      walletAddress: '',
       agreedToTerms: false,
     },
     mode: 'onTouched', // Only validate after user touches field
@@ -100,7 +106,7 @@ export default function CreateCampaignPage() {
     console.log('========== SUBMIT TRIGGERED ==========');
     console.log('handleSubmitCampaign_____', {
       activeStep,
-      isSubmitting: createCampaignMutation.isPending,
+      isSubmitting,
       data,
     });
 
@@ -111,7 +117,10 @@ export default function CreateCampaignPage() {
     }
 
     // Prevent double submission
-    if (createCampaignMutation.isPending) return;
+    if (isSubmitting || createCampaignMutation.isPending) return;
+
+    // Set submitting state immediately
+    setIsSubmitting(true);
 
     const loadingToast = toast.loading('Đang tạo chiến dịch...', {
       id: 'create-campaign',
@@ -131,13 +140,13 @@ export default function CreateCampaignPage() {
       }
 
       // 1.2 Upload gallery images
-      const imageCount = data.images?.length || 0;
+      const imageCount = data.gallery?.length || 0;
       if (imageCount > 0) {
         toast.loading(`Đang tải lên ${imageCount} hình ảnh...`, {
           id: loadingToast,
         });
       }
-      const gallery = await uploadGalleryImages(data.images || [], data.title);
+      const gallery = await uploadGalleryImages(data.gallery || [], data.title);
       if (gallery === null) {
         toast.error('Không thể tải lên gallery images', { id: loadingToast });
         return;
@@ -165,7 +174,6 @@ export default function CreateCampaignPage() {
         });
         return;
       }
-
       // ============================================
       // PHASE 2: Transform & Create Campaign
       // ============================================
@@ -190,6 +198,9 @@ export default function CreateCampaignPage() {
       // Log error for debugging in development
       logErrorForDev(error, 'Campaign Creation');
       toast.error('Có lỗi xảy ra khi tạo chiến dịch', { id: loadingToast });
+
+      // Reset submitting state on error
+      setIsSubmitting(false);
     }
   };
 
@@ -220,7 +231,7 @@ export default function CreateCampaignPage() {
         'startDate',
         'endDate',
         'coverImage',
-        'images',
+        'gallery',
       ] as const;
 
       const isValid = await form.trigger(step1Fields);
@@ -244,7 +255,7 @@ export default function CreateCampaignPage() {
         type,
         targetAmount,
         milestonesCount: milestones.length,
-        milestones: milestones.map((m, index) => ({
+        milestones: milestones.map((m: any, index: number) => ({
           index,
           title: m.title,
           description: m.description,
@@ -376,7 +387,7 @@ export default function CreateCampaignPage() {
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [activeStep]);
 
-  console.log('re_render_form_create____', activeStep);
+  console.log('re_render_form_create____', createCampaignMutation);
 
   return (
     <div className='container mx-auto px-4 py-6 max-w-7xl'>
@@ -394,7 +405,7 @@ export default function CreateCampaignPage() {
         <div className='lg:col-span-3 space-y-6' ref={formRef}>
           <Card>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmitCampaign)}>
+              <form onSubmit={form.handleSubmit(handleSubmitCampaign as any)}>
                 <CardHeader className='border-b'>
                   <div className='flex items-center justify-between'>
                     <div>
@@ -450,12 +461,12 @@ export default function CreateCampaignPage() {
                     <Button
                       className='bg-green-600 hover:bg-green-700'
                       type='submit'
-                      disabled={createCampaignMutation.isPending}
+                      disabled={isSubmitting}
                     >
-                      {createCampaignMutation.isPending
-                        ? 'Đang tạo...'
+                      {isSubmitting
+                        ? 'Đang tạo chiến dịch...'
                         : 'Tạo chiến dịch & Đóng phí duyệt'}
-                      {!createCampaignMutation.isPending &&
+                      {!isSubmitting &&
                         ` (${new Intl.NumberFormat('vi-VN').format(reviewFee || 0)} VNĐ)`}
                     </Button>
                   )}

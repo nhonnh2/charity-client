@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { EntityError, HttpError } from '@/lib/api/http';
-import { logoutOnce } from '@/lib/auth/single-flight';
 
-import authApiRequest from '@/apiRequests/auth';
+import { refreshToken as refreshTokenRequest } from '@/apiRequests/auth';
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -25,24 +24,24 @@ export async function POST(request: Request) {
   }
 
   try {
-    const response = await authApiRequest.refreshToken({ refreshToken });
-    if (response?.data) {
+    const response = await refreshTokenRequest({ refreshToken });
+    if (response) {
       const resNext = NextResponse.json({}, { status: 200 });
-      resNext.cookies.set('accessToken', response.data.accessToken ?? '', {
+      resNext.cookies.set('accessToken', response.accessToken ?? '', {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
       });
 
-      resNext.cookies.set('refreshToken', response.data.refreshToken ?? '', {
+      resNext.cookies.set('refreshToken', response.refreshToken ?? '', {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
       });
 
-      resNext.cookies.set('csrfToken', response.data.csrfToken ?? '', {
+      resNext.cookies.set('csrfToken', response.csrfToken ?? '', {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',

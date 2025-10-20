@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { EntityError, HttpError } from '@/lib/api/http';
 
-import authApiRequest from '@/apiRequests/auth';
+import { logout } from '@/apiRequests/auth';
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     );
   }
   try {
-    await authApiRequest.logout({ refreshToken });
+    await logout({ refreshToken });
 
     cookieStore.delete('accessToken');
     cookieStore.delete('refreshToken');

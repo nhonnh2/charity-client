@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { refreshOnce } from '@/lib/auth/single-flight';
-import authApiRequest from '@/apiRequests/auth';
+// No direct auth API usage in this file
 
 function RefreshToken() {
   const handleRefreshRef = useRef<any>(null);
@@ -25,6 +25,8 @@ function RefreshToken() {
     const res = await refreshOnce();
     if (res) {
       router.replace(pathNameRedirect);
+    } else {
+      router.replace('/logout');
     }
   };
 

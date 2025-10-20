@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Progress } from '@/components/ui/progress';
 import {
   Card,
   CardContent,
@@ -10,10 +9,11 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Wallet, Users, TrendingUp, DollarSign, Eye } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { CampaignStatusType } from '@/schemaValidations/campaign.schema';
-import { campaignCategoryLabels } from '@/constants/campaign';
+import { Users, DollarSign, Eye } from 'lucide-react';
+import {
+  campaignCategoryLabels,
+  CampaignStatusType,
+} from '@/constants/campaign';
 
 interface CampaignCardProps {
   id: string | number;
@@ -26,7 +26,7 @@ interface CampaignCardProps {
   status?: CampaignStatusType;
   disabledStatus?: boolean;
   // Props cho trạng thái chờ duyệt
-  interestedCount?: number;
+  followersCount?: number;
   // Props cho trạng thái đang triển khai
   phase?: string;
   totalPhases?: number;
@@ -49,7 +49,7 @@ export function CampaignCard({
   goal,
   progress,
   status,
-  interestedCount = 0,
+  followersCount = 0,
   disabledStatus = false,
   totalPhases,
   currentPhase,
@@ -111,7 +111,7 @@ export function CampaignCard({
                 <Users className='h-4 w-4' />
                 <span>Người quan tâm</span>
               </div>
-              <span className='font-medium'>{interestedCount}</span>
+              <span className='font-medium'>{followersCount}</span>
             </div>
             <div className='flex items-center justify-between text-sm'>
               <div className='text-muted-foreground'>Mục tiêu</div>
@@ -204,7 +204,7 @@ export function CampaignCard({
                         <Users className='h-4 w-4' />
                         Người quan tâm
                       </div>
-                      <span className='font-medium'>{interestedCount}</span>
+                      <span className='font-medium'>{followersCount}</span>
                     </div>
                     <div className='flex items-center justify-between text-sm'>
                       <div className='text-muted-foreground'>Mục tiêu</div>

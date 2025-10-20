@@ -1,16 +1,18 @@
 import { cache } from 'react';
-import campaignsApiRequest from '@/apiRequests/campaigns';
-import { CampaignResponseType } from '@/schemaValidations/campaign.schema';
+import { getCampaign } from '@/apiRequests/campaigns';
+import { CampaignDetailSchema } from '@/schemaValidations/campaign.schema';
+import { z } from 'zod';
 
 // Cached data fetching - tránh duplicate API calls
 export const getCampaignData = cache(
-  async (id: string): Promise<CampaignResponseType | null> => {
+  async (id: string): Promise<z.infer<typeof CampaignDetailSchema> | null> => {
     try {
-      const response = await campaignsApiRequest.getById(id, {
-        next: { revalidate: 300 }, // Cache 5 minutes
-      });
-      return response.data;
+      const response = await getCampaign(id, { next: { revalidate: 500 } });
+      return response;
     } catch (error) {
+      // Allow Next.js App Router redirects/notFound to propagate
+      const digest = (error as any)?.digest as string | undefined;
+
       console.error('Error fetching campaign:', error);
       return null;
     }

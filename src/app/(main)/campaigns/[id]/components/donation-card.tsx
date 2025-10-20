@@ -11,10 +11,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Wallet } from 'lucide-react';
-import { CampaignResponseType } from '@/schemaValidations/campaign.schema';
+import { CampaignDataSchema } from '@/schemaValidations/campaign.schema';
+import { z } from 'zod';
 
 interface DonationCardProps {
-  campaign: CampaignResponseType;
+  campaign: z.infer<typeof CampaignDataSchema>;
 }
 
 export default function DonationCard({ campaign }: DonationCardProps) {
@@ -25,7 +26,7 @@ export default function DonationCard({ campaign }: DonationCardProps) {
 
   const handleDonate = () => {
     // TODO: Implement donation logic
-    console.log('Donating:', { amount, message, campaignId: campaign._id });
+    console.log('Donating:', { amount, message, campaignId: campaign.id });
   };
 
   return (

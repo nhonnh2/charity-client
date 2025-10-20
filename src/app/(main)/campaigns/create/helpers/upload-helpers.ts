@@ -1,6 +1,6 @@
-import mediaApiRequest from '@/apiRequests/media';
-import { CreateCampaignFormType } from '@/schemaValidations/campaign.schema';
-import { MediaObject } from '@/apiRequests/campaigns';
+import { uploadMedia } from '@/apiRequests/media';
+import { type CreateCampaignFormType } from '@/schemaValidations/campaign.schema';
+import { type MediaObject } from '@/schemaValidations/common.schema';
 import { detectMediaType } from '@/lib/utils/file';
 
 /**
@@ -12,7 +12,7 @@ export const uploadCoverImage = async (
   campaignTitle: string
 ): Promise<MediaObject | null> => {
   try {
-    const response = await mediaApiRequest.upload({
+    const response = await uploadMedia({
       file,
       type: detectMediaType(file),
       description: `Cover image for campaign: ${campaignTitle}`,
@@ -21,9 +21,9 @@ export const uploadCoverImage = async (
     });
 
     return {
-      id: response.data.id,
-      url: response.data.url,
-      name: response.data.originalName || file.name,
+      id: response.id,
+      url: response.url,
+      name: response.originalName || file.name,
     };
   } catch (error) {
     console.error('Error uploading cover image:', error);
@@ -46,7 +46,7 @@ export const uploadGalleryImages = async (
   try {
     const imageUploads = await Promise.all(
       images.map((image, index) =>
-        mediaApiRequest.upload({
+        uploadMedia({
           file: image,
           type: detectMediaType(image),
           description: `Gallery image ${index + 1} for campaign: ${campaignTitle}`,
@@ -57,9 +57,9 @@ export const uploadGalleryImages = async (
     );
 
     return imageUploads.map((u, index) => ({
-      id: u.data.id,
-      url: u.data.url,
-      name: u.data.originalName || images[index].name,
+      id: u.id,
+      url: u.url,
+      name: u.originalName || images[index].name,
     }));
   } catch (error) {
     console.error('Error uploading gallery images:', error);
@@ -77,14 +77,14 @@ export const uploadIdentityImages = async (
 ): Promise<{ front: MediaObject; back: MediaObject } | null> => {
   try {
     const [frontResponse, backResponse] = await Promise.all([
-      mediaApiRequest.upload({
+      uploadMedia({
         file: frontFile,
         type: detectMediaType(frontFile),
         description: 'Identity image (front)',
         tags: ['identity', 'verification'],
         isPublic: false,
       }),
-      mediaApiRequest.upload({
+      uploadMedia({
         file: backFile,
         type: detectMediaType(backFile),
         description: 'Identity image (back)',
@@ -95,14 +95,14 @@ export const uploadIdentityImages = async (
 
     return {
       front: {
-        id: frontResponse.data.id,
-        url: frontResponse.data.url,
-        name: frontResponse.data.originalName || frontFile.name,
+        id: frontResponse.id,
+        url: frontResponse.url,
+        name: frontResponse.originalName || frontFile.name,
       },
       back: {
-        id: backResponse.data.id,
-        url: backResponse.data.url,
-        name: backResponse.data.originalName || backFile.name,
+        id: backResponse.id,
+        url: backResponse.url,
+        name: backResponse.originalName || backFile.name,
       },
     };
   } catch (error) {
@@ -126,7 +126,7 @@ const uploadMilestoneDocuments = async (
   try {
     const docUploads = await Promise.all(
       documents.map((doc, docIndex) =>
-        mediaApiRequest.upload({
+        uploadMedia({
           file: doc,
           type: detectMediaType(doc),
           description: `Milestone ${milestoneIndex + 1} - Document ${docIndex + 1}`,
@@ -137,9 +137,9 @@ const uploadMilestoneDocuments = async (
     );
 
     return docUploads.map((u, index) => ({
-      id: u.data.id,
-      url: u.data.url,
-      name: u.data.originalName || documents[index].name,
+      id: u.id,
+      url: u.url,
+      name: u.originalName || documents[index].name,
     }));
   } catch (error) {
     console.error(
@@ -165,7 +165,7 @@ export const uploadAllMilestoneDocuments = async (
 }> | null> => {
   try {
     const milestonesWithDocs = await Promise.all(
-      milestones.map(async (milestone, index) => {
+      milestones.map(async (milestone: any, index: number) => {
         const documents = await uploadMilestoneDocuments(
           milestone.documents || [],
           index

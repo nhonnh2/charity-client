@@ -61,4 +61,3 @@ export const queryKeys = {
   auth: authKeys,
   media: mediaKeys,
 };
-

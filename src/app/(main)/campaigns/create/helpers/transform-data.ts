@@ -1,5 +1,8 @@
-import { CreateCampaignDto, MediaObject } from '@/apiRequests/campaigns';
-import { CreateCampaignFormType } from '@/schemaValidations/campaign.schema';
+import {
+  type CreateCampaign,
+  CreateCampaignFormType,
+} from '@/schemaValidations/campaign.schema';
+import { type MediaObject } from '@/schemaValidations/common.schema';
 
 /**
  * Transform form data to API DTO
@@ -20,31 +23,26 @@ export const transformFormToApiData = (
       documents: MediaObject[];
     }>;
   }
-): CreateCampaignDto => {
+): CreateCampaign => {
   return {
     // Basic Info
+    title: formData.title,
+    description: formData.description,
     type: formData.type === 'regular' ? 'normal' : formData.type, // Convert 'regular' → 'normal'
     fundingType: formData.fundingType,
-    title: formData.title,
-    category: formData.category,
-    description: formData.description,
     targetAmount: formData.targetAmount,
-    fundraisingDays: formData.fundraisingDays,
-    startDate: new Date(formData.startDate).toISOString(),
-    endDate: new Date(formData.endDate).toISOString(),
+    reviewFee: formData.reviewFee,
+    category: formData.category,
+    tags: formData.tags,
+    startDate: formData.startDate,
+    endDate: formData.endDate,
+    fundraisingDays: formData.fundraisingDays || 90, // Default 90 days if not provided
+
+    // Milestones
+    milestones: uploadedMedia.milestones,
 
     // Media Objects
     coverImage: uploadedMedia.coverImage,
-    gallery:
-      uploadedMedia.gallery.length > 0 ? uploadedMedia.gallery : undefined,
-
-    // Milestones with document objects
-    milestones: uploadedMedia.milestones,
-
-    // Verification
-    reviewFee: formData.reviewFee,
-    // identityFront: uploadedMedia.identityFront,
-    // identityBack: uploadedMedia.identityBack,
-    // walletAddress: formData.walletAddress,
+    gallery: uploadedMedia.gallery,
   };
 };

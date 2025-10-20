@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-import authApiRequest from '@/apiRequests/auth';
+import { register, nextLogin } from '@/apiRequests/auth';
 import { useAuthStore } from '@/stores/auth-store';
 
 import {
@@ -49,12 +49,10 @@ function RegisterForm() {
       // Chỉ gửi name, email, password cho API backend
       const { confirmPassword, ...registerData } = data;
 
-      const reRegister = await authApiRequest.register(
-        registerData as RegisterBodyType
-      );
+      const reRegister = await register(registerData as RegisterBodyType);
 
       if (reRegister) {
-        const resLogin = await authApiRequest.nextLogin({
+        const resLogin = await nextLogin({
           email: registerData.email,
           password: registerData.password,
         });

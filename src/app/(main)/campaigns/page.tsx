@@ -26,7 +26,6 @@ export default function CampaignsPage() {
 
   // Fetch campaigns với React Query
   const { data, isLoading, error, refetch } = useQueryCampaigns({ filters });
-
   // Extract data từ response
   const campaigns = data?.items || [];
   const pagination = data?.pagination || {
@@ -98,8 +97,8 @@ export default function CampaignsPage() {
           >
             {campaigns.map(campaign => (
               <CampaignCard
-                key={campaign._id}
-                id={campaign._id}
+                key={campaign.id}
+                id={campaign.id}
                 title={campaign.title}
                 description={campaign.description}
                 imageSrc={campaign.coverImage?.url || '/placeholder-image.jpg'}
@@ -115,7 +114,7 @@ export default function CampaignsPage() {
                       )
                     : 0
                 }
-                interestedCount={campaign.interestedCount || 0}
+                followersCount={campaign.followersCount || 0}
                 spent={campaign.spentAmount || 0}
                 budget={campaign.targetAmount || 0}
                 phase={`Giai đoạn ${campaign.completedMilestones || 0}/${campaign.totalMilestones || 0}`}
