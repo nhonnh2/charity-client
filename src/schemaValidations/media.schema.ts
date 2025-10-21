@@ -25,7 +25,17 @@ export type SortField = z.infer<typeof SortFieldSchema>;
 // ============================================
 
 export const UploadMediaBodySchema = z.object({
-  file: z.instanceof(File, { message: 'File là bắt buộc' }),
+  file: z.any().refine(
+    val => {
+      // Check if running in browser environment and val is File instance
+      if (typeof window !== 'undefined' && val instanceof File) {
+        return true;
+      }
+      // For server-side, accept any object that looks like a file
+      return val && typeof val === 'object' && 'name' in val && 'size' in val;
+    },
+    { message: 'File là bắt buộc' }
+  ),
   type: MediaTypeSchema,
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),

@@ -5,18 +5,10 @@ import { normalizePath } from '@/lib/utils/path';
 import { readCookie, readHeader } from '@/lib/auth/server';
 import { refreshOnce, logoutOnce } from '@/lib/auth/single-flight';
 import { getApiErrorMessage, logErrorForDev } from '@/lib/api/errors';
+import { BaseResponseSchema } from '@/schemaValidations/common.schema';
 
 import { redirect } from 'next/navigation';
 import { toast } from 'sonner';
-
-// Base response schema - chuẩn format từ backend
-const BaseResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
-  z.object({
-    data: dataSchema,
-    statusCode: z.number(),
-    message: z.string(),
-    timestamp: z.string().transform(str => new Date(str)),
-  });
 
 type CustomOptions = Omit<RequestInit, 'method'> & {
   baseUrl?: string | undefined;

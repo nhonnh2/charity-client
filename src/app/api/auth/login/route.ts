@@ -8,22 +8,23 @@ export async function POST(request: Request) {
     const body = await request.json();
     const response = await login(body);
     if (response) {
+      const responseData = response.data;
       const resNext = NextResponse.json(response, { status: 200 });
-      resNext.cookies.set('accessToken', response.accessToken ?? '', {
+      resNext.cookies.set('accessToken', responseData.accessToken ?? '', {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
       });
 
-      resNext.cookies.set('refreshToken', response.refreshToken ?? '', {
+      resNext.cookies.set('refreshToken', responseData.refreshToken ?? '', {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
       });
 
-      resNext.cookies.set('csrfToken', response.csrfToken ?? '', {
+      resNext.cookies.set('csrfToken', responseData.csrfToken ?? '', {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',

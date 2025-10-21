@@ -1,12 +1,12 @@
 import http from '@/lib/api/http';
 import {
-  RegisterResponseSchema,
   LoginResponseSchema,
   type LoginBody,
   type RegisterBody,
   type RegisterResponse,
   type LoginResponse,
-} from '@/schemaValidations/auth.schema';
+  type BaseResponse,
+} from '@/schemaValidations';
 
 // ============================================
 // QUERY TYPES
@@ -27,8 +27,13 @@ export type RegisterQuery = {
 // ============================================
 
 // Login user
-export const login = async (data: LoginBody): Promise<LoginResponse> => {
-  return http.post<LoginResponse>('auth/login', data);
+export const login = async (
+  data: LoginBody
+): Promise<BaseResponse<typeof LoginResponseSchema>> => {
+  return http.post<BaseResponse<typeof LoginResponseSchema>>(
+    'auth/login',
+    data
+  );
 };
 
 // Register user
@@ -41,10 +46,14 @@ export const register = async (
 // Refresh token
 export const refreshToken = async (
   refreshBody: any
-): Promise<LoginResponse> => {
-  return http.post<LoginResponse>('auth/refresh', refreshBody, {
-    dataSchema: LoginResponseSchema,
-  });
+): Promise<BaseResponse<typeof LoginResponseSchema>> => {
+  return http.post<BaseResponse<typeof LoginResponseSchema>>(
+    'auth/refresh',
+    refreshBody,
+    {
+      dataSchema: LoginResponseSchema,
+    }
+  );
 };
 
 // Logout user

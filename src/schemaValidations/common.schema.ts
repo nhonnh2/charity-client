@@ -1,5 +1,17 @@
 import { z } from 'zod';
 
+// Base response schema - chuẩn format từ backend
+export const BaseResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    data: dataSchema,
+    statusCode: z.number(),
+    message: z.string(),
+    timestamp: z.string().transform(str => new Date(str)),
+  });
+
+export type BaseResponse<T extends z.ZodTypeAny> = z.infer<
+  ReturnType<typeof BaseResponseSchema<T>>
+>;
 /**
  * Pagination schema - có thể tái sử dụng cho tất cả các API có phân trang
  */
