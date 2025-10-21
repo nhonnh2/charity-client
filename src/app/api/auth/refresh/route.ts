@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   try {
     const response = await refreshTokenRequest({ refreshToken });
     if (response) {
-      const resNext = NextResponse.json({}, { status: 200 });
+      const resNext = NextResponse.json(response, { status: 200 });
       resNext.cookies.set('accessToken', response.accessToken ?? '', {
         httpOnly: true,
         sameSite: 'lax',

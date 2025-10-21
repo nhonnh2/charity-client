@@ -58,13 +58,12 @@ function RegisterForm() {
         });
         if (resLogin) {
           // Lưu user info vào store
-          const responseData = resLogin as any;
           const userData = {
-            id: parseInt(responseData.data.user.id),
-            name: responseData.data.user.name,
-            email: responseData.data.user.email,
-            role: responseData.data.user.role,
-            avatar: responseData.data.user.avatar,
+            id: parseInt(resLogin.user.id),
+            name: resLogin.user.name,
+            email: resLogin.user.email,
+            role: resLogin.user.role,
+            avatar: resLogin.user.avatar,
           };
           setUser(userData);
 

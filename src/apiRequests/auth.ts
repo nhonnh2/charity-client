@@ -28,18 +28,14 @@ export type RegisterQuery = {
 
 // Login user
 export const login = async (data: LoginBody): Promise<LoginResponse> => {
-  return http.post<LoginResponse>('auth/login', data, {
-    dataSchema: LoginResponseSchema,
-  });
+  return http.post<LoginResponse>('auth/login', data);
 };
 
 // Register user
 export const register = async (
   data: RegisterBody
 ): Promise<RegisterResponse> => {
-  return http.post<RegisterResponse>('auth/register', data, {
-    dataSchema: RegisterResponseSchema,
-  });
+  return http.post<RegisterResponse>('auth/register', data);
 };
 
 // Refresh token

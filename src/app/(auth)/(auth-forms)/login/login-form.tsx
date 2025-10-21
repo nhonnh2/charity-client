@@ -48,13 +48,12 @@ function LoginForm() {
       const response: any = await nextLogin(data);
       if (response) {
         // Lưu user info vào store
-        const responseData = response as any;
         const userData = {
-          id: parseInt(responseData.data.user.id),
-          name: responseData.data.user.name,
-          email: responseData.data.user.email,
-          role: responseData.data.user.role,
-          avatar: responseData.data.user.avatar,
+          id: parseInt(response.user.id),
+          name: response.user.name,
+          email: response.user.email,
+          role: response.user.role,
+          avatar: response.user.avatar,
         };
         setUser(userData);
 
